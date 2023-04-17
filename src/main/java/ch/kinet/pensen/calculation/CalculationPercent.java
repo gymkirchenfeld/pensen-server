@@ -78,6 +78,10 @@ public final class CalculationPercent extends Calculation {
                 lessons = percent.map((s, p) -> type.percentToLessons(employment.withoutAgeRelief(s, p)));
             }
 
+            // Runde Lektionen auf zwei Dezimalstellen
+            lessons = lessons.map((s, l) -> Math.round(l * 100) / 100.0);
+            // Runde Prozente auf drei Dezimalstellen
+            percent = percent.map((s, l) -> Math.round(l * 1000) / 1000.0);
             payroll.add(type, lessons, percent);
         });
 
