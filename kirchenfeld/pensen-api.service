@@ -1,0 +1,14 @@
+[Unit]
+Description=Pensen Server
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=simple
+Environment=LC_ALL=de_CH.UTF-8
+WorkingDirectory=/srv/pensen-server
+ExecStart=java -cp /srv/pensen-server/pensen-server.jar -Dconfig.file=/srv/etc/pensen-server/application.cfg ch.kinet.pensen.server.Server
+Restart=on-failure
+LimitNOFILE=10000
+
+[Install]
+WantedBy=multi-user.target
