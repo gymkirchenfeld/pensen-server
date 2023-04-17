@@ -78,13 +78,24 @@ public final class PayrollCSVDownload extends JobImplementation {
             csv.append(teacher.getBirthday());
             csv.append(workload.ageReliefFactor(semester));
             csv.append(roundPercent(workload.getEmployment().payment().get(semester)));
-//            csv.append(Math.round(payroll.roundingDifference(semester) * 10000.0) / 10000.0);
-            payroll.items().forEachOrdered(item -> {
-                if (item.payrollType().lessonBased()) {
-                    csv.append(item.lessons().get(semester));
+            pensenData.payrollTypes().forEachOrdered(payrollType -> {
+                Payroll.Item item = payroll.getItem(payrollType);
+                if (payrollType.lessonBased()) {
+                    if (item == null) {
+                        csv.append();
+                    }
+                    else {
+                        csv.append(item.lessons().get(semester));
+                    }
                 }
 
-                csv.append(item.percent().get(semester));
+                if (item == null) {
+                    csv.append();
+                }
+                else {
+
+                    csv.append(item.percent().get(semester));
+                }
             });
             //
         });
@@ -100,7 +111,6 @@ public final class PayrollCSVDownload extends JobImplementation {
         result.add("Geburtsdatum");
         result.add("Altersentlastung");
         result.add("Auszahlung");
-        result.add("Rundungsdifferenz %");
         pensenData.payrollTypes().forEachOrdered(payrollType -> {
             if (payrollType.lessonBased()) {
                 result.add(payrollType.getCode() + " L");

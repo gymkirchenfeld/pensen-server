@@ -42,6 +42,10 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
     private Payroll() {
     }
 
+    public Item getItem(PayrollType type) {
+        return itemMap.get(type);
+    }
+
     public SemesterValue percent() {
         return SemesterValue.copy(totalPercent);
     }
