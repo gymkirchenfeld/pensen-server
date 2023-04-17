@@ -21,10 +21,11 @@ import ch.kinet.Util;
 import ch.kinet.pdf.Alignment;
 import ch.kinet.pdf.Border;
 import ch.kinet.pdf.Document;
-import ch.kinet.pensen.data.Division;
-import ch.kinet.pensen.data.Employment;
+import ch.kinet.pdf.VerticalAlignment;
 import ch.kinet.pensen.calculation.Courses;
 import ch.kinet.pensen.calculation.Workload;
+import ch.kinet.pensen.data.Division;
+import ch.kinet.pensen.data.Employment;
 
 public final class TeacherCoursePDFGenerator {
 
@@ -52,6 +53,7 @@ public final class TeacherCoursePDFGenerator {
         Division division = workload.getEmployment().getDivision();
         pdf.beginTable(20, 60, 20);
         pdf.addCell(division.getLogo(), 200, 18);
+        pdf.setVerticalAlignment(VerticalAlignment.Bottom);
         pdf.setFontSize(12);
         StringBuilder title = new StringBuilder();
         if (!workload.getSchoolYear().isFinalised()) {
