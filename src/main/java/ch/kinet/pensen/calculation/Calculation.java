@@ -35,6 +35,8 @@ public abstract class Calculation {
         switch (mode.getId()) {
             case 1:
                 return new CalculationPercent(employment);
+            case 2:
+                return new CalculationLessons(employment);
             case 99:
                 return new CalculationHistoric(employment, defaultType);
             default:
