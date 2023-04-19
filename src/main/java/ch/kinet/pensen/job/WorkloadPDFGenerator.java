@@ -23,6 +23,7 @@ import ch.kinet.pdf.Border;
 import ch.kinet.pdf.Document;
 import ch.kinet.pdf.VerticalAlignment;
 import ch.kinet.pensen.calculation.Courses;
+import ch.kinet.pensen.calculation.Payroll;
 import ch.kinet.pensen.calculation.Pool;
 import ch.kinet.pensen.calculation.Summary;
 import ch.kinet.pensen.calculation.Theses;
@@ -104,7 +105,6 @@ public final class WorkloadPDFGenerator {
     }
 
     private void courseBlock() {
-        Teacher t = workload.getTeacher();
         courseHeader();
         workload.courses().items().forEachOrdered(item -> {
             pdf.addCell(item.subject().getDescription(), Alignment.Left);
@@ -286,15 +286,16 @@ public final class WorkloadPDFGenerator {
     }
 
     private void payrollBlock() {
+        Payroll payroll = workload.payroll();
         payrollHeader();
-        workload.payroll().items().forEachOrdered(item -> {
+        payroll.items().forEachOrdered(item -> {
             pdf.addCell(item.description(), Alignment.Left);
             pdf.addCell(Format.lessons(item.lessons().semester1()), Alignment.Right);
             pdf.addCell(Format.percent(item.percent().semester1(), false), Alignment.Right);
             pdf.addCell(Format.lessons(item.lessons().semester2()), Alignment.Right);
             pdf.addCell(Format.percent(item.percent().semester2(), false), Alignment.Right);
         });
-        payrollFooter();
+        payrollFooter(payroll);
     }
 
     private void payrollHeader() {
@@ -311,8 +312,16 @@ public final class WorkloadPDFGenerator {
         pdf.setNormal();
     }
 
-    private void payrollFooter() {
-        pdf.endTable();;
+    private void payrollFooter(Payroll payroll) {
+
+        pdf.setBold();
+        pdf.addCell("Total", Alignment.Left, Border.Top);
+        pdf.addCell("", Alignment.Right, Border.Top);
+        pdf.addCell(Format.percent(payroll.percent().semester1(), false), Alignment.Right, Border.Top);
+        pdf.addCell("", Alignment.Right, Border.Top);
+        pdf.addCell(Format.percent(payroll.percent().semester2(), false), Alignment.Right, Border.Top);
+        pdf.setNormal();
+        pdf.endTable();
     }
 
     private void balanceBlock() {
