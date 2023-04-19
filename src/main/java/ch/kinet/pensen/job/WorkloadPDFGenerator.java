@@ -317,7 +317,7 @@ public final class WorkloadPDFGenerator {
 
     private void balanceBlock() {
         Employment e = workload.getEmployment();
-        double payment = -(e.getPayment1() + e.getPayment2()) / 2.0;
+        double payment = workload.payroll().percent().mean();
         double openingBalance = e.getOpeningBalance();
         double closingBalance = workload.getClosingBalance();
         double change = closingBalance - openingBalance;

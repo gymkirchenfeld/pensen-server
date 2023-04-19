@@ -76,6 +76,10 @@ public final class SemesterValue {
         }
     }
 
+    public double mean() {
+        return (semester1 + semester2) / 2.0;
+    }
+
     public double semester1() {
         return semester1;
     }
