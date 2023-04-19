@@ -326,7 +326,6 @@ public final class WorkloadPDFGenerator {
 
     private void balanceBlock() {
         Employment e = workload.getEmployment();
-        double payment = workload.payroll().percent().mean();
         double openingBalance = e.getOpeningBalance();
         double closingBalance = workload.getClosingBalance();
         double change = closingBalance - openingBalance;
@@ -358,7 +357,7 @@ public final class WorkloadPDFGenerator {
         // line 4
         pdf.addCell("", Alignment.Center);
         pdf.addCell("Auszahlung", Alignment.Left);
-        pdf.addCell(Format.percent(payment, true), Alignment.Right);
+        pdf.addCell(Format.percent(workload.payment(), true), Alignment.Right);
 
         // line 5
         pdf.addCell("", Alignment.Left);

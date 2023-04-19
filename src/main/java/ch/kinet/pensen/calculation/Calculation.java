@@ -121,7 +121,8 @@ public abstract class Calculation {
         summary.add("Pool", percent.semester1(), percent.semester2());
 
         calculatePayroll();
-        return new Workload(employment, courses, pool, theses, postings, summary, payroll);
+        double payment = calculatePayment();
+        return new Workload(employment, courses, pool, theses, postings, summary, payroll, payment);
     }
 
     void sumPayrollLessons(PayrollType type, SemesterEnum semester, double lessons) {
@@ -143,6 +144,8 @@ public abstract class Calculation {
     }
 
     abstract void addToPayroll(PayrollType type, SemesterEnum semester, double value);
+
+    abstract double calculatePayment();
 
     abstract void calculatePayroll();
 

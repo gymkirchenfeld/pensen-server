@@ -50,7 +50,7 @@ public final class Workload implements Json {
     private double closingBalance;
 
     Workload(Employment employment, Courses courses, Pool pool, Theses theses, Postings postings, Summary summary,
-             Payroll payroll) {
+             Payroll payroll, double payment) {
         ageReliefFactor1 = employment.ageReliefFactor(SemesterEnum.First);
         ageReliefFactor2 = employment.ageReliefFactor(SemesterEnum.Second);
         teacher = employment.getTeacher();
@@ -62,7 +62,7 @@ public final class Workload implements Json {
         this.theses = theses;
         this.summary = summary;
         this.payroll = payroll;
-        payment = payroll.percent().mean();
+        this.payment = payment;
 
         closingBalance = employment.getOpeningBalance();
         closingBalance += summary.total().percentWithAgeRelief();
@@ -108,6 +108,10 @@ public final class Workload implements Json {
 
     public Teacher getTeacher() {
         return teacher;
+    }
+
+    public double payment() {
+        return payment;
     }
 
     public Payroll payroll() {

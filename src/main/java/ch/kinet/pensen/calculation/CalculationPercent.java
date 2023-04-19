@@ -47,6 +47,11 @@ public final class CalculationPercent extends Calculation {
     }
 
     @Override
+    double calculatePayment() {
+        return payroll.percent().mean();
+    }
+
+    @Override
     void calculatePayroll() {
         // Differenz zwischen Auszahlung und tatsächlichem Pensum berechnen
         SemesterValue diff = employment.payment().map(

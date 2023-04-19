@@ -47,6 +47,11 @@ public final class CalculationHistoric extends Calculation {
     }
 
     @Override
+    double calculatePayment() {
+        return employment.payment().mean();
+    }
+
+    @Override
     void calculatePayroll() {
         // Differenz zwischen Auszahlung und tatsächlichem Pensum berechnen
         SemesterValue diff = employment.payment().map(
