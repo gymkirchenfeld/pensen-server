@@ -317,13 +317,22 @@ public final class PensenData extends BaseData implements Context {
             Condition.and(
                 Condition.equals(PoolEntry.DB_SCHOOL_YEAR, schoolYear),
                 Condition.equals(PoolEntry.DB_TEACHER, teacher)
-            ));
+            )
+        );
         getConnection().delete(
             schema, Posting.class,
             Condition.and(
                 Condition.equals(Posting.DB_SCHOOL_YEAR, schoolYear),
                 Condition.equals(Posting.DB_TEACHER, teacher)
-            ));
+            )
+        );
+        getConnection().delete(
+            schema, ThesisEntry.class,
+            Condition.and(
+                Condition.equals(ThesisEntry.DB_SCHOOL_YEAR, schoolYear),
+                Condition.equals(ThesisEntry.DB_TEACHER, teacher)
+            )
+        );
         loadAllCourses(schoolYear).filter(course -> course.contains(teacher)).forEachOrdered(course -> {
             removeTeacher(course, teacher);
         });
