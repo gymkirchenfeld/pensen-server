@@ -745,6 +745,10 @@ public final class PensenData extends BaseData implements Context {
     }
 
     public void recalculateBalance(Employment employment) {
+        if (employment == null) {
+            return;
+        }
+
         Workload workload = loadWorkload(employment);
         employment.setClosingBalance(workload.getClosingBalance());
         getConnection().update(schema, employment, Employment.DB_CLOSING_BALANCE);
