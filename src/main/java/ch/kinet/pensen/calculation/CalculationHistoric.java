@@ -53,6 +53,7 @@ public final class CalculationHistoric extends Calculation {
 
     @Override
     void calculatePayroll() {
+        // Die Teilanstellung GYM2-4 muss zwingend vorhanden sein, um die Differenz buchen zu können.
         payrollMap.ensureType(defaultType);
         // Differenz zwischen Auszahlung und tatsächlichem Pensum berechnen
         SemesterValue diff = employment.payment().map(
