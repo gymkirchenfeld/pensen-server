@@ -112,4 +112,15 @@ public final class SemesterValue {
             action.apply(SemesterEnum.Second, semester2)
         );
     }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append("(");
+        result.append(semester1);
+        result.append(", ");
+        result.append(semester2);
+        result.append(")");
+        return result.toString();
+    }
 }
