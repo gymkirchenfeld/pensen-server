@@ -31,23 +31,22 @@ final class PayrollMap {
         return new PayrollMap();
     }
 
-    private final Map<SemesterEnum, Map<PayrollType, Double>> payrollMap = new HashMap<>();
+    private final Map<PayrollType, SemesterValue> payrollMap = new HashMap<>();
     private final SortedSet<PayrollType> payrollTypes = new TreeSet<>();
 
     private PayrollMap() {
-        for (SemesterEnum semester : SemesterEnum.values()) {
-            payrollMap.put(semester, new HashMap<>());
-        }
     }
 
     void add(PayrollType type, SemesterEnum semester, double value) {
-        payrollTypes.add(type);
-        Map<PayrollType, Double> semesterMap = payrollMap.get(semester);
-        if (semesterMap.containsKey(type)) {
-            value += semesterMap.get(type);
-        }
+        ensureType(type);
+        payrollMap.get(type).add(semester, value);
+    }
 
-        semesterMap.put(type, value);
+    void ensureType(PayrollType type) {
+        payrollTypes.add(type);
+        if (!payrollMap.containsKey(type)) {
+            payrollMap.put(type, SemesterValue.create());
+        }
     }
 
     SemesterValue get(PayrollType type) {
@@ -55,8 +54,11 @@ final class PayrollMap {
     }
 
     double get(SemesterEnum semester, PayrollType type) {
-        Map<PayrollType, Double> semesterMap = payrollMap.get(semester);
-        return semesterMap.containsKey(type) ? semesterMap.get(type) : 0.0;
+        if (!payrollMap.containsKey(type)) {
+            return 0.0;
+        }
+
+        return payrollMap.get(type).get(semester);
     }
 
     Stream<PayrollType> types() {
