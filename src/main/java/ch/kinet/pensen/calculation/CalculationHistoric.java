@@ -53,6 +53,7 @@ public final class CalculationHistoric extends Calculation {
 
     @Override
     void calculatePayroll() {
+        payrollMap.ensureType(defaultType);
         // Differenz zwischen Auszahlung und tatsächlichem Pensum berechnen
         SemesterValue diff = employment.payment().map(
             (s, payment) -> payment - employment.withAgeRelief(s, totalPercent.get(s))
