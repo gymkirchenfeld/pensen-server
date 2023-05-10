@@ -37,13 +37,15 @@ public final class CalculationPercent extends Calculation {
 
     @Override
     void addToPayroll(PayrollType type, SemesterEnum semester, double value) {
-        // Alle Berechnungen werden in Prozent durchgeführt
+        // Intern werden alle Berechnungen in Prozent durchgeführt
         if (type.lessonBased()) {
             value = type.lessonsToPercent(value);
         }
 
-        totalPercent.add(semester, value);
+        // Intern werden alle Berechnungen inklusive Altersentlastung durchgeführt
+        value = employment.withAgeRelief(semester, value);
         payrollMap.add(type, semester, value);
+        totalPercent.add(semester, value);
     }
 
     @Override
@@ -53,17 +55,20 @@ public final class CalculationPercent extends Calculation {
 
     @Override
     void calculatePayroll() {
-        // Differenz zwischen Auszahlung und tatsächlichem Pensum berechnen
+        // Differenz zwischen Auszahlungsziel und tatsächlichem Pensum berechnen
         SemesterValue diff = employment.paymentTarget().map(
-            (s, payment) -> payment - employment.withAgeRelief(s, totalPercent.get(s))
+            (s, payment) -> payment - totalPercent.get(s)
         );
-
+        System.out.println("Differenz zum Verbuchen: " + diff);
+        // Differenz in vorgegebener Reihenfolge bei verschiedenen Teilanstellungen verbuchen
         payrollMap.types().sorted(SALDO_RESOLVING_ORDER).forEachOrdered(type -> {
+            System.out.println(type + ": " + payrollMap.get(type));
             SemesterValue percent = payrollMap.get(type).map((s, p) -> {
                 // Berechne Prozentwert inklusive Altersentlastung
-                double result = employment.withAgeRelief(s, p);
+                double result = p;
                 // Addiere die Differenz zwischen Auszahlung und Pensum
                 result += diff.get(s);
+                System.out.println("result=" + result);
                 if (result < 0) {
                     // negatives Pensum kann nicht gemeldet werden, buche auf nächste Teilanstellung
                     diff.set(s, -result);

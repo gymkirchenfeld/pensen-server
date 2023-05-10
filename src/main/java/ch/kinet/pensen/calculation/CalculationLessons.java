@@ -42,7 +42,7 @@ public final class CalculationLessons extends Calculation {
             value = type.lessonsToPercent(value);
         }
 
-        // Intern werden alle Berechnungen inkl. AE durchgeführt.
+        // Intern werden alle Berechnungen inklusive Altersentlastung durchgeführt
         value = employment.withAgeRelief(semester, value);
         payrollMap.add(type, semester, value);
         totalPercent.add(semester, value);
@@ -55,7 +55,7 @@ public final class CalculationLessons extends Calculation {
 
     @Override
     void calculatePayroll() {
-        // Differenz zwischen Auszahlungziel und tatsächlichem Pensum berechnen
+        // Differenz zwischen Auszahlungsziel und tatsächlichem Pensum berechnen
         SemesterValue diff = employment.paymentTarget().map(
             (s, payment) -> payment - totalPercent.get(s)
         );
@@ -63,7 +63,6 @@ public final class CalculationLessons extends Calculation {
         payrollMap.types().sorted(SALDO_RESOLVING_ORDER).forEachOrdered(type -> {
             SemesterValue percent = payrollMap.get(type).map((s, p) -> {
                 // Berechne Prozentwert inklusive Altersentlastung
-
                 double result = p;
                 // Addiere die Differenz zwischen Auszahlung und Pensum
                 result += diff.get(s);
