@@ -68,7 +68,7 @@ public final class CalculationLessons extends Calculation {
                 result += diff.get(s);
                 if (result < 0) {
                     // negatives Pensum kann nicht gemeldet werden, buche auf nächste Teilanstellung
-                    diff.set(s, -result);
+                    diff.set(s, result);
                     result = 0;
                 }
                 else {

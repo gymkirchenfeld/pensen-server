@@ -71,7 +71,7 @@ public final class CalculationPercent extends Calculation {
                 System.out.println("result=" + result);
                 if (result < 0) {
                     // negatives Pensum kann nicht gemeldet werden, buche auf nächste Teilanstellung
-                    diff.set(s, -result);
+                    diff.set(s, result);
                     result = 0;
                 }
                 else {
