@@ -193,7 +193,6 @@ public final class CourseResource extends EntityResource<Course> {
 
         Set<String> changed = new HashSet<>();
         Set<Teacher> affectedTeachers = new HashSet<>(object.teachers().collect(Collectors.toSet()));
-        boolean recalculate = false;
 
         boolean cancelled = data.getBoolean(Course.JSON_CANCELLED, false);
         if (!Util.equal(object.isCancelled(), cancelled)) {
@@ -211,14 +210,14 @@ public final class CourseResource extends EntityResource<Course> {
         if (!Util.equal(object.getLessons1(), lessons1)) {
             object.setLessons1(lessons1);
             changed.add(Course.DB_LESSONS_1);
-            recalculate = true;
+            object.teachers(SemesterEnum.First).forEachOrdered(t -> affectedTeachers.add(t));
         }
 
         double lessons2 = data.getDouble(Course.JSON_LESSONS_2);
         if (!Util.equal(object.getLessons2(), lessons2)) {
             object.setLessons2(lessons2);
             changed.add(Course.DB_LESSONS_2);
-            recalculate = true;
+            object.teachers(SemesterEnum.Second).forEachOrdered(t -> affectedTeachers.add(t));
         }
 
         Set<Teacher> teachers1 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_1));
@@ -227,7 +226,6 @@ public final class CourseResource extends EntityResource<Course> {
             object.setTeachers1(teachers1.stream());
             affectedTeachers.addAll(teachers1);
             changed.add(Course.DB_TEACHER_IDS_1);
-            recalculate = true;
         }
 
         Set<Teacher> teachers2 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_2));
@@ -236,7 +234,6 @@ public final class CourseResource extends EntityResource<Course> {
             object.setTeachers2(teachers2.stream());
             affectedTeachers.addAll(teachers2);
             changed.add(Course.DB_TEACHER_IDS_2);
-            recalculate = true;
         }
 
         pensenData.updateCourse(object, changed);
