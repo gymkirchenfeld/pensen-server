@@ -77,7 +77,7 @@ public final class PayrollCSVDownload extends JobImplementation {
             csv.append(teacher.getFirstName());
             csv.append(teacher.getBirthday());
             csv.append(workload.ageReliefFactor(semester));
-            csv.append(roundPercent(workload.getEmployment().payment().get(semester)));
+            csv.append(roundPercent(workload.payroll().percent().get(semester)));
             pensenData.payrollTypes().forEachOrdered(payrollType -> {
                 Payroll.Item item = payroll.getItem(payrollType);
                 if (payrollType.lessonBased()) {
