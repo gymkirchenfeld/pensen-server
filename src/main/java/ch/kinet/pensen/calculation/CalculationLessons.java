@@ -56,7 +56,7 @@ public final class CalculationLessons extends Calculation {
     @Override
     void calculatePayroll() {
         // Differenz zwischen Auszahlungziel und tatsächlichem Pensum berechnen
-        SemesterValue diff = employment.payment().map(
+        SemesterValue diff = employment.paymentTarget().map(
             (s, payment) -> payment - totalPercent.get(s)
         );
         // Differenz in vorgegebener Reihenfolge bei verschiedenen Teilanstellungen verbuchen

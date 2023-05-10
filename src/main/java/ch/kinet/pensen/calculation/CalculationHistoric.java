@@ -48,7 +48,7 @@ public final class CalculationHistoric extends Calculation {
 
     @Override
     double calculatePayment() {
-        return employment.payment().mean();
+        return employment.paymentTarget().mean();
     }
 
     @Override
@@ -56,7 +56,7 @@ public final class CalculationHistoric extends Calculation {
         // Die Teilanstellung GYM2-4 muss zwingend vorhanden sein, um die Differenz buchen zu können.
         payrollMap.ensureType(defaultType);
         // Differenz zwischen Auszahlung und tatsächlichem Pensum berechnen
-        SemesterValue diff = employment.payment().map(
+        SemesterValue diff = employment.paymentTarget().map(
             (s, payment) -> payment - employment.withAgeRelief(s, totalPercent.get(s))
         );
 

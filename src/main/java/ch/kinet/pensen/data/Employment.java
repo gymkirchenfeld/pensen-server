@@ -128,7 +128,7 @@ public final class Employment extends Entity {
         return temporary;
     }
 
-    public SemesterValue payment() {
+    public SemesterValue paymentTarget() {
         return SemesterValue.create(payment1, payment2);
     }
 
