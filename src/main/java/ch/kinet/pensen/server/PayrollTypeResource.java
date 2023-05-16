@@ -37,6 +37,6 @@ public final class PayrollTypeResource extends GlobalResource {
 
     @Override
     protected Response get(Authorisation auth, Query query) {
-        return Response.jsonTerse(pensenData.payrollTypes());
+        return Response.jsonTerse(pensenData.streamPayrollTypes());
     }
 }

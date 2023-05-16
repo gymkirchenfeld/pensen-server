@@ -125,7 +125,6 @@ public final class PensenData extends BaseData implements Context {
 
         subjectTypes.addAll(getConnection().selectAll(schema, SubjectType.class));
         subjects.addAll(getConnection().selectAll(schema, Subject.class));
-//        convertThesisEntries();
     }
 
     public Curriculum copyCurriculum(Curriculum original) {
@@ -827,7 +826,7 @@ public final class PensenData extends BaseData implements Context {
         return grades.stream();
     }
 
-    public Stream<PayrollType> payrollTypes() {
+    public Stream<PayrollType> streamPayrollTypes() {
         return payrollTypes.stream();
     }
 
