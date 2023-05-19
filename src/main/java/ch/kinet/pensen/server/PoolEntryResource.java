@@ -48,23 +48,27 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
         String description = data.getString(PoolEntry.JSON_DESCRIPTION);
         double percent1 = data.getDouble(PoolEntry.JSON_PERCENT_1);
         double percent2 = data.getDouble(PoolEntry.JSON_PERCENT_2);
+        if (percent1 < 0 || percent2 < 0) {
+            return Response.badRequest("Negative Poolbuchungen sind nicht erlaubt.");
+        }
+
         SchoolYear schoolYear = pensenData.getSchoolYearById(data.getObjectId(PoolEntry.JSON_SCHOOL_YEAR, -1));
         if (schoolYear == null) {
-            return Response.badRequest();
+            return Response.badRequest("Ein Schuljahr muss ausgewählt werden.");
         }
 
         if (schoolYear.isArchived()) {
-            return Response.forbidden();
+            return Response.badRequest("Buchungen in archivierten Schuljahren können nicht verändert werden.");
         }
 
         Teacher teacher = pensenData.getTeacherById(data.getObjectId(PoolEntry.JSON_TEACHER, -1));
         if (teacher == null) {
-            return Response.badRequest();
+            return Response.badRequest("Eine Lehrperson muss ausgewählt werden.");
         }
 
         PoolType type = pensenData.getPoolTypeById(data.getObjectId(PoolEntry.JSON_TYPE, -1));
         if (type == null) {
-            return Response.badRequest();
+            return Response.badRequest("Ein Typ muss ausgewählt werden.");
         }
 
         PoolEntry result = pensenData.createPoolEntry(description, percent1, percent2, schoolYear, teacher, type);
@@ -127,29 +131,39 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
         boolean recalculate = false;
 
         String description = data.getString(PoolEntry.JSON_DESCRIPTION);
+        double percent1 = data.getDouble(PoolEntry.JSON_PERCENT_1);
+        double percent2 = data.getDouble(PoolEntry.JSON_PERCENT_2);
+        if (percent1 < 0 || percent2 < 0) {
+            return Response.badRequest("Negative Poolbuchungen sind nicht erlaubt.");
+        }
+
+        Teacher teacher = pensenData.getTeacherById(data.getObjectId(PoolEntry.JSON_TEACHER, -1));
+        if (teacher == null) {
+            return Response.badRequest("Eine Lehrperson muss ausgewählt werden.");
+        }
+
+        PoolType type = pensenData.getPoolTypeById(data.getObjectId(PoolEntry.JSON_TYPE, -1));
+        if (type == null) {
+            return Response.badRequest("Ein Typ muss ausgewählt werden.");
+        }
+
         if (!Util.equal(object.getDescription(), description)) {
             object.setDescription(description);
             changed.add(PoolEntry.DB_DESCRIPTION);
         }
 
-        double percent1 = data.getDouble(PoolEntry.JSON_PERCENT_1);
         if (!Util.equal(object.getPercent1(), percent1)) {
             object.setPercent1(percent1);
             changed.add(PoolEntry.DB_PERCENT_1);
             recalculate = true;
         }
 
-        double percent2 = data.getDouble(PoolEntry.JSON_PERCENT_2);
         if (!Util.equal(object.getPercent2(), percent2)) {
             object.setPercent2(percent2);
             changed.add(PoolEntry.DB_PERCENT_2);
             recalculate = true;
         }
 
-        Teacher teacher = pensenData.getTeacherById(data.getObjectId(PoolEntry.JSON_TEACHER, -1));
-        if (teacher == null) {
-            return Response.badRequest();
-        }
         if (!Util.equal(object.getTeacher(), teacher)) {
             // recalculate balance of previous teacher
             pensenData.recalculateBalance(object.getSchoolYear(), object.getTeacher());
@@ -158,10 +172,6 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
             recalculate = true;
         }
 
-        PoolType type = pensenData.getPoolTypeById(data.getObjectId(PoolEntry.JSON_TYPE, -1));
-        if (type == null) {
-            return Response.badRequest();
-        }
         if (!Util.equal(object.getType(), type)) {
             object.setType(type);
             changed.add(PoolEntry.DB_TYPE);
