@@ -20,8 +20,9 @@ import ch.kinet.http.Query;
 import ch.kinet.http.Response;
 import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.PensenData;
+import ch.kinet.pensen.data.PoolType;
 
-public final class PoolTypeResource extends GlobalResource {
+public final class PoolTypeResource extends EntityResource<PoolType> {
 
     private PensenData pensenData;
 
@@ -31,12 +32,17 @@ public final class PoolTypeResource extends GlobalResource {
     }
 
     @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
         return authorisation != null;
     }
 
     @Override
-    protected Response get(Authorisation auth, Query query) {
+    protected Response list(Authorisation auth, Query query) {
         return Response.jsonTerse(pensenData.streamPoolTypes());
+    }
+
+    @Override
+    protected PoolType loadObject(int id) {
+        return pensenData.getPoolTypeById(id);
     }
 }

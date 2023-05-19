@@ -19,9 +19,10 @@ package ch.kinet.pensen.server;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
 import ch.kinet.pensen.data.Authorisation;
+import ch.kinet.pensen.data.Gender;
 import ch.kinet.pensen.data.PensenData;
 
-public final class GenderResource extends GlobalResource {
+public final class GenderResource extends EntityResource<Gender> {
 
     private PensenData pensenData;
 
@@ -31,12 +32,17 @@ public final class GenderResource extends GlobalResource {
     }
 
     @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
         return authorisation != null;
     }
 
     @Override
-    protected Response get(Authorisation auth, Query query) {
+    protected Response list(Authorisation auth, Query query) {
         return Response.jsonTerse(pensenData.streamGenders());
+    }
+
+    @Override
+    protected Gender loadObject(int id) {
+        return pensenData.getGenderById(id);
     }
 }
