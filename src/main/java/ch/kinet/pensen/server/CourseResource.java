@@ -104,7 +104,7 @@ public final class CourseResource extends EntityResource<Course> {
         }
 
         if (schoolYear.isArchived()) {
-            return Response.forbidden();
+            return Response.badRequest("Zu archivierten Schuljahren können keine Kurse hinzugefügt werden.");
         }
 
         Subject subject = pensenData.getSubjectById(data.getObjectId(Course.JSON_SUBJECT, -1));
@@ -150,6 +150,10 @@ public final class CourseResource extends EntityResource<Course> {
 
         double lessons1 = data.getDouble(Course.JSON_LESSONS_1, 0.0);
         double lessons2 = data.getDouble(Course.JSON_LESSONS_2, 0.0);
+        if (lessons1 < 0 || lessons2 < 0) {
+            return Response.badRequest("Negative Lektionenzahlen sind nicht erlaubt.");
+        }
+
         String comments = data.getString(Course.JSON_COMMENTS);
         Set<Teacher> teachers1 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_1));
         Set<Teacher> teachers2 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_2));
@@ -173,13 +177,17 @@ public final class CourseResource extends EntityResource<Course> {
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
         if (object.getSchoolYear().isArchived()) {
-            return Response.forbidden();
+            return Response.badRequest("Kurse in archivierten Schuljahren können nicht verändert werden.");
         }
 
         boolean cancelled = data.getBoolean(Course.JSON_CANCELLED, false);
         String comments = data.getString(Course.JSON_COMMENTS);
         double lessons1 = data.getDouble(Course.JSON_LESSONS_1);
         double lessons2 = data.getDouble(Course.JSON_LESSONS_2);
+        if (lessons1 < 0 || lessons2 < 0) {
+            return Response.badRequest("Negative Lektionenzahlen sind nicht erlaubt.");
+        }
+
         Set<Teacher> teachers1 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_1));
         Set<Teacher> teachers2 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_2));
 

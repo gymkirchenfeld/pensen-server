@@ -94,7 +94,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
         }
 
         if (schoolYear.isArchived()) {
-            return Response.forbidden();
+            return Response.badRequest("Zu archivierten Schuljahren können keine Anstellungen hinzugefügt werden.");
         }
 
         Teacher teacher = pensenData.getTeacherById(data.getObjectId(Employment.JSON_TEACHER, -1));
@@ -105,8 +105,16 @@ public final class EmploymentResource extends EntityResource<Employment> {
         String comments = data.getString(Employment.JSON_COMMENTS);
         double employmentMax = data.getDouble(Employment.JSON_EMPLOYMENT_MAX);
         double employmentMin = data.getDouble(Employment.JSON_EMPLOYMENT_MIN);
+        if (employmentMin < 0 || employmentMax < 0) {
+            return Response.badRequest("Negative Anstellungsprozente sind nicht erlaubt.");
+        }
+
         double payment1 = data.getDouble(Employment.JSON_PAYMENT1);
         double payment2 = data.getDouble(Employment.JSON_PAYMENT2);
+        if (payment1 < 0 || payment2 < 0) {
+            return Response.badRequest("Negative Aunzahlungsprozente sind nicht erlaubt.");
+        }
+
         boolean temporary = data.getBoolean(Employment.JSON_TEMPORARY, false);
         return Response.json(pensenData.createEmployment(
             schoolYear, teacher, division, employmentMax, employmentMin, payment1, payment2, temporary, comments
@@ -121,7 +129,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
         if (object.getSchoolYear().isArchived()) {
-            return Response.forbidden();
+            return Response.badRequest("Anstellungen in archivierten Schuljahren können nicht verändert werden.");
         }
 
         String comments = data.getString(Employment.JSON_COMMENTS);
@@ -132,8 +140,16 @@ public final class EmploymentResource extends EntityResource<Employment> {
 
         double employmentMax = data.getDouble(Employment.JSON_EMPLOYMENT_MAX);
         double employmentMin = data.getDouble(Employment.JSON_EMPLOYMENT_MIN);
+        if (employmentMin < 0 || employmentMax < 0) {
+            return Response.badRequest("Negative Anstellungsprozente sind nicht erlaubt.");
+        }
+
         double payment1 = data.getDouble(Employment.JSON_PAYMENT1);
         double payment2 = data.getDouble(Employment.JSON_PAYMENT2);
+        if (payment1 < 0 || payment2 < 0) {
+            return Response.badRequest("Negative Aunzahlungsprozente sind nicht erlaubt.");
+        }
+
         boolean temporary = data.getBoolean(Employment.JSON_TEMPORARY, false);
 
         Set<String> changed = new HashSet<>();

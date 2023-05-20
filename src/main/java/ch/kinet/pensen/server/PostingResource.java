@@ -87,7 +87,7 @@ public final class PostingResource extends EntityResource<Posting> {
         }
 
         if (schoolYear.isArchived()) {
-            return Response.forbidden();
+            return Response.badRequest("Zu archivierten Schuljahren können keine Buchungen hinzugefügt werden.");
         }
 
         Teacher teacher = pensenData.getTeacherById(data.getObjectId(Posting.JSON_TEACHER, -1));
@@ -110,7 +110,7 @@ public final class PostingResource extends EntityResource<Posting> {
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
         if (object.getSchoolYear().isArchived()) {
-            return Response.forbidden();
+            return Response.badRequest("Buchungen in archivierten Schuljahren können nicht verändert werden.");
         }
 
         String description = data.getString(Posting.JSON_DESCRIPTION);

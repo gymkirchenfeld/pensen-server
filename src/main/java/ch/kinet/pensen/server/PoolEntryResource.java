@@ -83,7 +83,7 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
         }
 
         if (schoolYear.isArchived()) {
-            return Response.badRequest("Buchungen in archivierten Schuljahren können nicht verändert werden.");
+            return Response.badRequest("Zu archivierten Schuljahren können keine Buchungen hinzugefügt werden.");
         }
 
         Teacher teacher = pensenData.getTeacherById(data.getObjectId(PoolEntry.JSON_TEACHER, -1));
@@ -109,14 +109,14 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
         if (object.getSchoolYear().isArchived()) {
-            return Response.forbidden();
+            return Response.badRequest("Buchungen in archivierten Schuljahren können nicht verändert werden.");
         }
 
         String description = data.getString(PoolEntry.JSON_DESCRIPTION);
         double percent1 = data.getDouble(PoolEntry.JSON_PERCENT_1);
         double percent2 = data.getDouble(PoolEntry.JSON_PERCENT_2);
         if (percent1 < 0 || percent2 < 0) {
-            return Response.badRequest("Negative Poolbuchungen sind nicht erlaubt.");
+            return Response.badRequest("Negative Prozentangaben sind nicht erlaubt.");
         }
 
         Teacher teacher = pensenData.getTeacherById(data.getObjectId(PoolEntry.JSON_TEACHER, -1));

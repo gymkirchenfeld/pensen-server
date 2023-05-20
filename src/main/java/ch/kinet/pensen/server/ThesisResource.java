@@ -98,6 +98,10 @@ public class ThesisResource extends ObjectResource {
 
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
+        if (schoolYear.isArchived()) {
+            return Response.badRequest("Abschlussarbeiten in archivierten Schuljahren können nicht verändert werden.");
+        }
+
         EntityMap<ThesisType> thesisCounts = EntityMap.parseJson(data, JSON_THESIS_COUNTS, pensenData.streamThesisTypes(), 0);
         pensenData.saveThesisEntries(schoolYear, teacher, thesisCounts);
         pensenData.recalculateBalance(schoolYear, teacher);
