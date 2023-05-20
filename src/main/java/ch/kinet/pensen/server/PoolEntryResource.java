@@ -39,6 +39,31 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
     }
 
     @Override
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response list(Authorisation authorisation, Query query) {
+        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt("schoolYear", -1));
+        if (schoolYear == null) {
+            return Response.badRequest();
+        }
+
+        return Response.jsonTerse(pensenData.loadPoolEntries(schoolYear));
+    }
+
+    @Override
+    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response get(Authorisation authorisation, Query query) {
+        return Response.json(object);
+    }
+
+    @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -77,46 +102,6 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
     }
 
     @Override
-    protected boolean isDeleteAllowed(Authorisation authorisation) {
-        return authorisation != null && authorisation.isAdmin();
-    }
-
-    @Override
-    protected Response delete(Authorisation authorisation) {
-        if (object.getSchoolYear().isArchived()) {
-            return Response.forbidden();
-        }
-
-        pensenData.deletePoolEntry(object);
-        return Response.noContent();
-    }
-
-    @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
-    }
-
-    @Override
-    protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response list(Authorisation authorisation, Query query) {
-        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt("schoolYear", -1));
-        if (schoolYear == null) {
-            return Response.badRequest();
-        }
-
-        return Response.jsonTerse(pensenData.loadPoolEntries(schoolYear));
-    }
-
-    @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -126,9 +111,6 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
         if (object.getSchoolYear().isArchived()) {
             return Response.forbidden();
         }
-
-        Set<String> changed = new HashSet<>();
-        boolean recalculate = false;
 
         String description = data.getString(PoolEntry.JSON_DESCRIPTION);
         double percent1 = data.getDouble(PoolEntry.JSON_PERCENT_1);
@@ -147,6 +129,8 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
             return Response.badRequest("Ein Typ muss ausgewählt werden.");
         }
 
+        Set<String> changed = new HashSet<>();
+        boolean recalculate = false;
         if (!Util.equal(object.getDescription(), description)) {
             object.setDescription(description);
             changed.add(PoolEntry.DB_DESCRIPTION);
@@ -183,6 +167,21 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
         }
 
         return Response.json(data);
+    }
+
+    @Override
+    protected boolean isDeleteAllowed(Authorisation authorisation) {
+        return authorisation != null && authorisation.isAdmin();
+    }
+
+    @Override
+    protected Response delete(Authorisation authorisation) {
+        if (object.getSchoolYear().isArchived()) {
+            return Response.forbidden();
+        }
+
+        pensenData.deletePoolEntry(object);
+        return Response.noContent();
     }
 
     @Override

@@ -49,6 +49,41 @@ public final class CourseResource extends EntityResource<Course> {
     }
 
     @Override
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response list(Authorisation authorisation, Query query) {
+        if (!query.hasKey("schoolYear")) {
+            return Response.badRequest();
+        }
+
+        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt("schoolYear", -1));
+        if (schoolYear == null) {
+            return Response.notFound();
+        }
+
+        if (query.hasKey("crossClass")) {
+            boolean crossClass = query.getBoolean("crossClass", true);
+            return Response.jsonTerse(pensenData.loadCourses(schoolYear, crossClass));
+        }
+        else {
+            return Response.jsonTerse(pensenData.loadAllCourses(schoolYear));
+        }
+    }
+
+    @Override
+    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response get(Authorisation authorisation, Query query) {
+        return Response.json(object);
+    }
+
+    @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -131,6 +166,68 @@ public final class CourseResource extends EntityResource<Course> {
     }
 
     @Override
+    protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
+        return authorisation != null && authorisation.isAdmin();
+    }
+
+    @Override
+    protected Response update(Authorisation authorisation, JsonObject data) {
+        if (object.getSchoolYear().isArchived()) {
+            return Response.forbidden();
+        }
+
+        boolean cancelled = data.getBoolean(Course.JSON_CANCELLED, false);
+        String comments = data.getString(Course.JSON_COMMENTS);
+        double lessons1 = data.getDouble(Course.JSON_LESSONS_1);
+        double lessons2 = data.getDouble(Course.JSON_LESSONS_2);
+        Set<Teacher> teachers1 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_1));
+        Set<Teacher> teachers2 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_2));
+
+        Set<String> changed = new HashSet<>();
+        Set<Teacher> affectedTeachers = new HashSet<>(object.teachers().collect(Collectors.toSet()));
+
+        if (!Util.equal(object.isCancelled(), cancelled)) {
+            object.setCancelled(cancelled);
+            changed.add(Course.DB_CANCELLED);
+        }
+
+        if (!Util.equal(object.getComments(), comments)) {
+            object.setComments(comments);
+            changed.add(Course.DB_COMMENTS);
+        }
+
+        if (!Util.equal(object.getLessons1(), lessons1)) {
+            object.setLessons1(lessons1);
+            changed.add(Course.DB_LESSONS_1);
+            object.teachers(SemesterEnum.First).forEachOrdered(t -> affectedTeachers.add(t));
+        }
+
+        if (!Util.equal(object.getLessons2(), lessons2)) {
+            object.setLessons2(lessons2);
+            changed.add(Course.DB_LESSONS_2);
+            object.teachers(SemesterEnum.Second).forEachOrdered(t -> affectedTeachers.add(t));
+        }
+
+        SetComparison<Teacher> changes1 = SetComparison.create(Util.createSet(object.teachers(SemesterEnum.First)), teachers1);
+        if (changes1.hasChanges()) {
+            object.setTeachers1(teachers1.stream());
+            affectedTeachers.addAll(teachers1);
+            changed.add(Course.DB_TEACHER_IDS_1);
+        }
+
+        SetComparison<Teacher> changes2 = SetComparison.create(Util.createSet(object.teachers(SemesterEnum.Second)), teachers2);
+        if (changes2.hasChanges()) {
+            object.setTeachers2(teachers2.stream());
+            affectedTeachers.addAll(teachers2);
+            changed.add(Course.DB_TEACHER_IDS_2);
+        }
+
+        pensenData.updateCourse(object, changed);
+        affectedTeachers.stream().forEachOrdered(teacher -> pensenData.recalculateBalance(object.getSchoolYear(), teacher));
+        return Response.json(data);
+    }
+
+    @Override
     protected boolean isDeleteAllowed(Authorisation authorisation) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -143,102 +240,6 @@ public final class CourseResource extends EntityResource<Course> {
 
         pensenData.deleteCourse(object);
         return Response.noContent();
-    }
-
-    @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
-    }
-
-    @Override
-    protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response list(Authorisation authorisation, Query query) {
-        if (!query.hasKey("schoolYear")) {
-            return Response.badRequest();
-        }
-
-        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt("schoolYear", -1));
-        if (schoolYear == null) {
-            return Response.notFound();
-        }
-
-        if (query.hasKey("crossClass")) {
-            boolean crossClass = query.getBoolean("crossClass", true);
-            return Response.jsonTerse(pensenData.loadCourses(schoolYear, crossClass));
-        }
-        else {
-            return Response.jsonTerse(pensenData.loadAllCourses(schoolYear));
-        }
-    }
-
-    @Override
-    protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isAdmin();
-    }
-
-    @Override
-    protected Response update(Authorisation authorisation, JsonObject data) {
-        if (object.getSchoolYear().isArchived()) {
-            return Response.forbidden();
-        }
-
-        Set<String> changed = new HashSet<>();
-        Set<Teacher> affectedTeachers = new HashSet<>(object.teachers().collect(Collectors.toSet()));
-
-        boolean cancelled = data.getBoolean(Course.JSON_CANCELLED, false);
-        if (!Util.equal(object.isCancelled(), cancelled)) {
-            object.setCancelled(cancelled);
-            changed.add(Course.DB_CANCELLED);
-        }
-
-        String comments = data.getString(Course.JSON_COMMENTS);
-        if (!Util.equal(object.getComments(), comments)) {
-            object.setComments(comments);
-            changed.add(Course.DB_COMMENTS);
-        }
-
-        double lessons1 = data.getDouble(Course.JSON_LESSONS_1);
-        if (!Util.equal(object.getLessons1(), lessons1)) {
-            object.setLessons1(lessons1);
-            changed.add(Course.DB_LESSONS_1);
-            object.teachers(SemesterEnum.First).forEachOrdered(t -> affectedTeachers.add(t));
-        }
-
-        double lessons2 = data.getDouble(Course.JSON_LESSONS_2);
-        if (!Util.equal(object.getLessons2(), lessons2)) {
-            object.setLessons2(lessons2);
-            changed.add(Course.DB_LESSONS_2);
-            object.teachers(SemesterEnum.Second).forEachOrdered(t -> affectedTeachers.add(t));
-        }
-
-        Set<Teacher> teachers1 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_1));
-        SetComparison<Teacher> changes1 = SetComparison.create(Util.createSet(object.teachers(SemesterEnum.First)), teachers1);
-        if (changes1.hasChanges()) {
-            object.setTeachers1(teachers1.stream());
-            affectedTeachers.addAll(teachers1);
-            changed.add(Course.DB_TEACHER_IDS_1);
-        }
-
-        Set<Teacher> teachers2 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_2));
-        SetComparison<Teacher> changes2 = SetComparison.create(Util.createSet(object.teachers(SemesterEnum.Second)), teachers2);
-        if (changes2.hasChanges()) {
-            object.setTeachers2(teachers2.stream());
-            affectedTeachers.addAll(teachers2);
-            changed.add(Course.DB_TEACHER_IDS_2);
-        }
-
-        pensenData.updateCourse(object, changed);
-        affectedTeachers.stream().forEachOrdered(teacher -> pensenData.recalculateBalance(object.getSchoolYear(), teacher));
-        return Response.json(data);
     }
 
     @Override

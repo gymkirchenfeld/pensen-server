@@ -38,6 +38,26 @@ public final class CurriculumResource extends EntityResource<Curriculum> {
     }
 
     @Override
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response list(Authorisation auth, Query query) {
+        return Response.jsonVerbose(pensenData.streamCurriculums());
+    }
+
+    @Override
+    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response get(Authorisation authorisation, Query query) {
+        return Response.json(object);
+    }
+
+    @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -64,46 +84,27 @@ public final class CurriculumResource extends EntityResource<Curriculum> {
     }
 
     @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
-    }
-
-    @Override
-    protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response list(Authorisation auth, Query query) {
-        return Response.jsonVerbose(pensenData.streamCurriculums());
-    }
-
-    @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
 
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
-        Set<String> changed = new HashSet<>();
         boolean archived = data.getBoolean(Curriculum.JSON_ARCHIVED, false);
+        String code = data.getString(Curriculum.JSON_CODE);
+        String description = data.getString(Curriculum.JSON_DESCRIPTION);
+
+        Set<String> changed = new HashSet<>();
         if (!Util.equal(object.isArchived(), archived)) {
             object.setArchived(archived);
             changed.add(Curriculum.DB_ARCHIVED);
         }
 
-        String code = data.getString(Curriculum.JSON_CODE);
         if (!Util.equal(object.getCode(), code)) {
             object.setCode(code);
             changed.add(Curriculum.DB_CODE);
         }
 
-        String description = data.getString(Curriculum.JSON_DESCRIPTION);
         if (!Util.equal(object.getDescription(), description)) {
             object.setDescription(description);
             changed.add(Curriculum.DB_DESCRIPTION);

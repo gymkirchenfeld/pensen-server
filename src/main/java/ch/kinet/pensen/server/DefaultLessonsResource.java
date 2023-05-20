@@ -37,16 +37,6 @@ public final class DefaultLessonsResource extends EntityResource<DefaultLessons>
     }
 
     @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
-    }
-
-    @Override
     protected boolean isListAllowed(Authorisation authorisation, Query query) {
         return authorisation != null;
     }
@@ -63,6 +53,16 @@ public final class DefaultLessonsResource extends EntityResource<DefaultLessons>
         result.put("grades", JsonArray.createTerse(curriculum.grades()));
         result.put("items", JsonArray.createTerse(pensenData.loadDefaultLessons(curriculum, division)));
         return Response.json(result);
+    }
+
+    @Override
+    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response get(Authorisation authorisation, Query query) {
+        return Response.json(object);
     }
 
     @Override

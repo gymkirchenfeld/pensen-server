@@ -41,6 +41,33 @@ public final class PostingResource extends EntityResource<Posting> {
     }
 
     @Override
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response list(Authorisation authorisation, Query query) {
+        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt(Posting.JSON_SCHOOL_YEAR, -1));
+        if (schoolYear == null) {
+            return Response.badRequest();
+        }
+
+        return Response.jsonTerse(pensenData.loadPostings(schoolYear));
+    }
+
+    @Override
+    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response get(Authorisation authorisation, Query query) {
+        JsonObject result = object.toJsonVerbose();
+        result.put(Posting.JSON_DETAILS, pensenData.loadPostingDetails(object).toJsonVerbose());
+        return Response.json(result);
+    }
+
+    @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -76,48 +103,6 @@ public final class PostingResource extends EntityResource<Posting> {
     }
 
     @Override
-    protected boolean isDeleteAllowed(Authorisation authorisation) {
-        return authorisation != null && authorisation.isAdmin();
-    }
-
-    @Override
-    protected Response delete(Authorisation authorisation) {
-        if (object.getSchoolYear().isArchived()) {
-            return Response.forbidden();
-        }
-
-        pensenData.deletePosting(object);
-        return Response.noContent();
-    }
-
-    @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response get(Authorisation authorisation, Query query) {
-        JsonObject result = object.toJsonVerbose();
-        result.put(Posting.JSON_DETAILS, pensenData.loadPostingDetails(object).toJsonVerbose());
-        return Response.json(result);
-    }
-
-    @Override
-    protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response list(Authorisation authorisation, Query query) {
-        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt(Posting.JSON_SCHOOL_YEAR, -1));
-        if (schoolYear == null) {
-            return Response.badRequest();
-        }
-
-        return Response.jsonTerse(pensenData.loadPostings(schoolYear));
-    }
-
-    @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -128,31 +113,30 @@ public final class PostingResource extends EntityResource<Posting> {
             return Response.forbidden();
         }
 
+        String description = data.getString(Posting.JSON_DESCRIPTION);
+        Date startDate = data.getDate(Posting.JSON_START_DATE);
+        Date endDate = data.getDate(Posting.JSON_END_DATE);
+        Teacher teacher = pensenData.getTeacherById(data.getObjectId(Posting.JSON_TEACHER, -1));
+        if (teacher == null) {
+            return Response.badRequest();
+        }
+
         Set<String> changed = new HashSet<>();
         boolean recalculate = false;
-
-        String description = data.getString(Posting.JSON_DESCRIPTION);
         if (!Util.equal(object.getDescription(), description)) {
             object.setDescription(description);
             changed.add(Posting.DB_DESCRIPTION);
         }
 
-        Date startDate = data.getDate(Posting.JSON_START_DATE);
         if (!Util.equal(object.getStartDate(), startDate)) {
             object.setStartDate(startDate);
             changed.add(Posting.DB_START_DATE);
             recalculate = true;
         }
 
-        Date endDate = data.getDate(Posting.JSON_END_DATE);
         if (!Util.equal(object.getEndDate(), endDate)) {
             object.setEndDate(endDate);
             changed.add(Posting.DB_END_DATE);
-        }
-
-        Teacher teacher = pensenData.getTeacherById(data.getObjectId(Posting.JSON_TEACHER, -1));
-        if (teacher == null) {
-            return Response.badRequest();
         }
 
         if (!Util.equal(object.getTeacher(), teacher)) {
@@ -171,6 +155,21 @@ public final class PostingResource extends EntityResource<Posting> {
         }
 
         return Response.json(data);
+    }
+
+    @Override
+    protected boolean isDeleteAllowed(Authorisation authorisation) {
+        return authorisation != null && authorisation.isAdmin();
+    }
+
+    @Override
+    protected Response delete(Authorisation authorisation) {
+        if (object.getSchoolYear().isArchived()) {
+            return Response.forbidden();
+        }
+
+        pensenData.deletePosting(object);
+        return Response.noContent();
     }
 
     @Override

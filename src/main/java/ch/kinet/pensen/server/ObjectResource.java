@@ -29,11 +29,8 @@ import ch.kinet.pensen.data.Authorisation;
  */
 public abstract class ObjectResource extends AbstractRequestHandler {
 
-    private Authorisation authorisation;
-
     @Override
     public final Response handleRequest(Request request, Authorisation authorisation, String resourceId) {
-        this.authorisation = authorisation;
         JsonObject body = request.getBody();
         Query query = request.getQuery();
         switch (request.getMethod()) {
@@ -62,23 +59,15 @@ public abstract class ObjectResource extends AbstractRequestHandler {
         }
     }
 
-    protected final boolean isAllowed(Authorisation authorisation) {
+    protected boolean isAllowed(Authorisation authorisation) {
         return false;
     }
 
-    protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
         return isAllowed(authorisation);
     }
 
-    protected Response create(Authorisation authorisation, JsonObject data) {
-        return Response.methodNotAllowed();
-    }
-
-    protected boolean isDeleteAllowed(Authorisation authorisation) {
-        return isAllowed(authorisation);
-    }
-
-    protected Response delete(Authorisation authorisation) {
+    protected Response list(Authorisation authorisation, Query query) {
         return Response.methodNotAllowed();
     }
 
@@ -90,11 +79,27 @@ public abstract class ObjectResource extends AbstractRequestHandler {
         return Response.methodNotAllowed();
     }
 
-    protected boolean isListAllowed(Authorisation authorisation, Query query) {
+    protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
         return isAllowed(authorisation);
     }
 
-    protected Response list(Authorisation authorisation, Query query) {
+    protected Response create(Authorisation authorisation, JsonObject data) {
+        return Response.methodNotAllowed();
+    }
+
+    protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
+        return isAllowed(authorisation);
+    }
+
+    protected Response update(Authorisation authorisation, JsonObject data) {
+        return Response.methodNotAllowed();
+    }
+
+    protected boolean isDeleteAllowed(Authorisation authorisation) {
+        return isAllowed(authorisation);
+    }
+
+    protected Response delete(Authorisation authorisation) {
         return Response.methodNotAllowed();
     }
 
@@ -106,28 +111,12 @@ public abstract class ObjectResource extends AbstractRequestHandler {
      */
     protected abstract Response parseResourceId(String resourceId);
 
-    protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
-        return isAllowed(authorisation);
-    }
-
-    protected Response update(Authorisation authorisation, JsonObject data) {
-        return Response.methodNotAllowed();
-    }
-
-    private Response handleCreate(Authorisation authorisation, JsonObject json) {
-        if (!isCreateAllowed(authorisation, json)) {
+    private Response handleList(Authorisation authorisation, Query query) {
+        if (!isListAllowed(authorisation, query)) {
             return Response.forbidden();
         }
 
-        return create(authorisation, json);
-    }
-
-    private Response handleDelete(Authorisation authorisation) {
-        if (!isDeleteAllowed(authorisation)) {
-            return Response.forbidden();
-        }
-
-        return delete(authorisation);
+        return list(authorisation, query);
     }
 
     private Response handleGet(Authorisation authorisation, Query query) {
@@ -138,12 +127,12 @@ public abstract class ObjectResource extends AbstractRequestHandler {
         return get(authorisation, query);
     }
 
-    private Response handleList(Authorisation authorisation, Query query) {
-        if (!isListAllowed(authorisation, query)) {
+    private Response handleCreate(Authorisation authorisation, JsonObject json) {
+        if (!isCreateAllowed(authorisation, json)) {
             return Response.forbidden();
         }
 
-        return list(authorisation, query);
+        return create(authorisation, json);
     }
 
     private Response handleUpdate(Authorisation authorisation, JsonObject json) {
@@ -152,5 +141,13 @@ public abstract class ObjectResource extends AbstractRequestHandler {
         }
 
         return update(authorisation, json);
+    }
+
+    private Response handleDelete(Authorisation authorisation) {
+        if (!isDeleteAllowed(authorisation)) {
+            return Response.forbidden();
+        }
+
+        return delete(authorisation);
     }
 }

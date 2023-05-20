@@ -34,6 +34,31 @@ public final class NoteResource extends EntityResource<Note> {
     }
 
     @Override
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null && authorisation.isAdmin();
+    }
+
+    @Override
+    protected Response list(Authorisation authorisation, Query query) {
+        Teacher teacher = pensenData.getTeacherById(query.getInt("teacher", -1));
+        if (teacher == null) {
+            return Response.badRequest();
+        }
+
+        return Response.jsonTerse(pensenData.loadNotes(teacher).sorted());
+    }
+
+    @Override
+    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response get(Authorisation authorisation, Query query) {
+        return Response.json(object);
+    }
+
+    @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -58,36 +83,6 @@ public final class NoteResource extends EntityResource<Note> {
     protected Response delete(Authorisation authorisation) {
         pensenData.deleteNote(object);
         return Response.noContent();
-    }
-
-    @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
-    }
-
-    @Override
-    protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null && authorisation.isAdmin();
-    }
-
-    @Override
-    protected Response list(Authorisation authorisation, Query query) {
-        Teacher teacher = pensenData.getTeacherById(query.getInt("teacher", -1));
-        if (teacher == null) {
-            return Response.badRequest();
-        }
-
-        return Response.jsonTerse(pensenData.loadNotes(teacher).sorted());
-    }
-
-    @Override
-    protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isAdmin();
     }
 
     @Override

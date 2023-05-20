@@ -37,6 +37,26 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
     }
 
     @Override
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response list(Authorisation auth, Query query) {
+        return Response.jsonVerbose(pensenData.streamSchoolYears());
+    }
+
+    @Override
+    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response get(Authorisation authorisation, Query query) {
+        return Response.json(object);
+    }
+
+    @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -64,73 +84,52 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
     }
 
     @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
-    }
-
-    @Override
-    protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response list(Authorisation auth, Query query) {
-        return Response.jsonVerbose(pensenData.streamSchoolYears());
-    }
-
-    @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
 
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
+        boolean archived = data.getBoolean(SchoolYear.JSON_ARCHIVED, false);
+        String code = data.getString(SchoolYear.JSON_CODE);
+        String description = data.getString(SchoolYear.JSON_DESCRIPTION);
+        boolean finalised = data.getBoolean(SchoolYear.JSON_FINALISED, false);
+        CalculationMode calculationMode = pensenData.getCalculationModeById(data.getObjectId(SchoolYear.JSON_CALCULATION_MODE, -1));
+        if (calculationMode == null) {
+            return Response.badRequest();
+        }
+
+        int weeks = data.getInt(SchoolYear.JSON_WEEKS);
+        if (weeks <= 0) {
+            return Response.badRequest();
+        }
+
         Set<String> changed = new HashSet<>();
         boolean recalculate = false;
-
-        boolean archived = data.getBoolean(SchoolYear.JSON_ARCHIVED, false);
         if (!Util.equal(object.isArchived(), archived)) {
             object.setArchived(archived);
             changed.add(SchoolYear.DB_ARCHIVED);
         }
 
-        String code = data.getString(SchoolYear.JSON_CODE);
         if (!Util.equal(object.getCode(), code)) {
             object.setCode(code);
             changed.add(SchoolYear.DB_CODE);
         }
 
-        String description = data.getString(SchoolYear.JSON_DESCRIPTION);
         if (!Util.equal(object.getDescription(), description)) {
             object.setDescription(description);
             changed.add(SchoolYear.DB_DESCRIPTION);
         }
 
-        boolean finalised = data.getBoolean(SchoolYear.JSON_FINALISED, false);
         if (!Util.equal(object.isFinalised(), finalised)) {
             object.setFinalised(finalised);
             changed.add(SchoolYear.DB_FINALISED);
-        }
-
-        CalculationMode calculationMode = pensenData.getCalculationModeById(data.getObjectId(SchoolYear.JSON_CALCULATION_MODE, -1));
-        if (calculationMode == null) {
-            return Response.badRequest();
         }
 
         if (!Util.equal(object.getCalculationMode(), calculationMode)) {
             object.setCalculationMode(calculationMode);
             changed.add(SchoolYear.DB_CALCULATION_MODE);
             recalculate = true;
-        }
-
-        int weeks = data.getInt(SchoolYear.JSON_WEEKS);
-        if (weeks <= 0) {
-            return Response.badRequest();
         }
 
         if (!Util.equal(object.getWeeks(), weeks)) {

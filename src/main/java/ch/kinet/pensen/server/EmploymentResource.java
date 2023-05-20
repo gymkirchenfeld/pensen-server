@@ -39,6 +39,44 @@ public final class EmploymentResource extends EntityResource<Employment> {
     }
 
     @Override
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response list(Authorisation authorisation, Query query) {
+        if (query.hasKey("schoolYear")) {
+            SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt("schoolYear", -1));
+            if (schoolYear == null) {
+                return Response.notFound();
+            }
+
+            return Response.jsonTerse(pensenData.loadEmployments(schoolYear, null));
+        }
+
+        if (query.hasKey("teacher")) {
+            Teacher teacher = pensenData.getTeacherById(query.getInt("teacher", -1));
+            if (teacher == null) {
+                return Response.notFound();
+            }
+
+            return Response.jsonTerse(pensenData.loadTeacherHistory(teacher));
+        }
+
+        return Response.badRequest();
+    }
+
+    @Override
+    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response get(Authorisation authorisation, Query query) {
+        return Response.json(object);
+    }
+
+    @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -76,6 +114,76 @@ public final class EmploymentResource extends EntityResource<Employment> {
     }
 
     @Override
+    protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
+        return authorisation != null && authorisation.isAdmin();
+    }
+
+    @Override
+    protected Response update(Authorisation authorisation, JsonObject data) {
+        if (object.getSchoolYear().isArchived()) {
+            return Response.forbidden();
+        }
+
+        String comments = data.getString(Employment.JSON_COMMENTS);
+        Division division = pensenData.getDivisionById(data.getObjectId(Employment.JSON_DIVISION, -1));
+        if (division == null) {
+            return Response.badRequest();
+        }
+
+        double employmentMax = data.getDouble(Employment.JSON_EMPLOYMENT_MAX);
+        double employmentMin = data.getDouble(Employment.JSON_EMPLOYMENT_MIN);
+        double payment1 = data.getDouble(Employment.JSON_PAYMENT1);
+        double payment2 = data.getDouble(Employment.JSON_PAYMENT2);
+        boolean temporary = data.getBoolean(Employment.JSON_TEMPORARY, false);
+
+        Set<String> changed = new HashSet<>();
+        boolean recalculate = false;
+        if (!Util.equal(object.getComments(), comments)) {
+            object.setComments(comments);
+            changed.add(Employment.DB_COMMENTS);
+        }
+
+        if (!Util.equal(object.getDivision(), division)) {
+            object.setDivision(division);
+            changed.add(Employment.DB_DIVISION);
+        }
+
+        if (!Util.equal(object.getEmploymentMax(), employmentMax)) {
+            object.setEmploymentMax(employmentMax);
+            changed.add(Employment.DB_EMPLOYMENT_MAX);
+        }
+
+        if (!Util.equal(object.getEmploymentMin(), employmentMin)) {
+            object.setEmploymentMin(employmentMin);
+            changed.add(Employment.DB_EMPLOYMENT_MIN);
+        }
+
+        if (!Util.equal(object.getPayment1(), payment1)) {
+            object.setPayment1(payment1);
+            changed.add(Employment.DB_PAYMENT1);
+            recalculate = true;
+        }
+
+        if (!Util.equal(object.getPayment2(), payment2)) {
+            object.setPayment2(payment2);
+            changed.add(Employment.DB_PAYMENT2);
+            recalculate = true;
+        }
+
+        if (!Util.equal(object.isTemporary(), temporary)) {
+            object.setTemporary(temporary);
+            changed.add(Employment.DB_TEMPORARY);
+        }
+
+        pensenData.updateEmployment(object, changed);
+        if (recalculate) {
+            pensenData.recalculateBalance(object);
+        }
+
+        return Response.json(data);
+    }
+
+    @Override
     protected boolean isDeleteAllowed(Authorisation authorisation) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -88,114 +196,6 @@ public final class EmploymentResource extends EntityResource<Employment> {
 
         pensenData.deleteEmployment(object);
         return Response.noContent();
-    }
-
-    @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
-    }
-
-    @Override
-    protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response list(Authorisation authorisation, Query query) {
-        if (query.hasKey("schoolYear")) {
-            SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt("schoolYear", -1));
-            if (schoolYear == null) {
-                return Response.notFound();
-            }
-
-            return Response.jsonTerse(pensenData.loadEmployments(schoolYear, null));
-        }
-
-        if (query.hasKey("teacher")) {
-            Teacher teacher = pensenData.getTeacherById(query.getInt("teacher", -1));
-            if (teacher == null) {
-                return Response.notFound();
-            }
-
-            return Response.jsonTerse(pensenData.loadTeacherHistory(teacher));
-        }
-
-        return Response.badRequest();
-    }
-
-    @Override
-    protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isAdmin();
-    }
-
-    @Override
-    protected Response update(Authorisation authorisation, JsonObject data) {
-        if (object.getSchoolYear().isArchived()) {
-            return Response.forbidden();
-        }
-
-        Set<String> changed = new HashSet<>();
-        boolean recalculate = false;
-
-        String comments = data.getString(Employment.JSON_COMMENTS);
-        if (!Util.equal(object.getComments(), comments)) {
-            object.setComments(comments);
-            changed.add(Employment.DB_COMMENTS);
-        }
-
-        Division division = pensenData.getDivisionById(data.getObjectId(Employment.JSON_DIVISION, -1));
-        if (division == null) {
-            return Response.badRequest();
-        }
-
-        if (!Util.equal(object.getDivision(), division)) {
-            object.setDivision(division);
-            changed.add(Employment.DB_DIVISION);
-        }
-
-        double employmentMax = data.getDouble(Employment.JSON_EMPLOYMENT_MAX);
-        if (!Util.equal(object.getEmploymentMax(), employmentMax)) {
-            object.setEmploymentMax(employmentMax);
-            changed.add(Employment.DB_EMPLOYMENT_MAX);
-        }
-
-        double employmentMin = data.getDouble(Employment.JSON_EMPLOYMENT_MIN);
-        if (!Util.equal(object.getEmploymentMin(), employmentMin)) {
-            object.setEmploymentMin(employmentMin);
-            changed.add(Employment.DB_EMPLOYMENT_MIN);
-        }
-
-        double payment1 = data.getDouble(Employment.JSON_PAYMENT1);
-        if (!Util.equal(object.getPayment1(), payment1)) {
-            object.setPayment1(payment1);
-            changed.add(Employment.DB_PAYMENT1);
-            recalculate = true;
-        }
-
-        double payment2 = data.getDouble(Employment.JSON_PAYMENT2);
-        if (!Util.equal(object.getPayment2(), payment2)) {
-            object.setPayment2(payment2);
-            changed.add(Employment.DB_PAYMENT2);
-            recalculate = true;
-        }
-
-        boolean temporary = data.getBoolean(Employment.JSON_TEMPORARY, false);
-        if (!Util.equal(object.isTemporary(), temporary)) {
-            object.setTemporary(temporary);
-            changed.add(Employment.DB_TEMPORARY);
-        }
-
-        pensenData.updateEmployment(object, changed);
-        if (recalculate) {
-            pensenData.recalculateBalance(object);
-        }
-
-        return Response.json(data);
     }
 
     @Override

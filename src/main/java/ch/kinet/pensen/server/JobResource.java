@@ -35,23 +35,13 @@ public final class JobResource extends ObjectResource {
     }
 
     @Override
-    protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
         return authorisation != null;
     }
 
     @Override
-    protected Response create(Authorisation authorisation, JsonObject data) {
-        Job job = jobData.createJob(data.getString("name"));
-        if (job == null) {
-            return Response.badRequest("Invalid job name.");
-        }
-
-        if (job.start(authorisation, data)) {
-            return Response.json(job);
-        }
-        else {
-            return Response.badRequest();
-        }
+    protected Response list(Authorisation authorisation, Query query) {
+        return Response.jsonTerse(jobData.getJobs());
     }
 
     @Override
@@ -69,13 +59,23 @@ public final class JobResource extends ObjectResource {
     }
 
     @Override
-    protected boolean isListAllowed(Authorisation authorisation, Query query) {
+    protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null;
     }
 
     @Override
-    protected Response list(Authorisation authorisation, Query query) {
-        return Response.jsonTerse(jobData.getJobs());
+    protected Response create(Authorisation authorisation, JsonObject data) {
+        Job job = jobData.createJob(data.getString("name"));
+        if (job == null) {
+            return Response.badRequest("Invalid job name.");
+        }
+
+        if (job.start(authorisation, data)) {
+            return Response.json(job);
+        }
+        else {
+            return Response.badRequest();
+        }
     }
 
     @Override

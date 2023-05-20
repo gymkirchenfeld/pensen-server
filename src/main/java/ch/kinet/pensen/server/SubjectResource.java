@@ -38,6 +38,33 @@ public final class SubjectResource extends EntityResource<Subject> {
     }
 
     @Override
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response list(Authorisation authorisation, Query query) {
+        if (query.hasKey(Subject.JSON_CROSS_CLASS)) {
+            boolean crossClass = query.getBoolean(Subject.JSON_CROSS_CLASS, true);
+            return Response.jsonTerse(pensenData.streamSubjects().filter(
+                item -> !item.isArchived() && (item.isCrossClass() == crossClass)
+            ));
+        }
+
+        return Response.jsonTerse(pensenData.streamSubjects());
+    }
+
+    @Override
+    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response get(Authorisation authorisation, Query query) {
+        return Response.json(object);
+    }
+
+    @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -62,89 +89,64 @@ public final class SubjectResource extends EntityResource<Subject> {
     }
 
     @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
-    }
-
-    @Override
-    protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response list(Authorisation authorisation, Query query) {
-        if (query.hasKey(Subject.JSON_CROSS_CLASS)) {
-            boolean crossClass = query.getBoolean(Subject.JSON_CROSS_CLASS, true);
-            return Response.jsonTerse(pensenData.streamSubjects().filter(
-                item -> !item.isArchived() && (item.isCrossClass() == crossClass)
-            ));
-        }
-
-        return Response.jsonTerse(pensenData.streamSubjects());
-    }
-
-    @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
 
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
-        Set<String> changed = new HashSet<>();
         boolean archived = data.getBoolean(Subject.JSON_ARCHIVED, false);
+        SubjectCategory category = pensenData.getSubjectCategoryById(data.getObjectId(Subject.JSON_CATEGORY, -1));
+        if (category == null) {
+            return Response.badRequest();
+        }
+
+        String code = data.getString(Subject.JSON_CODE);
+        boolean crossClass = data.getBoolean(Subject.JSON_CROSS_CLASS, false);
+        String description = data.getString(Subject.JSON_DESCRIPTION);
+        String eventoCode = data.getString(Subject.JSON_EVENTO_CODE);
+        int sortOrder = data.getInt(Subject.JSON_SORT_ORDER);
+        SubjectType type = pensenData.getSubjectTypeById(data.getObjectId(Subject.JSON_TYPE, -1));
+        if (type == null) {
+            return Response.badRequest();
+        }
+
+        Set<String> changed = new HashSet<>();
         if (!Util.equal(object.isArchived(), archived)) {
             object.setArchived(archived);
             changed.add(Subject.DB_ARCHIVED);
         }
 
-        SubjectCategory category = pensenData.getSubjectCategoryById(data.getObjectId(Subject.JSON_CATEGORY, -1));
-        if (category == null) {
-            return Response.badRequest();
-        }
         if (!Util.equal(object.getCategory(), category)) {
             object.setCategory(category);
             changed.add(Subject.DB_CATEGORY);
         }
 
-        String code = data.getString(Subject.JSON_CODE);
         if (!Util.equal(object.getCode(), code)) {
             object.setCode(code);
             changed.add(Subject.DB_CODE);
         }
 
-        boolean crossClass = data.getBoolean(Subject.JSON_CROSS_CLASS, false);
         if (!Util.equal(object.isCrossClass(), crossClass)) {
             object.setCrossClass(crossClass);
             changed.add(Subject.DB_CROSS_CLASS);
         }
 
-        String description = data.getString(Subject.JSON_DESCRIPTION);
         if (!Util.equal(object.getDescription(), description)) {
             object.setDescription(description);
             changed.add(Subject.DB_DESCRIPTION);
         }
 
-        String eventoCode = data.getString(Subject.JSON_EVENTO_CODE);
         if (!Util.equal(object.getEventoCode(), eventoCode)) {
             object.setEventoCode(eventoCode);
             changed.add(Subject.DB_EVENTO_CODE);
         }
 
-        int sortOrder = data.getInt(Subject.JSON_SORT_ORDER);
         if (!Util.equal(object.getSortOrder(), sortOrder)) {
             object.setSortOrder(sortOrder);
             changed.add(Subject.DB_SORT_ORDER);
         }
 
-        SubjectType type = pensenData.getSubjectTypeById(data.getObjectId(Subject.JSON_TYPE, -1));
-        if (type == null) {
-            return Response.badRequest();
-        }
         if (!Util.equal(object.getType(), type)) {
             object.setType(type);
             changed.add(Subject.DB_TYPE);

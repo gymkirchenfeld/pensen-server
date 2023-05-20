@@ -40,54 +40,6 @@ public final class SchoolClassResource extends EntityResource<SchoolClass> {
     }
 
     @Override
-    protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isAdmin();
-    }
-
-    @Override
-    protected Response create(Authorisation authorisation, JsonObject data) {
-        String code = data.getString(SchoolClass.JSON_CODE);
-        Curriculum curriculum = pensenData.getCurriculumById(data.getObjectId(SchoolClass.JSON_CURRICULUM, -1));
-        if (curriculum == null) {
-            return Response.badRequest();
-        }
-
-        Division division = pensenData.getDivisionById(data.getObjectId(SchoolClass.JSON_DIVISION, -1));
-        if (division == null) {
-            return Response.badRequest();
-        }
-
-        int graduationYear = data.getInt(SchoolClass.JSON_GRADUATION_YEAR);
-        return Response.json(pensenData.createSchoolClass(code, curriculum, division, graduationYear));
-    }
-
-    @Override
-    protected boolean isDeleteAllowed(Authorisation authorisation) {
-        return authorisation != null && authorisation.isAdmin();
-    }
-
-    @Override
-    protected Response delete(Authorisation authorisation) {
-        System.out.println("Deletng schoolClass");
-        if (pensenData.deleteSchoolClass(object)) {
-            return Response.ok();
-        }
-        else {
-            return Response.badRequest();
-        }
-    }
-
-    @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
-    }
-
-    @Override
     protected boolean isListAllowed(Authorisation authorisation, Query query) {
         return authorisation != null;
     }
@@ -112,30 +64,63 @@ public final class SchoolClassResource extends EntityResource<SchoolClass> {
     }
 
     @Override
-    protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
+    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response get(Authorisation authorisation, Query query) {
+        return Response.json(object);
+    }
+
+    @Override
+    protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
 
     @Override
-    protected Response update(Authorisation authorisation, JsonObject data) {
-        Set<String> changed = new HashSet<>();
-
-        boolean archived = data.getBoolean(SchoolClass.JSON_ARCHIVED, false);
-        if (!Util.equal(object.isArchived(), archived)) {
-            object.setArchived(archived);
-            changed.add(SchoolClass.DB_ARCHIVED);
-        }
-
+    protected Response create(Authorisation authorisation, JsonObject data) {
         String code = data.getString(SchoolClass.JSON_CODE);
-        if (!Util.equal(object.getCode(), code)) {
-            object.setCode(code);
-            changed.add(SchoolClass.DB_CODE);
+        Curriculum curriculum = pensenData.getCurriculumById(data.getObjectId(SchoolClass.JSON_CURRICULUM, -1));
+        if (curriculum == null) {
+            return Response.badRequest();
         }
 
         Division division = pensenData.getDivisionById(data.getObjectId(SchoolClass.JSON_DIVISION, -1));
         if (division == null) {
             return Response.badRequest();
         }
+
+        int graduationYear = data.getInt(SchoolClass.JSON_GRADUATION_YEAR);
+
+        return Response.json(pensenData.createSchoolClass(code, curriculum, division, graduationYear));
+    }
+
+    @Override
+    protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
+        return authorisation != null && authorisation.isAdmin();
+    }
+
+    @Override
+    protected Response update(Authorisation authorisation, JsonObject data) {
+        boolean archived = data.getBoolean(SchoolClass.JSON_ARCHIVED, false);
+        String code = data.getString(SchoolClass.JSON_CODE);
+        Division division = pensenData.getDivisionById(data.getObjectId(SchoolClass.JSON_DIVISION, -1));
+        if (division == null) {
+            return Response.badRequest();
+        }
+
+        Set<String> changed = new HashSet<>();
+        if (!Util.equal(object.isArchived(), archived)) {
+            object.setArchived(archived);
+            changed.add(SchoolClass.DB_ARCHIVED);
+        }
+
+        if (!Util.equal(object.getCode(), code)) {
+            object.setCode(code);
+            changed.add(SchoolClass.DB_CODE);
+        }
+
         if (!Util.equal(object.getDivision(), division)) {
             object.setDivision(division);
             changed.add(SchoolClass.DB_DIVISION);
@@ -143,6 +128,22 @@ public final class SchoolClassResource extends EntityResource<SchoolClass> {
 
         pensenData.updateSchoolClass(object, changed);
         return Response.json(data);
+    }
+
+    @Override
+    protected boolean isDeleteAllowed(Authorisation authorisation) {
+        return authorisation != null && authorisation.isAdmin();
+    }
+
+    @Override
+    protected Response delete(Authorisation authorisation) {
+        System.out.println("Deletng schoolClass");
+        if (pensenData.deleteSchoolClass(object)) {
+            return Response.ok();
+        }
+        else {
+            return Response.badRequest();
+        }
     }
 
     @Override

@@ -37,6 +37,26 @@ public final class DivisionResource extends EntityResource<Division> {
     }
 
     @Override
+    protected boolean isListAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response list(Authorisation auth, Query query) {
+        return Response.jsonTerse(pensenData.streamDivisions());
+    }
+
+    @Override
+    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+        return authorisation != null;
+    }
+
+    @Override
+    protected Response get(Authorisation authorisation, Query query) {
+        return Response.json(object);
+    }
+
+    @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -57,68 +77,49 @@ public final class DivisionResource extends EntityResource<Division> {
     }
 
     @Override
-    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
-    }
-
-    @Override
-    protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
-    }
-
-    @Override
-    protected Response list(Authorisation auth, Query query) {
-        return Response.jsonTerse(pensenData.streamDivisions());
-    }
-
-    @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
 
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
-        Set<String> changed = new HashSet<>();
         String code = data.getString(Division.JSON_CODE);
+        String description = data.getString(Division.JSON_DESCRIPTION);
+        String grouping = data.getString(Division.JSON_GROUPING);
+        String headName = data.getString(Division.JSON_HEAD_NAME);
+        Data headSignature = data.getData(Division.JSON_HEAD_SIGNATURE);
+        String headTitle = data.getString(Division.JSON_HEAD_TITLE);
+        Data logo = data.getData(Division.JSON_LOGO);
+
+        Set<String> changed = new HashSet<>();
         if (!Util.equal(object.getCode(), code)) {
             object.setCode(code);
             changed.add(Division.DB_CODE);
         }
 
-        String description = data.getString(Division.JSON_DESCRIPTION);
         if (!Util.equal(object.getDescription(), description)) {
             object.setDescription(description);
             changed.add(Division.DB_DESCRIPTION);
         }
 
-        String grouping = data.getString(Division.JSON_GROUPING);
         if (!Util.equal(object.getGrouping(), grouping)) {
             object.setGrouping(grouping);
             changed.add(Division.DB_GROUPING);
         }
 
-        String headName = data.getString(Division.JSON_HEAD_NAME);
         if (!Util.equal(object.getHeadName(), headName)) {
             object.setHeadName(headName);
             changed.add(Division.DB_HEAD_NAME);
         }
 
-        Data headSignature = data.getData(Division.JSON_HEAD_SIGNATURE);
         object.setHeadSignature(headSignature.getData());
         changed.add(Division.DB_HEAD_SIGNATURE);
 
-        String headTitle = data.getString(Division.JSON_HEAD_TITLE);
         if (!Util.equal(object.getHeadTitle(), headTitle)) {
             object.setHeadTitle(headTitle);
             changed.add(Division.DB_HEAD_TITLE);
         }
 
-        Data logo = data.getData(Division.JSON_LOGO);
         object.setLogo(logo.getData());
         changed.add(Division.DB_LOGO);
 
