@@ -61,7 +61,7 @@ public final class SubjectResource extends EntityResource<Subject> {
 
     @Override
     protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
+        return Response.jsonVerbose(object);
     }
 
     @Override
@@ -85,7 +85,7 @@ public final class SubjectResource extends EntityResource<Subject> {
             return Response.badRequest();
         }
 
-        return Response.json(pensenData.createSubject(category, code, crossClass, description, eventoCode, type));
+        return Response.jsonVerbose(pensenData.createSubject(category, code, crossClass, description, eventoCode, type));
     }
 
     @Override
@@ -153,7 +153,7 @@ public final class SubjectResource extends EntityResource<Subject> {
         }
 
         pensenData.updateSubject(object, changed);
-        return Response.json(data);
+        return Response.jsonVerbose(data);
     }
 
     @Override

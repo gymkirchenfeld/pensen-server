@@ -49,6 +49,6 @@ public final class ProfileResource extends GlobalResource {
 
         JsonObject result = JsonObject.create();
         result.put("features", features);
-        return Response.json(result);
+        return Response.jsonVerbose(result);
     }
 }

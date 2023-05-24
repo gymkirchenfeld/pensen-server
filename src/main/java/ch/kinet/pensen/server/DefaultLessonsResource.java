@@ -52,7 +52,7 @@ public final class DefaultLessonsResource extends EntityResource<DefaultLessons>
         JsonObject result = JsonObject.create();
         result.put("grades", JsonArray.createTerse(curriculum.grades()));
         result.put("items", JsonArray.createTerse(pensenData.loadDefaultLessons(curriculum, division)));
-        return Response.json(result);
+        return Response.jsonVerbose(result);
     }
 
     @Override
@@ -62,7 +62,7 @@ public final class DefaultLessonsResource extends EntityResource<DefaultLessons>
 
     @Override
     protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
+        return Response.jsonVerbose(object);
     }
 
     @Override

@@ -55,7 +55,7 @@ public final class JobResource extends ObjectResource {
             jobData.deleteJob(job);
         }
 
-        return Response.json(job);
+        return Response.jsonVerbose(job);
     }
 
     @Override
@@ -71,7 +71,7 @@ public final class JobResource extends ObjectResource {
         }
 
         if (job.start(authorisation, data)) {
-            return Response.json(job);
+            return Response.jsonVerbose(job);
         }
         else {
             return Response.badRequest();

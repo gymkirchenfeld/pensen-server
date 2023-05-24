@@ -49,6 +49,6 @@ public final class CourseTableResource extends GlobalResource {
         Division division = pensenData.getDivisionById(query.getInt("division", -1));
         Grade grade = pensenData.getGradeById(query.getInt("grade", -1));
         SubjectCategory subjectCategory = pensenData.getSubjectCategoryById(query.getInt("subjectCategory", -1));
-        return Response.json(pensenData.loadCourseTable(schoolYear, division, grade, subjectCategory));
+        return Response.jsonVerbose(pensenData.loadCourseTable(schoolYear, division, grade, subjectCategory));
     }
 }

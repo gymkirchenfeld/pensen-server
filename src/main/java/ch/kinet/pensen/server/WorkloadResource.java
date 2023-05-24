@@ -57,7 +57,7 @@ public final class WorkloadResource extends GlobalResource {
                 return Response.notFound();
             }
 
-            return Response.json(pensenData.loadWorkload(employment));
+            return Response.jsonVerbose(pensenData.loadWorkload(employment));
         }
     }
 }

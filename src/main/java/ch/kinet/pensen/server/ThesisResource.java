@@ -22,11 +22,11 @@ import ch.kinet.http.Query;
 import ch.kinet.http.Response;
 import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.Employment;
-import ch.kinet.pensen.data.EntityMap;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.Teacher;
 import ch.kinet.pensen.data.ThesisType;
+import ch.kinet.pensen.data.ValueMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -56,7 +56,7 @@ public class ThesisResource extends ObjectResource {
             String key = String.valueOf(entry.getType().getId());
             counts.put(key, entry.getCount());
         });
-        return Response.json(result);
+        return Response.jsonVerbose(result);
     }
 
     @Override
@@ -70,21 +70,20 @@ public class ThesisResource extends ObjectResource {
             return Response.badRequest();
         }
 
-        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt(Employment.JSON_SCHOOL_YEAR, -1));
-        if (schoolYear == null) {
+        SchoolYear schoolYearFilter = pensenData.getSchoolYearById(query.getInt(Employment.JSON_SCHOOL_YEAR, -1));
+        if (schoolYearFilter == null) {
             return Response.notFound();
         }
 
         SortedMap<Teacher, JsonObject> map = new TreeMap<>();
-        pensenData.loadEmployments(schoolYear, null).forEachOrdered(employment -> {
-            map.put(employment.getTeacher(), toJson(schoolYear, employment.getTeacher()));
+        pensenData.loadEmployments(schoolYearFilter, null).forEachOrdered(employment -> {
+            map.put(employment.getTeacher(), toJson(schoolYearFilter, employment.getTeacher()));
         });
 
-        pensenData.loadThesisEntries(schoolYear).forEachOrdered(entry -> {
-            Teacher teacher = entry.getTeacher();
-            if (map.containsKey(teacher)) {
+        pensenData.loadThesisEntries(schoolYearFilter).forEachOrdered(entry -> {
+            if (map.containsKey(entry.getTeacher())) {
                 String key = String.valueOf(entry.getType().getId());
-                map.get(teacher).put(key, entry.getCount());
+                map.get(entry.getTeacher()).put(key, entry.getCount());
             }
         });
 
@@ -102,7 +101,7 @@ public class ThesisResource extends ObjectResource {
             return Response.badRequest("Abschlussarbeiten in archivierten Schuljahren können nicht verändert werden.");
         }
 
-        EntityMap<ThesisType> thesisCounts = EntityMap.parseJson(data, JSON_THESIS_COUNTS, pensenData.streamThesisTypes(), 0);
+        ValueMap<ThesisType> thesisCounts = ValueMap.parseJson(data, JSON_THESIS_COUNTS, pensenData.streamThesisTypes(), 0);
         pensenData.saveThesisEntries(schoolYear, teacher, thesisCounts);
         pensenData.recalculateBalance(schoolYear, teacher);
         return Response.noContent();

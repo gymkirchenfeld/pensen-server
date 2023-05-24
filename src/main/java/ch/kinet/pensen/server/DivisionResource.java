@@ -53,7 +53,7 @@ public final class DivisionResource extends EntityResource<Division> {
 
     @Override
     protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
+        return Response.jsonVerbose(object);
     }
 
     @Override
@@ -71,7 +71,7 @@ public final class DivisionResource extends EntityResource<Division> {
         String headTitle = data.getString(Division.JSON_HEAD_TITLE);
         Data logo = data.getData(Division.JSON_LOGO);
 
-        return Response.json(pensenData.createDivision(
+        return Response.jsonVerbose(pensenData.createDivision(
             code, description, grouping, headName, headSignature.getData(), headTitle, logo.getData()
         ));
     }
@@ -124,7 +124,7 @@ public final class DivisionResource extends EntityResource<Division> {
         changed.add(Division.DB_LOGO);
 
         pensenData.updateDivision(object, changed);
-        return Response.json(data);
+        return Response.jsonVerbose(data);
     }
 
     @Override

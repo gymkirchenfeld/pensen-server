@@ -54,7 +54,7 @@ public final class CurriculumResource extends EntityResource<Curriculum> {
 
     @Override
     protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
+        return Response.jsonVerbose(object);
     }
 
     @Override
@@ -71,7 +71,7 @@ public final class CurriculumResource extends EntityResource<Curriculum> {
             }
 
             System.out.println("Copy curriculum " + original.getId());
-            return Response.json(pensenData.copyCurriculum(original));
+            return Response.jsonVerbose(pensenData.copyCurriculum(original));
         }
 
         String code = data.getString(Curriculum.JSON_CODE);
@@ -80,7 +80,7 @@ public final class CurriculumResource extends EntityResource<Curriculum> {
         Curriculum result = pensenData.createCurriculum(code, description);
         result.setGrades(pensenData.parseGrades(data.getArray(Curriculum.JSON_GRADES)));
         pensenData.updateCurriculum(result, Util.createSet(Curriculum.DB_GRADES));
-        return Response.json(result);
+        return Response.jsonVerbose(result);
     }
 
     @Override
@@ -118,7 +118,7 @@ public final class CurriculumResource extends EntityResource<Curriculum> {
         }
 
         pensenData.updateCurriculum(object, changed);
-        return Response.json(data);
+        return Response.jsonVerbose(data);
     }
 
     @Override

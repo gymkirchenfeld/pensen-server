@@ -64,7 +64,7 @@ public final class PostingResource extends EntityResource<Posting> {
     protected Response get(Authorisation authorisation, Query query) {
         JsonObject result = object.toJsonVerbose();
         result.put(Posting.JSON_DETAILS, pensenData.loadPostingDetails(object).toJsonVerbose());
-        return Response.json(result);
+        return Response.jsonVerbose(result);
     }
 
     @Override
@@ -99,7 +99,7 @@ public final class PostingResource extends EntityResource<Posting> {
         ValueMap<PostingType> details = ValueMap.parseJson(data, Posting.JSON_DETAILS, pensenData.streamPostingTypes(), 0);
         pensenData.savePostingDetails(result, details);
         pensenData.recalculateBalance(schoolYear, teacher);
-        return Response.json(result);
+        return Response.jsonVerbose(result);
     }
 
     @Override
@@ -154,7 +154,7 @@ public final class PostingResource extends EntityResource<Posting> {
             pensenData.recalculateBalance(object.getSchoolYear(), object.getTeacher());
         }
 
-        return Response.json(data);
+        return Response.jsonVerbose(data);
     }
 
     @Override

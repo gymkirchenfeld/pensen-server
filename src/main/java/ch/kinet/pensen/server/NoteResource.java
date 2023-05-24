@@ -55,7 +55,7 @@ public final class NoteResource extends EntityResource<Note> {
 
     @Override
     protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
+        return Response.jsonVerbose(object);
     }
 
     @Override
@@ -71,7 +71,7 @@ public final class NoteResource extends EntityResource<Note> {
         }
 
         String text = data.getString(Note.JSON_TEXT);
-        return Response.json(pensenData.createNote(teacher, text, authorisation.getAccountName()));
+        return Response.jsonVerbose(pensenData.createNote(teacher, text, authorisation.getAccountName()));
     }
 
     @Override

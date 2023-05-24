@@ -42,7 +42,7 @@ public final class SettingsResource extends GlobalResource {
 
     @Override
     protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(pensenData.loadSettings(authorisation));
+        return Response.jsonVerbose(pensenData.loadSettings(authorisation));
     }
 
     @Override
@@ -73,6 +73,6 @@ public final class SettingsResource extends GlobalResource {
         }
 
         pensenData.updateSettings(settings, changed);
-        return Response.json(data);
+        return Response.jsonVerbose(data);
     }
 }

@@ -51,6 +51,6 @@ public final class ConfigResource extends GlobalResource {
         result.put("percentDecimals", percentDecimals);
         result.put("tokenRefreshOffsetMinutes", 10);
         result.put("version", Version.VERSION);
-        return Response.json(result);
+        return Response.jsonVerbose(result);
     }
 }

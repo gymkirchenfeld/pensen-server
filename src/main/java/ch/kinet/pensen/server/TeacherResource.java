@@ -83,7 +83,7 @@ public final class TeacherResource extends EntityResource<Teacher> {
 
         }
 
-        return Response.json(result);
+        return Response.jsonVerbose(result);
     }
 
     @Override
@@ -109,7 +109,7 @@ public final class TeacherResource extends EntityResource<Teacher> {
         Teacher result = pensenData.createTeacher(birthday, code, email, employeeNumber, firstName, lastName, title);
         Set<SubjectCategory> departments = parseSubjectCategories(data.getArray(Teacher.JSON_DEPARTMENTS));
         pensenData.updateTeacherDepartments(result, departments);
-        return Response.json(result);
+        return Response.jsonVerbose(result);
     }
 
     @Override
@@ -182,7 +182,7 @@ public final class TeacherResource extends EntityResource<Teacher> {
         }
 
         pensenData.updateTeacher(object, changed);
-        return Response.json(data);
+        return Response.jsonVerbose(data);
     }
 
     private Set<SubjectCategory> parseSubjectCategories(JsonArray json) {

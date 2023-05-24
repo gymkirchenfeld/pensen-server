@@ -73,7 +73,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
 
     @Override
     protected Response get(Authorisation authorisation, Query query) {
-        return Response.json(object);
+        return Response.jsonVerbose(object);
     }
 
     @Override
@@ -116,7 +116,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
         }
 
         boolean temporary = data.getBoolean(Employment.JSON_TEMPORARY, false);
-        return Response.json(pensenData.createEmployment(
+        return Response.jsonVerbose(pensenData.createEmployment(
             schoolYear, teacher, division, employmentMax, employmentMin, payment1, payment2, temporary, comments
         ));
     }
@@ -196,7 +196,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
             pensenData.recalculateBalance(object);
         }
 
-        return Response.json(data);
+        return Response.jsonVerbose(data);
     }
 
     @Override
