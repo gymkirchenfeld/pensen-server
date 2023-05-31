@@ -157,6 +157,7 @@ public final class Teacher extends Entity {
         result.put(JSON_CODE, code);
         result.put(JSON_FIRST_NAME, firstName);
         result.put(JSON_LAST_NAME, lastName);
+        result.putTerse(JSON_GENDER, gender);
         return result;
     }
 
@@ -168,7 +169,6 @@ public final class Teacher extends Entity {
         result.put(JSON_DEPARTMENTS, JsonArray.createTerse(departments.stream()));
         result.put(JSON_EMAIL, email);
         result.put(JSON_EMPLOYEE_NUMBER, employeeNumber);
-        result.putTerse(JSON_GENDER, gender);
         result.put(JSON_TITLE, title);
         return result;
     }
