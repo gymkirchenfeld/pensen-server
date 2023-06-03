@@ -699,22 +699,6 @@ public final class PensenData extends BaseData implements Context {
         return Workloads.create(schoolYear, map);
     }
 
-    public Set<Grade> parseGrades(JsonArray json) {
-        Set<Grade> result = new HashSet<>();
-        if (json == null) {
-            return result;
-        }
-
-        for (int i = 0; i < json.length(); ++i) {
-            Grade grade = getGradeById(json.getObjectId(i, -1));
-            if (grade != null) {
-                result.add(grade);
-            }
-        }
-
-        return result;
-    }
-
     public Set<SchoolClass> parseSchoolClasses(JsonArray json) {
         Set<SchoolClass> result = new HashSet<>();
         if (json == null) {
