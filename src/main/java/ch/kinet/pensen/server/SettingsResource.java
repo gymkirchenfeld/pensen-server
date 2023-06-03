@@ -73,6 +73,6 @@ public final class SettingsResource extends GlobalResource {
         }
 
         pensenData.updateSettings(settings, changed);
-        return Response.jsonVerbose(data);
+        return Response.noContent();
     }
 }

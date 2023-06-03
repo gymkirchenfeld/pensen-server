@@ -55,7 +55,7 @@ public class ThesisResource extends ObjectResource {
         pensenData.loadThesisEntries(schoolYear, teacher).forEachOrdered(
             entry -> counts.put(String.valueOf(entry.getType().getId()), entry.getCount())
         );
-        return Response.jsonVerbose(result);
+        return Response.json(result);
     }
 
     @Override

@@ -98,7 +98,7 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
 
         PoolEntry result = pensenData.createPoolEntry(description, percent1, percent2, schoolYear, teacher, type);
         pensenData.recalculateBalance(schoolYear, teacher);
-        return Response.jsonVerbose(result);
+        return Response.noContent();
     }
 
     @Override
@@ -166,7 +166,7 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
             pensenData.recalculateBalance(object.getSchoolYear(), object.getTeacher());
         }
 
-        return Response.jsonVerbose(data);
+        return Response.noContent();
     }
 
     @Override

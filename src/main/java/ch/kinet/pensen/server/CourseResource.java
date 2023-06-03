@@ -166,7 +166,7 @@ public final class CourseResource extends EntityResource<Course> {
                                 Course.DB_SCHOOL_CLASS_IDS, Course.DB_TEACHER_IDS_1, Course.DB_TEACHER_IDS_2));
         teachers1.addAll(teachers2);
         teachers1.stream().forEachOrdered(teacher -> pensenData.recalculateBalance(schoolYear, teacher));
-        return Response.jsonVerbose(result);
+        return Response.noContent();
     }
 
     @Override
@@ -232,7 +232,7 @@ public final class CourseResource extends EntityResource<Course> {
 
         pensenData.updateCourse(object, changed);
         affectedTeachers.stream().forEachOrdered(teacher -> pensenData.recalculateBalance(object.getSchoolYear(), teacher));
-        return Response.jsonVerbose(data);
+        return Response.noContent();
     }
 
     @Override

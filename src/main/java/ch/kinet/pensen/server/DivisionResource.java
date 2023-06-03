@@ -71,9 +71,10 @@ public final class DivisionResource extends EntityResource<Division> {
         String headTitle = data.getString(Division.JSON_HEAD_TITLE);
         Data logo = data.getData(Division.JSON_LOGO);
 
-        return Response.jsonVerbose(pensenData.createDivision(
+        pensenData.createDivision(
             code, description, grouping, headName, headSignature.getData(), headTitle, logo.getData()
-        ));
+        );
+        return Response.noContent();
     }
 
     @Override
@@ -124,7 +125,7 @@ public final class DivisionResource extends EntityResource<Division> {
         changed.add(Division.DB_LOGO);
 
         pensenData.updateDivision(object, changed);
-        return Response.jsonVerbose(data);
+        return Response.noContent();
     }
 
     @Override

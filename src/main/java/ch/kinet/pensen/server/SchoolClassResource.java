@@ -93,7 +93,8 @@ public final class SchoolClassResource extends EntityResource<SchoolClass> {
 
         int graduationYear = data.getInt(SchoolClass.JSON_GRADUATION_YEAR);
 
-        return Response.jsonVerbose(pensenData.createSchoolClass(code, curriculum, division, graduationYear));
+        pensenData.createSchoolClass(code, curriculum, division, graduationYear);
+        return Response.noContent();
     }
 
     @Override
@@ -127,7 +128,7 @@ public final class SchoolClassResource extends EntityResource<SchoolClass> {
         }
 
         pensenData.updateSchoolClass(object, changed);
-        return Response.jsonVerbose(data);
+        return Response.noContent();
     }
 
     @Override

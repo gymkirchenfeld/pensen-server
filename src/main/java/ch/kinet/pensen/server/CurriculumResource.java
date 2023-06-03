@@ -80,7 +80,7 @@ public final class CurriculumResource extends EntityResource<Curriculum> {
         Curriculum result = pensenData.createCurriculum(code, description);
         result.setGrades(pensenData.parseGrades(data.getArray(Curriculum.JSON_GRADES)));
         pensenData.updateCurriculum(result, Util.createSet(Curriculum.DB_GRADES));
-        return Response.jsonVerbose(result);
+        return Response.noContent();
     }
 
     @Override
@@ -118,7 +118,7 @@ public final class CurriculumResource extends EntityResource<Curriculum> {
         }
 
         pensenData.updateCurriculum(object, changed);
-        return Response.jsonVerbose(data);
+        return Response.noContent();
     }
 
     @Override

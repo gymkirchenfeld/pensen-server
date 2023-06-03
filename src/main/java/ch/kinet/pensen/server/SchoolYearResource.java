@@ -80,7 +80,8 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
             return Response.badRequest();
         }
 
-        return Response.jsonVerbose(pensenData.createSchoolYear(calculationMode, code, description, graduationYear, weeks));
+        pensenData.createSchoolYear(calculationMode, code, description, graduationYear, weeks);
+        return Response.noContent();
     }
 
     @Override
@@ -143,7 +144,7 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
             pensenData.recalculateBalance(object);
         }
 
-        return Response.jsonVerbose(data);
+        return Response.noContent();
     }
 
     @Override
