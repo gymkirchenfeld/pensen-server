@@ -20,11 +20,11 @@ import ch.kinet.DataManager;
 import ch.kinet.JsonObject;
 import ch.kinet.csv.CsvWriter;
 import ch.kinet.pensen.data.Authorisation;
-import ch.kinet.pensen.data.EntityMap;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.Teacher;
 import ch.kinet.pensen.data.ThesisType;
+import ch.kinet.pensen.data.ValueMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
@@ -63,9 +63,9 @@ public final class ThesisCSVDownload extends JobImplementation {
     public void run(Authorisation creator, JobCallback callback) {
         CsvWriter csv = CsvWriter.create(createHeaders());
         callback.step();
-        SortedMap<Teacher, EntityMap<ThesisType>> map = new TreeMap<>();
+        SortedMap<Teacher, ValueMap<ThesisType>> map = new TreeMap<>();
         pensenData.loadEmployments(schoolYear, null).forEachOrdered(employment -> {
-            map.put(employment.getTeacher(), EntityMap.create());
+            map.put(employment.getTeacher(), ValueMap.create());
         });
 
         pensenData.loadThesisEntries(schoolYear).forEachOrdered(entry -> {
