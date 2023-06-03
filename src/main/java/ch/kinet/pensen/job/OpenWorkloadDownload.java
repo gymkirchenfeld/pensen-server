@@ -25,16 +25,16 @@ import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.SubjectCategory;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class OpenWorkloadDownload extends JobImplementation {
 
-    private final Map<SubjectCategory, List<Course>> map = new HashMap<>();
+    private Map<SubjectCategory, List<Course>> map;
     private PensenData pensenData;
     private SchoolYear schoolYear;
-    private int steps = 1;
 
     public OpenWorkloadDownload() {
         super("Nicht zugeteilte Lektionen nach Fachgebiet");
@@ -43,10 +43,7 @@ public final class OpenWorkloadDownload extends JobImplementation {
     @Override
     public void initialize(DataManager dataManager) {
         pensenData = dataManager.getData(PensenData.class);
-        pensenData.streamSubjectCategories().forEachOrdered(subjectCategory -> {
-            map.put(subjectCategory, new ArrayList<>());
-            steps += 1;
-        });
+        map = pensenData.streamSubjectCategories().collect(Collectors.toMap(Function.identity(), item -> new ArrayList<>()));
     }
 
     @Override
@@ -66,7 +63,7 @@ public final class OpenWorkloadDownload extends JobImplementation {
 
     @Override
     public long getStepCount() {
-        return steps;
+        return map.size() + 1;
     }
 
     @Override
@@ -93,10 +90,8 @@ public final class OpenWorkloadDownload extends JobImplementation {
     }
 
     private void loadMap() {
-        pensenData.loadAllCourses(schoolYear).forEachOrdered(course -> {
-            if (course.open()) {
-                map.get(course.getSubject().getCategory()).add(course);
-            }
-        });
+        pensenData.loadAllCourses(schoolYear).filter(course -> course.open()).forEachOrdered(course
+            -> map.get(course.getSubject().getCategory()).add(course)
+        );
     }
 }
