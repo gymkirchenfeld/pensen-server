@@ -786,7 +786,7 @@ public final class PensenData extends BaseData implements Context {
         }
     }
 
-    public void saveThesisEntries(SchoolYear schoolYear, Teacher teacher, EntityMap<ThesisType> map) {
+    public void saveThesisEntries(SchoolYear schoolYear, Teacher teacher, ValueMap<ThesisType> map) {
         synchronized (lock) {
             Condition where = Condition.and(
                 Condition.equals(ThesisEntry.DB_SCHOOL_YEAR, schoolYear),
