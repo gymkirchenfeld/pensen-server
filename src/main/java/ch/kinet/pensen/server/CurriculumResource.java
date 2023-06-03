@@ -17,13 +17,11 @@
 package ch.kinet.pensen.server;
 
 import ch.kinet.JsonObject;
-import ch.kinet.SetComparison;
 import ch.kinet.Util;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
 import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.Curriculum;
-import ch.kinet.pensen.data.Grade;
 import ch.kinet.pensen.data.PensenData;
 import java.util.HashSet;
 import java.util.Set;
@@ -58,32 +56,6 @@ public final class CurriculumResource extends EntityResource<Curriculum> {
     }
 
     @Override
-    protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isAdmin();
-    }
-
-    @Override
-    protected Response create(Authorisation authorisation, JsonObject data) {
-        if (data.hasKey("id")) {
-            Curriculum original = pensenData.getCurriculumById(data.getInt("id", -1));
-            if (original == null) {
-                return Response.notFound();
-            }
-
-            System.out.println("Copy curriculum " + original.getId());
-            return Response.jsonVerbose(pensenData.copyCurriculum(original));
-        }
-
-        String code = data.getString(Curriculum.JSON_CODE);
-        String description = data.getString(Curriculum.JSON_DESCRIPTION);
-
-        Curriculum result = pensenData.createCurriculum(code, description);
-        result.setGrades(pensenData.parseGrades(data.getArray(Curriculum.JSON_GRADES)));
-        pensenData.updateCurriculum(result, Util.createSet(Curriculum.DB_GRADES));
-        return Response.noContent();
-    }
-
-    @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
         return authorisation != null && authorisation.isAdmin();
     }
@@ -108,13 +80,6 @@ public final class CurriculumResource extends EntityResource<Curriculum> {
         if (!Util.equal(object.getDescription(), description)) {
             object.setDescription(description);
             changed.add(Curriculum.DB_DESCRIPTION);
-        }
-
-        Set<Grade> grades = pensenData.parseGrades(data.getArray(Curriculum.JSON_GRADES));
-        SetComparison<Grade> changes = SetComparison.create(Util.createSet(object.grades()), grades);
-        if (changes.hasChanges()) {
-            object.setGrades(grades);
-            changed.add(Curriculum.DB_GRADES);
         }
 
         pensenData.updateCurriculum(object, changed);

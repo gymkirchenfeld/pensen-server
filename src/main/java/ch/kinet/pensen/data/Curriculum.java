@@ -19,11 +19,9 @@ package ch.kinet.pensen.data;
 import ch.kinet.Entity;
 import ch.kinet.JsonArray;
 import ch.kinet.JsonObject;
-import ch.kinet.Util;
-import ch.kinet.reflect.Persistence;
 import ch.kinet.reflect.PropertyInitializer;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -37,7 +35,6 @@ public final class Curriculum extends Entity {
     public static final String JSON_CODE = "code";
     public static final String JSON_DESCRIPTION = "description";
     public static final String JSON_GRADES = "grades";
-    private final List<Integer> gradeIds = new ArrayList<>();
     private final List<Grade> grades = new ArrayList<>();
     private boolean archived;
     private String code;
@@ -62,20 +59,6 @@ public final class Curriculum extends Entity {
 
     public String getDescription() {
         return description;
-    }
-
-    public Stream<Integer> getGradeIds() {
-        return grades.stream().map(grade -> grade.getId());
-    }
-
-    public Grade gradeByCode(String code) {
-        for (Grade grade : grades) {
-            if (Util.equal(grade.getCode(), code)) {
-                return grade;
-            }
-        }
-
-        return null;
     }
 
     public Grade gradeFor(SchoolYear schoolYear, int graduationYear) {
@@ -115,19 +98,6 @@ public final class Curriculum extends Entity {
         this.description = description;
     }
 
-    public void setGradeIds(Stream<Integer> gradeIds) {
-        this.gradeIds.clear();
-        gradeIds.forEach(item -> this.gradeIds.add(item));
-    }
-
-    @Persistence(ignore = true)
-    public void setGrades(Collection<Grade> grades) {
-        this.grades.clear();
-        if (this.grades != null) {
-            this.grades.addAll(grades);
-        }
-    }
-
     @Override
     public JsonObject toJsonTerse() {
         JsonObject result = JsonObject.create();
@@ -153,10 +123,11 @@ public final class Curriculum extends Entity {
         return getCode();
     }
 
-    Curriculum resolve(Context context) {
-        grades.clear();
+    void addGrade(Grade grade) {
+        grades.add(grade);
+    }
 
-        gradeIds.stream().map(id -> context.getGradeById(id)).sorted().forEachOrdered(item -> grades.add(item));
-        return this;
+    void sortGrades() {
+        Collections.sort(grades);
     }
 }

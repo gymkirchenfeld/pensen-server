@@ -115,7 +115,10 @@ public final class PensenData extends BaseData implements Context {
 
         grades.addAll(getConnection().selectAll(schema, Grade.class));
         curriculums.addAll(getConnection().selectAll(schema, Curriculum.class));
-        curriculums.forEach(curriculum -> curriculum.resolve(this));
+        getConnection().selectAll(schema, CurriculumGrade.class).forEachOrdered(
+            item -> item.getCurriculum().addGrade(item.getGrade())
+        );
+        curriculums.forEach(curriculum -> curriculum.sortGrades());
         schoolClasses.addAll(getConnection().selectAll(schema, SchoolClass.class));
         teachers.addAll(getConnection().selectAll(schema, Teacher.class));
 
