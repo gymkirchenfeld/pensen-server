@@ -59,16 +59,13 @@ public final class CalculationPercent extends Calculation {
         SemesterValue diff = employment.paymentTarget().map(
             (s, payment) -> payment - totalPercent.get(s)
         );
-        System.out.println("Differenz zum Verbuchen: " + diff);
         // Differenz in vorgegebener Reihenfolge bei verschiedenen Teilanstellungen verbuchen
         payrollMap.types().sorted(SALDO_RESOLVING_ORDER).forEachOrdered(type -> {
-            System.out.println(type + ": " + payrollMap.get(type));
             SemesterValue percent = payrollMap.get(type).map((s, p) -> {
                 // Berechne Prozentwert inklusive Altersentlastung
                 double result = p;
                 // Addiere die Differenz zwischen Auszahlung und Pensum
                 result += diff.get(s);
-                System.out.println("result=" + result);
                 if (result < 0) {
                     // negatives Pensum kann nicht gemeldet werden, buche auf nächste Teilanstellung
                     diff.set(s, result);
