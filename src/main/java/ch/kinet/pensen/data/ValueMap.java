@@ -25,6 +25,10 @@ import java.util.stream.Stream;
 
 public class ValueMap<T extends Entity> implements Json {
 
+    public static final <T extends Entity> ValueMap<T> create() {
+        return new ValueMap<>(Stream.empty());
+    }
+
     public static final <T extends Entity> ValueMap<T> create(Stream<T> keys) {
         return new ValueMap<>(keys);
     }
@@ -55,6 +59,10 @@ public class ValueMap<T extends Entity> implements Json {
 
     private ValueMap(Stream<T> keys) {
         keys.forEachOrdered(key -> map.put(key, 0.0));
+    }
+
+    public double get(T key) {
+        return map.get(key);
     }
 
     public void put(T key, double value) {
