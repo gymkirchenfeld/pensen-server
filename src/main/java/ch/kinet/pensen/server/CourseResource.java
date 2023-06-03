@@ -207,13 +207,13 @@ public final class CourseResource extends EntityResource<Course> {
         if (!Util.equal(object.getLessons1(), lessons1)) {
             object.setLessons1(lessons1);
             changed.add(Course.DB_LESSONS_1);
-            object.teachers(SemesterEnum.First).forEachOrdered(t -> affectedTeachers.add(t));
+            object.teachers(SemesterEnum.First).forEachOrdered(teacher -> affectedTeachers.add(teacher));
         }
 
         if (!Util.equal(object.getLessons2(), lessons2)) {
             object.setLessons2(lessons2);
             changed.add(Course.DB_LESSONS_2);
-            object.teachers(SemesterEnum.Second).forEachOrdered(t -> affectedTeachers.add(t));
+            object.teachers(SemesterEnum.Second).forEachOrdered(teacher -> affectedTeachers.add(teacher));
         }
 
         SetComparison<Teacher> changes1 = SetComparison.create(Util.createSet(object.teachers(SemesterEnum.First)), teachers1);

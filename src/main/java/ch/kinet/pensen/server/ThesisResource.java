@@ -52,10 +52,9 @@ public class ThesisResource extends ObjectResource {
         JsonObject result = toJson(schoolYear, teacher);
         JsonObject counts = JsonObject.create();
         result.put(JSON_THESIS_COUNTS, counts);
-        pensenData.loadThesisEntries(schoolYear, teacher).forEachOrdered(entry -> {
-            String key = String.valueOf(entry.getType().getId());
-            counts.put(key, entry.getCount());
-        });
+        pensenData.loadThesisEntries(schoolYear, teacher).forEachOrdered(
+            entry -> counts.put(String.valueOf(entry.getType().getId()), entry.getCount())
+        );
         return Response.jsonVerbose(result);
     }
 
@@ -76,9 +75,9 @@ public class ThesisResource extends ObjectResource {
         }
 
         SortedMap<Teacher, JsonObject> map = new TreeMap<>();
-        pensenData.loadEmployments(schoolYearFilter, null).forEachOrdered(employment -> {
-            map.put(employment.getTeacher(), toJson(schoolYearFilter, employment.getTeacher()));
-        });
+        pensenData.loadEmployments(schoolYearFilter, null).forEachOrdered(
+            entry -> map.put(entry.getTeacher(), toJson(schoolYearFilter, entry.getTeacher()))
+        );
 
         pensenData.loadThesisEntries(schoolYearFilter).forEachOrdered(entry -> {
             if (map.containsKey(entry.getTeacher())) {

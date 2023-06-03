@@ -125,17 +125,15 @@ public final class UntisDownload extends JobImplementation {
             }
             else {
                 // export "normal" course
-                course.schoolClasses().forEachOrdered(schoolClass -> {
-                    exportCourseSchoolClass(course, schoolClass, id);
-                });
+                course.schoolClasses().forEachOrdered(schoolClass -> exportCourseSchoolClass(course, schoolClass, id));
             }
         }
 
         private void exportCourseSchoolClass(Course course, SchoolClass schoolClass, int id) {
             if (course.teachers(semester).count() > 0) {
-                course.teachers(semester).forEachOrdered(teacher -> {
-                    writeLine(id, course.lessons(semester), schoolClass, teacher, course.getSubject(), course.getGrade());
-                });
+                course.teachers(semester).forEachOrdered(teacher
+                    -> writeLine(id, course.lessons(semester), schoolClass, teacher, course.getSubject(), course.getGrade())
+                );
             }
             else {
                 writeLine(id, course.lessons(semester), schoolClass, null, course.getSubject(), course.getGrade());
