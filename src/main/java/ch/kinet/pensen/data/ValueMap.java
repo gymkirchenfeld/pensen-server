@@ -21,6 +21,7 @@ import ch.kinet.Json;
 import ch.kinet.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ValueMap<T extends Entity> implements Json {
@@ -61,8 +62,8 @@ public class ValueMap<T extends Entity> implements Json {
         keys.forEachOrdered(key -> map.put(key, 0.0));
     }
 
-    public double get(T key) {
-        return map.get(key);
+    public Optional<Double> get(T key) {
+        return Optional.ofNullable(map.get(key));
     }
 
     public void put(T key, double value) {

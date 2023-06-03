@@ -25,6 +25,7 @@ import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.Teacher;
 import ch.kinet.pensen.data.ThesisType;
 import ch.kinet.pensen.data.ValueMap;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
@@ -82,12 +83,12 @@ public final class ThesisCSVDownload extends JobImplementation {
             csv.append(teacher.getCode());
             csv.append(employment.getDivision().getCode());
             pensenData.streamThesisTypes().forEach(thesisType -> {
-                double count = map.get(teacher).get(thesisType);
-                if (count == -1) {
-                    csv.append();
+                Optional<Double> count = map.get(teacher).get(thesisType);
+                if (count.isPresent()) {
+                    csv.append(count.get());
                 }
                 else {
-                    csv.append(count);
+                    csv.append();
                 }
             });
         });
