@@ -51,6 +51,7 @@ public final class JobData extends BaseData {
         registerLocalJob(EmploymentCSVDownload.class);
         registerLocalJob(OpenWorkloadDownload.class);
         registerLocalJob(PayrollCSVDownload.class);
+        registerLocalJob(PoolCSVDownload.class);
         registerLocalJob(SubjectCourseDownload.class);
         registerLocalJob(TeacherCourseDownload.class);
         registerLocalJob(TeacherLessonSummaryCSVDownload.class);
