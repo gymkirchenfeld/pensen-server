@@ -901,27 +901,19 @@ public final class PensenData extends BaseData implements Context {
     }
 
     public void updatePoolEntry(PoolEntry poolEntry, Set<String> properties) {
-        if (!properties.isEmpty()) {
-            getConnection().update(schema, poolEntry, properties);
-        }
+        getConnection().update(schema, poolEntry, properties);
     }
 
     public void updatePosting(Posting posting, Set<String> properties) {
-        if (!properties.isEmpty()) {
-            getConnection().update(schema, posting, properties);
-        }
+        getConnection().update(schema, posting, properties);
     }
 
     public void updateSchoolClass(SchoolClass schoolClass, Set<String> properties) {
-        if (!properties.isEmpty()) {
-            getConnection().update(schema, schoolClass, properties);
-        }
+        getConnection().update(schema, schoolClass, properties);
     }
 
     public void updateSchoolYear(SchoolYear schoolYear, Set<String> properties) {
-        if (!properties.isEmpty()) {
-            getConnection().update(schema, schoolYear, properties);
-        }
+        getConnection().update(schema, schoolYear, properties);
     }
 
     public void updateSettings(Settings settings, Set<String> properties) {
@@ -929,9 +921,7 @@ public final class PensenData extends BaseData implements Context {
     }
 
     public void updateSubject(Subject subject, Set<String> properties) {
-        if (!properties.isEmpty()) {
-            getConnection().update(schema, subject, properties);
-        }
+        getConnection().update(schema, subject, properties);
     }
 
     public void updateTeacher(Teacher teacher, Set<String> properties) {
