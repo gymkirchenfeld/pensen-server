@@ -834,7 +834,6 @@ public final class PensenData extends BaseData implements Context {
         return poolTypes.stream();
     }
 
-    @Override
     public Stream<PostingType> streamPostingTypes() {
         return postingTypes.stream();
     }

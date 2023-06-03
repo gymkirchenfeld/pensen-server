@@ -16,8 +16,6 @@
  */
 package ch.kinet.pensen.data;
 
-import java.util.stream.Stream;
-
 public interface Context {
 
     Grade getGradeById(int id);
@@ -25,7 +23,4 @@ public interface Context {
     SchoolClass getSchoolClassById(int id);
 
     Teacher getTeacherById(int id);
-
-    @Deprecated
-    Stream<PostingType> streamPostingTypes();
 }
