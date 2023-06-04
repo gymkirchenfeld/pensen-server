@@ -16,20 +16,20 @@
  */
 package ch.kinet.pensen.job;
 
+import ch.kinet.Data;
 import ch.kinet.DataManager;
 import ch.kinet.JsonObject;
 import ch.kinet.Mail;
 import ch.kinet.Mailer;
-import ch.kinet.http.Data;
 import ch.kinet.pdf.Document;
+import ch.kinet.pensen.calculation.Workload;
+import ch.kinet.pensen.calculation.Workloads;
 import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.Division;
 import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.Teacher;
-import ch.kinet.pensen.calculation.Workloads;
-import ch.kinet.pensen.calculation.Workload;
 import ch.kinet.pensen.server.Configuration;
 import javax.mail.MessagingException;
 

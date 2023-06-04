@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 by Stefan Rothe
+ * Copyright (C) 2022 - 2023 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,11 +16,11 @@
  */
 package ch.kinet.pensen.job;
 
+import ch.kinet.Data;
 import ch.kinet.DataManager;
 import ch.kinet.JsonObject;
 import ch.kinet.Util;
 import ch.kinet.csv.CsvWriter;
-import ch.kinet.http.Data;
 import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.Course;
 import ch.kinet.pensen.data.PensenData;
@@ -97,7 +97,7 @@ public final class CourseExport extends JobImplementation {
 
             }
 
-            return Data.csv(csv.toString(), getFileName());
+            return csv.toData(getFileName());
         }
 
         private String getFileName() {

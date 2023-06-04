@@ -16,9 +16,9 @@
  */
 package ch.kinet.pensen.server;
 
+import ch.kinet.Data;
 import ch.kinet.JsonObject;
 import ch.kinet.Util;
-import ch.kinet.http.Data;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
 import ch.kinet.pensen.data.Authorisation;
@@ -72,7 +72,7 @@ public final class DivisionResource extends EntityResource<Division> {
         Data logo = data.getData(Division.JSON_LOGO);
 
         pensenData.createDivision(
-            code, description, grouping, headName, headSignature.getData(), headTitle, logo.getData()
+            code, description, grouping, headName, headSignature.toBinary(), headTitle, logo.toBinary()
         );
         return Response.noContent();
     }
@@ -113,7 +113,7 @@ public final class DivisionResource extends EntityResource<Division> {
             changed.add(Division.DB_HEAD_NAME);
         }
 
-        object.setHeadSignature(headSignature.getData());
+        object.setHeadSignature(headSignature.toBinary());
         changed.add(Division.DB_HEAD_SIGNATURE);
 
         if (!Util.equal(object.getHeadTitle(), headTitle)) {
@@ -121,7 +121,7 @@ public final class DivisionResource extends EntityResource<Division> {
             changed.add(Division.DB_HEAD_TITLE);
         }
 
-        object.setLogo(logo.getData());
+        object.setLogo(logo.toBinary());
         changed.add(Division.DB_LOGO);
 
         pensenData.updateDivision(object, changed);

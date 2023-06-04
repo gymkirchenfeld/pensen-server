@@ -31,11 +31,10 @@ public abstract class ObjectResource extends AbstractRequestHandler {
 
     @Override
     public final Response handleRequest(Request request, Authorisation authorisation, String resourceId) {
-        JsonObject body = request.getBody();
         Query query = request.getQuery();
         switch (request.getMethod()) {
             case Post:
-                return handleCreate(authorisation, body);
+                return handleCreate(authorisation, request.getBody().toJsonTerse());
             case Get:
                 if (Util.isEmpty(resourceId)) {
                     return handleList(authorisation, query);
@@ -53,7 +52,7 @@ public abstract class ObjectResource extends AbstractRequestHandler {
             case Get:
                 return handleGet(authorisation, query);
             case Put:
-                return handleUpdate(authorisation, body);
+                return handleUpdate(authorisation, request.getBody().toJsonTerse());
             default:
                 return Response.methodNotAllowed();
         }

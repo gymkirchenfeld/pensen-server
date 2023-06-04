@@ -40,7 +40,7 @@ public abstract class GlobalResource extends AbstractRequestHandler {
             case Get:
                 return handleGet(authorisation, query);
             case Post:
-                return handlePost(authorisation, request.getBody());
+                return handlePost(authorisation, request.getBody().toJsonTerse());
             default:
                 return Response.methodNotAllowed();
         }

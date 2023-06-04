@@ -16,11 +16,11 @@
  */
 package ch.kinet.pensen.job;
 
+import ch.kinet.Data;
 import ch.kinet.DataManager;
 import ch.kinet.JsonObject;
 import ch.kinet.Util;
 import ch.kinet.csv.CsvWriter;
-import ch.kinet.http.Data;
 import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.Course;
 import ch.kinet.pensen.data.Grade;
@@ -101,7 +101,7 @@ public final class UntisDownload extends JobImplementation {
                 id = id + 1;
             }
 
-            return Data.csv(csv.toString(), getFileName());
+            return csv.toData(getFileName());
         }
 
         private String getFileName() {

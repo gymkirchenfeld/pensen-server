@@ -17,9 +17,9 @@
 package ch.kinet.pensen.data;
 
 import ch.kinet.Binary;
+import ch.kinet.Data;
 import ch.kinet.Entity;
 import ch.kinet.JsonObject;
-import ch.kinet.http.Data;
 import ch.kinet.reflect.PropertyInitializer;
 
 public final class Division extends Entity {
