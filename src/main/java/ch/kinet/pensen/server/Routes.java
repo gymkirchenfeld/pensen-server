@@ -38,6 +38,7 @@ public final class Routes {
         addResource("defaultlessons", ch.kinet.pensen.server.DefaultLessonsResource.class);
         addResource("division", ch.kinet.pensen.server.DivisionResource.class);
         addResource("employment", ch.kinet.pensen.server.EmploymentResource.class);
+        addResource("file", ch.kinet.pensen.server.FileResource.class);
         addResource("job", ch.kinet.pensen.server.JobResource.class);
         addResource("gender", ch.kinet.pensen.server.GenderResource.class);
         addResource("grade", ch.kinet.pensen.server.GradeResource.class);

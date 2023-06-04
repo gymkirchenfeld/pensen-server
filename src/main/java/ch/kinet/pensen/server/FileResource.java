@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Stefan Rothe
+ * Copyright (C) 2023 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,26 +14,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.kinet.pensen.job;
+package ch.kinet.pensen.server;
 
-public final class JobThread extends Thread {
+import ch.kinet.Data;
+import ch.kinet.http.Request;
+import ch.kinet.http.Response;
+import ch.kinet.pensen.data.Authorisation;
 
-    private final Job job;
-    private final JobImplementation implementation;
+public class FileResource extends AbstractRequestHandler {
 
-    public JobThread(Job job, JobImplementation implementation) {
-        this.job = job;
-        this.implementation = implementation;
+    @Override
+    public void initialize() {
     }
 
     @Override
-    public void run() {
-        try {
-            implementation.run(job.getCreator(), job);
-            job.succeeded(implementation.getProduct());
+    public Response handleRequest(Request request, Authorisation authorisation, String resourceId) {
+        if (authorisation == null) {
+            return Response.forbidden();
         }
-        catch (RuntimeException ex) {
-            job.failed(ex);
-        }
+
+        Data data = DB.getFileStorage().getFile(resourceId);
+        return data == null ? Response.notFound() : Response.file(data);
     }
 }

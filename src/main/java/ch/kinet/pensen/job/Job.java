@@ -36,7 +36,7 @@ public final class Job implements Json, JobCallback {
     private long totalCount;
     private int doneCount;
     private RuntimeException exception;
-    private Data product;
+    private String productId;
     private Thread thread;
 
     public Job(int id, boolean global, JobImplementation implementation) {
@@ -61,9 +61,9 @@ public final class Job implements Json, JobCallback {
         }
     }
 
-    public Data getProduct() {
+    public String getProductId() {
         synchronized (lock) {
-            return product;
+            return productId;
         }
     }
 
@@ -129,10 +129,7 @@ public final class Job implements Json, JobCallback {
             result.put("id", id);
             result.put("name", implementation.getName());
             result.put("title", implementation.getTitle());
-            if (product != null) {
-                result.putVerbose("product", product);
-            }
-
+            result.put("product", productId);
             if (implementation.hasError()) {
                 result.put("error", implementation.getErrorMessage());
             }
@@ -155,7 +152,10 @@ public final class Job implements Json, JobCallback {
     public void succeeded(Data result) {
         synchronized (lock) {
             this.exception = null;
-            this.product = result;
+            if (result != null) {
+                this.productId = DB.getFileStorage().addTemporaryFile(result);
+            }
+
             this.thread = null;
         }
     }
@@ -165,7 +165,7 @@ public final class Job implements Json, JobCallback {
             this.exception = exception;
             this.implementation.setErrorMessage(exception.toString());
             exception.printStackTrace();
-            this.product = null;
+            this.productId = null;
             this.thread = null;
         }
     }

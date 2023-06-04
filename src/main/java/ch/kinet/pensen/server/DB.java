@@ -17,21 +17,34 @@
 package ch.kinet.pensen.server;
 
 import ch.kinet.DataManager;
+import ch.kinet.http.FileStorage;
 import java.util.Locale;
 
 public final class DB {
 
-    private static DataManager INSTANCE;
+    private static DataManager DATA_MANAGER;
+    private static FileStorage FILE_STORAGE;
     private static final Object lock = new Object();
 
     public static DataManager getDataManager() {
         synchronized (lock) {
-            if (INSTANCE == null) {
+            if (DATA_MANAGER == null) {
                 Locale.setDefault(new Locale("de", "CH"));
-                INSTANCE = DataManager.create(Configuration.getInstance().getDbSpec());
+                DATA_MANAGER = DataManager.create(Configuration.getInstance().getDbSpec());
             }
         }
 
-        return INSTANCE;
+        return DATA_MANAGER;
+    }
+
+    public static FileStorage getFileStorage() {
+        synchronized (lock) {
+            if (FILE_STORAGE == null) {
+                Locale.setDefault(new Locale("de", "CH"));
+                FILE_STORAGE = FileStorage.create();
+            }
+        }
+
+        return FILE_STORAGE;
     }
 }
