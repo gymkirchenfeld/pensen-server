@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,10 +19,11 @@ package ch.kinet.pensen.server;
 import ch.kinet.Util;
 import ch.kinet.http.Request;
 import ch.kinet.http.Response;
-import ch.kinet.jjwt.JJWT;
-import ch.kinet.jjwt.Token;
 import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.PensenData;
+import ch.kinet.webtoken.JJWT;
+import ch.kinet.webtoken.MicrosoftKeys;
+import ch.kinet.webtoken.Token;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
