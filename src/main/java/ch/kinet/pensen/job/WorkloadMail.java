@@ -31,7 +31,6 @@ import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.Teacher;
 import ch.kinet.pensen.server.Configuration;
-import javax.mail.MessagingException;
 
 public final class WorkloadMail extends JobImplementation {
 
@@ -129,8 +128,8 @@ public final class WorkloadMail extends JobImplementation {
             try {
                 mailer.sendMail(mail);
             }
-            catch (MessagingException ex) {
-                if (ex.getMessage().startsWith("Could not connect to SMTP host")) {
+            catch (RuntimeException ex) {
+                if (ex.getCause().getMessage().startsWith("Could not connect to SMTP host")) {
                     setErrorMessage("Kann keine Verbindung zum SMTP-Server herstellen.");
                 }
                 else {

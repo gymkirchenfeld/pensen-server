@@ -22,7 +22,6 @@ import ch.kinet.http.RequestHandler;
 import ch.kinet.http.Response;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import javax.mail.MessagingException;
 
 public final class Server implements RequestHandler {
 
@@ -50,7 +49,7 @@ public final class Server implements RequestHandler {
             try {
                 Configuration.getInstance().createMailer(null).sendMail(mail);
             }
-            catch (MessagingException ex) {
+            catch (RuntimeException ex) {
                 // ignore
             }
         }
