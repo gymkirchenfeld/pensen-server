@@ -65,7 +65,7 @@ public class PostingsPDFGenerator {
         pdf.addCell(title.toString(), Alignment.Center);
 
         pdf.setFontSize(8);
-        pdf.addCell(Date.today().formatDMY(), Alignment.Right);
+        pdf.addCell(Date.formatDMY(Date.today()), Alignment.Right);
         pdf.endTable();
     }
 
@@ -138,10 +138,10 @@ public class PostingsPDFGenerator {
         StringBuilder result = new StringBuilder();
         result.append(entry.description());
         result.append(" (");
-        String start = entry.startDate().formatDMY();
-        String end = entry.endDate().formatDMY();
+        String start = Date.formatDMY(entry.startDate());
+        String end = Date.formatDMY(entry.endDate());
         result.append(start);
-        if (!Util.equal(start, end)) {
+        if (end != null && !Util.equal(start, end)) {
             result.append(" - ");
             result.append(end);
         }

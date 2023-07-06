@@ -65,7 +65,7 @@ public final class TeacherCoursePDFGenerator {
         pdf.addCell(title.toString(), Alignment.Center);
 
         pdf.setFontSize(8);
-        pdf.addCell(Date.today().formatDMY(), Alignment.Right);
+        pdf.addCell(Date.formatDMY(Date.today()), Alignment.Right);
         pdf.endTable();
     }
 
