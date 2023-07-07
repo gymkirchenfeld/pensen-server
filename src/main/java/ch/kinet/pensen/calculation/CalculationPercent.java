@@ -16,18 +16,14 @@
  */
 package ch.kinet.pensen.calculation;
 
-import ch.kinet.Util;
 import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.Posting;
 import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.SemesterValue;
-import java.util.Comparator;
 
 public final class CalculationPercent extends Calculation {
 
-    private static final Comparator<PayrollType> SALDO_RESOLVING_ORDER =
-        (PayrollType o1, PayrollType o2) -> Util.compare(o1.getSaldoResolvingOrder(), o2.getSaldoResolvingOrder());
     private final PayrollMap payrollMap = PayrollMap.create();
     private final SemesterValue totalPercent = SemesterValue.create();
 

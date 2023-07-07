@@ -16,7 +16,6 @@
  */
 package ch.kinet.pensen.calculation;
 
-import ch.kinet.Util;
 import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.Posting;
@@ -24,13 +23,13 @@ import ch.kinet.pensen.data.SemesterEnum;
 import static ch.kinet.pensen.data.SemesterEnum.First;
 import ch.kinet.pensen.data.SemesterValue;
 
-public final class CalculationHistoric extends Calculation {
+public final class CalculationLessonsAgeReliefIncluded extends Calculation {
 
     private final PayrollType defaultType;
     private final PayrollMap payrollMap = PayrollMap.create();
     private final SemesterValue totalPercent = SemesterValue.create();
 
-    CalculationHistoric(Employment employment, PayrollType defaultType) {
+    CalculationLessonsAgeReliefIncluded(Employment employment, PayrollType defaultType) {
         super(employment, poolTitle(employment));
         this.defaultType = defaultType;
     }
@@ -48,37 +47,46 @@ public final class CalculationHistoric extends Calculation {
 
     @Override
     double calculatePayment() {
-        return employment.paymentTarget().mean();
+        return payroll.percent().mean();
     }
 
     @Override
     void calculatePayroll() {
-        // Die Teilanstellung GYM2-4 muss zwingend vorhanden sein, um die Differenz buchen zu können.
-        payrollMap.ensureType(defaultType);
-        // Differenz zwischen Auszahlung und tatsächlichem Pensum berechnen
+        // Differenz zwischen Auszahlungsziel und tatsächlichem Pensum berechnen
         SemesterValue diff = employment.paymentTarget().map(
-            (s, payment) -> payment - employment.withAgeRelief(s, totalPercent.get(s))
+            (s, payment) -> payment - totalPercent.get(s)
         );
+        // Differenz in vorgegebener Reihenfolge bei verschiedenen Teilanstellungen verbuchen
+        payrollMap.types().sorted(SALDO_RESOLVING_ORDER).forEachOrdered(type -> {
+            SemesterValue percent = payrollMap.get(type).map((s, p) -> {
+                // Berechne Prozentwert inklusive Altersentlastung
+                double result = p;
+                // Addiere die Differenz zwischen Auszahlung und Pensum
+                result += diff.get(s);
+                if (result < 0) {
+                    // negatives Pensum kann nicht gemeldet werden, buche auf nächste Teilanstellung
+                    diff.set(s, result);
+                    result = 0;
+                }
+                else {
+                    // Differenz konnte verbucht werden
+                    diff.set(s, 0);
+                }
 
-        payrollMap.types().forEachOrdered(type -> {
-            // Berechne Prozentwert inklusive Altersentlastung
-            SemesterValue percent = payrollMap.get(type).map((s, p) -> employment.withAgeRelief(s, p));
-            // Am Kirchenfeld wurde die Differenz zwischen Pensum und Auszahlung immer
-            // mit der Teilanstellung Unterricht GYM2-4 verrechnet.
-            if (Util.equal(defaultType, type)) {
-                percent.add(diff);
-            }
+                return result;
+            });
 
             SemesterValue lessons = SemesterValue.create();
             if (type.lessonBased()) {
                 // aus Prozentwert wieder Lektionen berechnen (für Buchung in SAP)
                 lessons = percent.map((s, p) -> type.percentToLessons(employment.withoutAgeRelief(s, p)));
+                // Runde Lektionen auf zwei Dezimalstellen
+                lessons = lessons.map((s, l) -> Math.round(l * 100) / 100.0);
+                // Gerundete Lektionen wider in Prozent umrechnen
+                percent = lessons.map((s, l) -> employment.withAgeRelief(s, type.lessonsToPercent(l)));
+                // Runde Prozente auf drei Dezimalstellen
+                percent = percent.map((s, l) -> Math.round(l * 1000) / 1000.0);
             }
-
-            // Runde Lektionen auf zwei Dezimalstellen
-            lessons = lessons.map((s, l) -> Math.round(l * 100) / 100.0);
-            // Runde Prozente auf drei Dezimalstellen
-            percent = percent.map((s, l) -> Math.round(l * 1000) / 1000.0);
 
             payroll.add(type, lessons, percent);
         });
@@ -104,7 +112,7 @@ public final class CalculationHistoric extends Calculation {
         }
 
         final double ageReliefFactor = employment.ageReliefFactor(posting.semester());
-        // Am Kirchenfeld wurden früher Einzelbuchungen in Prozent inkl. AE erfasst
+        // Am Kirchenfeld werden Einzelbuchungen in Prozent inkl. AE erfasst
         percent = employment.withoutAgeRelief(posting.semester(), percent);
         final double ageRelief = percent * ageReliefFactor / 100.0;
         postings.addDetail(posting, payrollType, 0, percent, ageRelief);
@@ -112,7 +120,7 @@ public final class CalculationHistoric extends Calculation {
 
     @Override
     double poolPercent(SemesterEnum semester, double percent) {
-        // Am Kirchenfeld wurden früher Pooleinträge inkl. AE erfasst
+        // Am Kirchenfeld werden Pooleinträge inkl. AE erfasst
         return percent / (1.0 + employment.ageReliefFactor(semester) / 100);
     }
 

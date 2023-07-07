@@ -57,6 +57,10 @@ public final class SchoolYear extends Entity {
         return _ageReliefFactor(teacher.ageOn(startOfSemester(semester)));
     }
 
+    public CalculationMode.Enum calculationModeEnum() {
+        return CalculationMode.toEnum(calculationMode);
+    }
+
     public CalculationMode getCalculationMode() {
         return calculationMode;
     }

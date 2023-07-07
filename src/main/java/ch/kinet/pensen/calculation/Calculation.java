@@ -16,7 +16,7 @@
  */
 package ch.kinet.pensen.calculation;
 
-import ch.kinet.pensen.data.CalculationMode;
+import ch.kinet.Util;
 import ch.kinet.pensen.data.Course;
 import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.PayrollType;
@@ -27,18 +27,23 @@ import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.SemesterValue;
 import ch.kinet.pensen.data.Teacher;
 import ch.kinet.pensen.data.ThesisEntry;
+import java.util.Comparator;
 
 public abstract class Calculation {
 
+    static final Comparator<PayrollType> SALDO_RESOLVING_ORDER =
+        (PayrollType o1, PayrollType o2) -> Util.compare(o1.getSaldoResolvingOrder(), o2.getSaldoResolvingOrder());
+
     public static Calculation create(Employment employment, PayrollType defaultType) {
-        CalculationMode mode = employment.getSchoolYear().getCalculationMode();
-        switch (mode.getId()) {
-            case 1:
-                return new CalculationPercent(employment);
-            case 2:
+        switch (employment.getSchoolYear().calculationModeEnum()) {
+            case Lessons:
                 return new CalculationLessons(employment);
-            case 99:
-                return new CalculationHistoric(employment, defaultType);
+            case LessonsAgeReliefIncluded:
+                return new CalculationLessonsAgeReliefIncluded(employment, defaultType);
+            case PercentAgeReliefIncluded:
+                return new CalculationPercentAgeReliefIncluded(employment, defaultType);
+            case Percent:
+                return new CalculationPercent(employment);
             default:
                 throw new IllegalArgumentException();
         }
