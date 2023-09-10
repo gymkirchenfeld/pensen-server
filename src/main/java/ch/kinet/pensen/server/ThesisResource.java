@@ -21,7 +21,6 @@ import ch.kinet.Util;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
 import ch.kinet.pensen.data.Authorisation;
-import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.Teacher;
@@ -32,7 +31,11 @@ import java.util.TreeMap;
 
 public class ThesisResource extends ObjectResource {
 
+    private static final String JSON_ID = "id";
+    private static final String JSON_SCHOOL_YEAR = "schoolYear";
+    private static final String JSON_TEACHER = "teacher";
     private static final String JSON_THESIS_COUNTS = "thesisCounts";
+    private static final String QUERY_SCHOOL_YEAR = "schoolYear";
     private PensenData pensenData;
     private SchoolYear schoolYear;
     private Teacher teacher;
@@ -65,11 +68,11 @@ public class ThesisResource extends ObjectResource {
 
     @Override
     protected Response list(Authorisation authorisation, Query query) {
-        if (!query.hasKey(Employment.JSON_SCHOOL_YEAR)) {
+        if (!query.hasKey(QUERY_SCHOOL_YEAR)) {
             return Response.badRequest();
         }
 
-        SchoolYear schoolYearFilter = pensenData.getSchoolYearById(query.getInt(Employment.JSON_SCHOOL_YEAR, -1));
+        SchoolYear schoolYearFilter = pensenData.getSchoolYearById(query.getInt(QUERY_SCHOOL_YEAR, -1));
         if (schoolYearFilter == null) {
             return Response.notFound();
         }
@@ -124,9 +127,9 @@ public class ThesisResource extends ObjectResource {
 
     private JsonObject toJson(SchoolYear schoolYear, Teacher teacher) {
         JsonObject result = JsonObject.create();
-        result.put("id", resourceId(schoolYear, teacher));
-        result.putTerse("schoolYear", schoolYear);
-        result.putTerse("teacher", teacher);
+        result.put(JSON_ID, resourceId(schoolYear, teacher));
+        result.putTerse(JSON_SCHOOL_YEAR, schoolYear);
+        result.putTerse(JSON_TEACHER, teacher);
         return result;
     }
 

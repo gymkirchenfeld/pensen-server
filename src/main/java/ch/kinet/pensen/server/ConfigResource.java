@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,6 +23,12 @@ import ch.kinet.pensen.data.Authorisation;
 
 public final class ConfigResource extends GlobalResource {
 
+    private static final String JSON_CLIENT_ID = "clientId";
+    private static final String JSON_MSAL = "msal";
+    private static final String JSON_PERCENT_DECIMALS = "percentDecimals";
+    private static final String JSON_TENANT_ID = "tenantId";
+    private static final String JSON_TOKEN_REFRESH_OFFSET_MINUTES = "tokenRefreshOffsetMinutes";
+    private static final String JSON_VERSION = "version";
     private String clientId;
     private String tenantId;
     private int percentDecimals;
@@ -43,14 +49,14 @@ public final class ConfigResource extends GlobalResource {
     @Override
     protected Response get(Authorisation auth, Query query) {
         JsonObject msal = JsonObject.create();
-        msal.put("clientId", clientId);
-        msal.put("tenantId", tenantId);
+        msal.put(JSON_CLIENT_ID, clientId);
+        msal.put(JSON_TENANT_ID, tenantId);
 
         JsonObject result = JsonObject.create();
-        result.put("msal", msal);
-        result.put("percentDecimals", percentDecimals);
-        result.put("tokenRefreshOffsetMinutes", 10);
-        result.put("version", Version.VERSION);
+        result.put(JSON_MSAL, msal);
+        result.put(JSON_PERCENT_DECIMALS, percentDecimals);
+        result.put(JSON_TOKEN_REFRESH_OFFSET_MINUTES, 10);
+        result.put(JSON_VERSION, Version.VERSION);
         return Response.jsonVerbose(result);
     }
 }

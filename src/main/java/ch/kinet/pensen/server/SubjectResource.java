@@ -30,6 +30,7 @@ import java.util.Set;
 
 public final class SubjectResource extends EntityResource<Subject> {
 
+    private static final String QUERY_CROSS_CLASS = "crossClass";
     private PensenData pensenData;
 
     @Override
@@ -44,8 +45,8 @@ public final class SubjectResource extends EntityResource<Subject> {
 
     @Override
     protected Response list(Authorisation authorisation, Query query) {
-        if (query.hasKey(Subject.JSON_CROSS_CLASS)) {
-            boolean crossClass = query.getBoolean(Subject.JSON_CROSS_CLASS, true);
+        if (query.hasKey(QUERY_CROSS_CLASS)) {
+            boolean crossClass = query.getBoolean(QUERY_CROSS_CLASS, true);
             return Response.jsonTerse(pensenData.streamSubjects().filter(
                 item -> !item.isArchived() && (item.isCrossClass() == crossClass)
             ));

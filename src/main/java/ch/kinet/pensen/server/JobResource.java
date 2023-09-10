@@ -65,7 +65,7 @@ public final class JobResource extends ObjectResource {
 
     @Override
     protected Response create(Authorisation authorisation, JsonObject data) {
-        Job job = jobData.createJob(data.getString("name"));
+        job = jobData.createJob(data.getString(Job.JSON_NAME));
         if (job == null) {
             return Response.badRequest("Invalid job name.");
         }

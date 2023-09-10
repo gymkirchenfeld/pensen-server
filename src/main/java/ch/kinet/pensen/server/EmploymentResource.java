@@ -31,6 +31,8 @@ import java.util.Set;
 
 public final class EmploymentResource extends EntityResource<Employment> {
 
+    private static final String QUERY_SCHOOL_YEAR = "schoolYear";
+    private static final String QUERY_TEACHER = "teacher";
     private PensenData pensenData;
 
     @Override
@@ -45,8 +47,8 @@ public final class EmploymentResource extends EntityResource<Employment> {
 
     @Override
     protected Response list(Authorisation authorisation, Query query) {
-        if (query.hasKey("schoolYear")) {
-            SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt("schoolYear", -1));
+        if (query.hasKey(QUERY_SCHOOL_YEAR)) {
+            SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt(QUERY_SCHOOL_YEAR, -1));
             if (schoolYear == null) {
                 return Response.notFound();
             }
@@ -54,8 +56,8 @@ public final class EmploymentResource extends EntityResource<Employment> {
             return Response.jsonTerse(pensenData.loadEmployments(schoolYear, null));
         }
 
-        if (query.hasKey("teacher")) {
-            Teacher teacher = pensenData.getTeacherById(query.getInt("teacher", -1));
+        if (query.hasKey(QUERY_TEACHER)) {
+            Teacher teacher = pensenData.getTeacherById(query.getInt(QUERY_TEACHER, -1));
             if (teacher == null) {
                 return Response.notFound();
             }

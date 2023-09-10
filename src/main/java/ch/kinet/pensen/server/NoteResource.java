@@ -26,6 +26,7 @@ import ch.kinet.pensen.data.Teacher;
 
 public final class NoteResource extends EntityResource<Note> {
 
+    private static final String QUERY_TEACHER = "teacher";
     private PensenData pensenData;
 
     @Override
@@ -40,7 +41,7 @@ public final class NoteResource extends EntityResource<Note> {
 
     @Override
     protected Response list(Authorisation authorisation, Query query) {
-        Teacher teacher = pensenData.getTeacherById(query.getInt("teacher", -1));
+        Teacher teacher = pensenData.getTeacherById(query.getInt(QUERY_TEACHER, -1));
         if (teacher == null) {
             return Response.badRequest();
         }

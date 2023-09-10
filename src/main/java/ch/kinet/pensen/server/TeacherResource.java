@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 
 public final class TeacherResource extends EntityResource<Teacher> {
 
+    private static final String QUERY_EMPLOYED = "employed";
+    private static final String QUERY_SCHOOL_YEAR = "schoolYear";
     private PensenData pensenData;
 
     @Override
@@ -48,16 +50,16 @@ public final class TeacherResource extends EntityResource<Teacher> {
 
     @Override
     protected Response list(Authorisation authorisation, Query query) {
-        if (!query.hasKey("schoolYear")) {
+        if (!query.hasKey(QUERY_SCHOOL_YEAR)) {
             return Response.jsonVerbose(pensenData.streamTeachers());
         }
 
-        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt("schoolYear", -1));
+        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt(QUERY_SCHOOL_YEAR, -1));
         if (schoolYear == null) {
             return Response.notFound();
         }
 
-        boolean active = query.getBoolean("employed", true);
+        boolean active = query.getBoolean(QUERY_EMPLOYED, true);
         if (active) {
             return Response.jsonVerbose(pensenData.loadTeachersForSchoolYear(schoolYear));
         }

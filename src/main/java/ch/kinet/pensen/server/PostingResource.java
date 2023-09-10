@@ -33,6 +33,7 @@ import java.util.Set;
 
 public final class PostingResource extends EntityResource<Posting> {
 
+    private static final String QUERY_SCHOOL_YEAR = "schoolYear";
     private PensenData pensenData;
 
     @Override
@@ -47,7 +48,7 @@ public final class PostingResource extends EntityResource<Posting> {
 
     @Override
     protected Response list(Authorisation authorisation, Query query) {
-        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt(Posting.JSON_SCHOOL_YEAR, -1));
+        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt(QUERY_SCHOOL_YEAR, -1));
         if (schoolYear == null) {
             return Response.badRequest();
         }

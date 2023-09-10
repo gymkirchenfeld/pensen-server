@@ -41,6 +41,8 @@ import java.util.stream.Stream;
 
 public final class CourseResource extends EntityResource<Course> {
 
+    private static final String QUERY_CROSS_CLASS = "crossClass";
+    private static final String QUERY_SCHOOL_YEAR = "schoolYear";
     private PensenData pensenData;
 
     @Override
@@ -55,17 +57,17 @@ public final class CourseResource extends EntityResource<Course> {
 
     @Override
     protected Response list(Authorisation authorisation, Query query) {
-        if (!query.hasKey("schoolYear")) {
+        if (!query.hasKey(QUERY_SCHOOL_YEAR)) {
             return Response.badRequest();
         }
 
-        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt("schoolYear", -1));
+        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt(QUERY_SCHOOL_YEAR, -1));
         if (schoolYear == null) {
             return Response.notFound();
         }
 
-        if (query.hasKey("crossClass")) {
-            boolean crossClass = query.getBoolean("crossClass", true);
+        if (query.hasKey(QUERY_CROSS_CLASS)) {
+            boolean crossClass = query.getBoolean(QUERY_CROSS_CLASS, true);
             return Response.jsonTerse(pensenData.loadCourses(schoolYear, crossClass));
         }
         else {

@@ -32,6 +32,8 @@ import java.util.Set;
 
 public final class SchoolClassResource extends EntityResource<SchoolClass> {
 
+    private static final String QUERY_GRADE = "grade";
+    private static final String QUERY_SCHOOL_YEAR = "schoolYear";
     private PensenData pensenData;
 
     @Override
@@ -47,15 +49,15 @@ public final class SchoolClassResource extends EntityResource<SchoolClass> {
     @Override
     protected Response list(Authorisation authorisation, Query query) {
         Grade grade = null;
-        if (!query.hasKey("schoolYear")) {
+        if (!query.hasKey(QUERY_SCHOOL_YEAR)) {
             return Response.jsonVerbose(pensenData.streamSchoolClasses());
         }
 
-        if (query.hasKey("grade")) {
-            grade = pensenData.getGradeById(query.getInt("grade", -1));
+        if (query.hasKey(QUERY_GRADE)) {
+            grade = pensenData.getGradeById(query.getInt(QUERY_GRADE, -1));
         }
 
-        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt("schoolYear", -1));
+        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt(QUERY_SCHOOL_YEAR, -1));
         if (schoolYear == null) {
             return Response.notFound();
         }
@@ -138,7 +140,7 @@ public final class SchoolClassResource extends EntityResource<SchoolClass> {
 
     @Override
     protected Response delete(Authorisation authorisation) {
-        System.out.println("Deletng schoolClass");
+        System.out.println("Deleting schoolClass");
         if (pensenData.deleteSchoolClass(object)) {
             return Response.ok();
         }

@@ -26,6 +26,8 @@ import ch.kinet.pensen.data.Teacher;
 
 public final class WorkloadResource extends GlobalResource {
 
+    private static final String QUERY_SCHOOL_YEAR = "schoolYear";
+    private static final String QUERY_TEACHER = "teacher";
     private PensenData pensenData;
 
     @Override
@@ -40,12 +42,12 @@ public final class WorkloadResource extends GlobalResource {
 
     @Override
     protected Response get(Authorisation auth, Query query) {
-        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt("schoolYear", -1));
+        SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt(QUERY_SCHOOL_YEAR, -1));
         if (schoolYear == null) {
             return Response.notFound();
         }
 
-        Teacher teacher = pensenData.getTeacherById(query.getInt("teacher", -1));
+        Teacher teacher = pensenData.getTeacherById(query.getInt(QUERY_TEACHER, -1));
         if (teacher == null) {
             return Response.jsonTerse(pensenData.loadEmployments(schoolYear, null).map(
                 employment -> pensenData.loadWorkload(employment)

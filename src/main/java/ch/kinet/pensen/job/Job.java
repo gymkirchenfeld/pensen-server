@@ -27,6 +27,14 @@ import ch.kinet.pensen.server.DB;
 
 public final class Job implements Json, JobCallback {
 
+    public static final String JSON_ERROR = "error";
+    public static final String JSON_ID = "id";
+    public static final String JSON_LOG = "log";
+    public static final String JSON_NAME = "name";
+    public static final String JSON_PRODUCT = "product";
+    public static final String JSON_PROGRESS = "progress";
+    public static final String JSON_RUNNING = "running";
+    public static final String JSON_TITLE = "title";
     private Authorisation creator;
     private final boolean global;
     private final int id;
@@ -126,20 +134,20 @@ public final class Job implements Json, JobCallback {
     public JsonObject toJsonTerse() {
         synchronized (lock) {
             JsonObject result = JsonObject.create();
-            result.put("id", id);
-            result.put("name", implementation.getName());
-            result.put("title", implementation.getTitle());
-            result.put("product", productId);
+            result.put(JSON_ID, id);
+            result.put(JSON_NAME, implementation.getName());
+            result.put(JSON_TITLE, implementation.getTitle());
+            result.put(JSON_PRODUCT, productId);
             if (implementation.hasError()) {
-                result.put("error", implementation.getErrorMessage());
+                result.put(JSON_ERROR, implementation.getErrorMessage());
             }
 
-            result.put("running", !isFinished());
+            result.put(JSON_RUNNING, !isFinished());
             if (!isFinished()) {
-                result.put("progress", getProgress());
+                result.put(JSON_PROGRESS, getProgress());
             }
 
-            result.put("log", JsonArray.createVerbose(log.streamEntries()));
+            result.put(JSON_LOG, JsonArray.createVerbose(log.streamEntries()));
             return result;
         }
     }
