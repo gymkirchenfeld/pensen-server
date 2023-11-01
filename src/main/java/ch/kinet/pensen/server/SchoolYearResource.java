@@ -80,8 +80,8 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
             return Response.badRequest();
         }
 
-        pensenData.createSchoolYear(calculationMode, code, description, graduationYear, weeks);
-        return Response.noContent();
+        object = pensenData.createSchoolYear(calculationMode, code, description, graduationYear, weeks);
+        return Response.createdJsonVerbose(object);
     }
 
     @Override
