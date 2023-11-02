@@ -153,18 +153,18 @@ public final class Teacher extends Entity {
     @Override
     public JsonObject toJsonTerse() {
         JsonObject result = JsonObject.create();
-        result.put(JSON_ID, getId());
+        result.put(JSON_ARCHIVED, archived);
         result.put(JSON_CODE, code);
         result.put(JSON_FIRST_NAME, firstName);
-        result.put(JSON_LAST_NAME, lastName);
         result.putTerse(JSON_GENDER, gender);
+        result.put(JSON_ID, getId());
+        result.put(JSON_LAST_NAME, lastName);
         return result;
     }
 
     @Override
     public JsonObject toJsonVerbose() {
         JsonObject result = toJsonTerse();
-        result.put(JSON_ARCHIVED, archived);
         result.put(JSON_BIRTHDAY, birthday);
         result.put(JSON_DEPARTMENTS, JsonArray.createTerse(departments.stream()));
         result.put(JSON_EMAIL, email);

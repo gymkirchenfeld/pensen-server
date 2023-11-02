@@ -142,16 +142,16 @@ public final class SchoolYear extends Entity {
     @Override
     public JsonObject toJsonTerse() {
         JsonObject result = JsonObject.create();
-        result.put(JSON_ID, getId());
+        result.put(JSON_ARCHIVED, archived);
         result.put(JSON_CODE, code);
         result.put(JSON_DESCRIPTION, description);
+        result.put(JSON_ID, getId());
         return result;
     }
 
     @Override
     public JsonObject toJsonVerbose() {
         JsonObject result = toJsonTerse();
-        result.put(JSON_ARCHIVED, archived);
         result.putTerse(JSON_CALCULATION_MODE, calculationMode);
         result.put(JSON_FINALISED, finalised);
         result.put(JSON_GRADUATION_YEAR, graduationYear);

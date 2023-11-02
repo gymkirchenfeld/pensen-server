@@ -142,13 +142,13 @@ public final class Subject extends Entity {
     @Override
     public JsonObject toJsonTerse() {
         JsonObject result = JsonObject.create();
-        result.put(JSON_ID, getId());
+        result.put(JSON_ARCHIVED, archived);
         result.putTerse(JSON_CATEGORY, category);
         result.put(JSON_CODE, code);
         result.put(JSON_DESCRIPTION, description);
+        result.put(JSON_ID, getId());
         result.put(JSON_SORT_ORDER, sortOrder);
         result.putTerse(JSON_TYPE, type);
-        result.put(JSON_ARCHIVED, archived);
         return result;
     }
 
