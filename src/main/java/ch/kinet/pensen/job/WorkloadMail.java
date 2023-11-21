@@ -31,6 +31,8 @@ import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.Teacher;
 import ch.kinet.pensen.server.Configuration;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 public final class WorkloadMail extends JobImplementation {
 
@@ -97,6 +99,11 @@ public final class WorkloadMail extends JobImplementation {
 
     @Override
     public void run(Authorisation creator, JobCallback callback) {
+        checkEmailAddresses();
+        if (hasError()) {
+            return;
+        }
+
         Mailer mailer = Configuration.getInstance().createMailer(mailFrom);
         if (workloads == null) {
             sendMail(mailer, workload);
@@ -137,6 +144,25 @@ public final class WorkloadMail extends JobImplementation {
                     ex.printStackTrace();
                 }
             }
+        }
+    }
+
+    private void checkEmailAddresses() {
+        checkEmailAddress(mailFrom);
+        if (workloads == null) {
+            checkEmailAddress(workload.getTeacher().getEmail());
+        }
+        else {
+            workloads.teachers().forEachOrdered(teacher -> checkEmailAddress(teacher.getEmail()));
+        }
+    }
+
+    private void checkEmailAddress(String address) {
+        try {
+            new InternetAddress(address);
+        }
+        catch (AddressException ex) {
+            setErrorMessage("'" + workload.getTeacher().getEmail() + "' ist keine gültige E-Mail-Adresse.");
         }
     }
 
