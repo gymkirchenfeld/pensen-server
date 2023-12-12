@@ -179,11 +179,21 @@ public final class InitializeSchoolYear extends JobImplementation {
             return;
         }
 
+        // don't enter negative lessons in course
+        if (lessons1 < 0) {
+            lessons1 = 0;
+        }
+
+        if (lessons2 < 0) {
+            lessons2 = 0;
+        }
+
         Course course = findCourse(schoolYear, schoolClass, subject);
-        if (course == null) {
+        if (course == null || course.isCancelled()) {
             Course previousCourse = findCourse(previousSchoolYear, schoolClass, subject);
             if (previousCourse == null) {
                 callback.info("Erstelle Kurs {0} {1}.", subject.getCode(), schoolClass.getCode());
+
                 course = pensenData.createCourse("", curriculum, grade, lessons1, lessons2, schoolYear, subject);
                 course.setSchoolClasses(Stream.of(schoolClass));
                 pensenData.updateCourse(course, Util.createSet(Course.DB_SCHOOL_CLASS_IDS));
