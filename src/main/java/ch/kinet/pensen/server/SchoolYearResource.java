@@ -22,8 +22,10 @@ import ch.kinet.http.Query;
 import ch.kinet.http.Response;
 import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.CalculationMode;
+import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
+import ch.kinet.pensen.data.ValueMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -81,6 +83,8 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
         }
 
         object = pensenData.createSchoolYear(calculationMode, code, description, graduationYear, weeks);
+        ValueMap<PayrollType> weeklyLessons = ValueMap.parseJson(data, SchoolYear.JSON_WEEKLY_LESSONS, pensenData.streamPayrollTypes(), 0);
+        pensenData.saveWeeklyLessons(object, weeklyLessons);
         return Response.createdJsonVerbose(object);
     }
 
@@ -140,6 +144,8 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
         }
 
         pensenData.updateSchoolYear(object, changed);
+        ValueMap<PayrollType> weeklyLessons = ValueMap.parseJson(data, SchoolYear.JSON_WEEKLY_LESSONS, pensenData.streamPayrollTypes(), 0);
+        pensenData.saveWeeklyLessons(object, weeklyLessons);
         if (recalculate) {
             pensenData.recalculateBalance(object);
         }

@@ -39,7 +39,7 @@ public abstract class Calculation {
             case Lessons:
                 return new CalculationLessons(employment);
             case LessonsAgeReliefIncluded:
-                return new CalculationLessonsAgeReliefIncluded(employment, defaultType);
+                return new CalculationLessonsAgeReliefIncluded(employment);
             case PercentAgeReliefIncluded:
                 return new CalculationPercentAgeReliefIncluded(employment, defaultType);
             case Percent:
@@ -130,8 +130,20 @@ public abstract class Calculation {
         return new Workload(employment, courses, pool, theses, postings, summary, payroll, payment);
     }
 
+    final boolean lessonBased(PayrollType type) {
+        return employment.getSchoolYear().lessonBased(type);
+    }
+
+    final double lessonsToPercent(PayrollType type, double lessons) {
+        return employment.getSchoolYear().lessonsToPercent(type, lessons);
+    }
+
+    final double percentToLessons(PayrollType type, double lessons) {
+        return employment.getSchoolYear().percentToLessons(type, lessons);
+    }
+
     void sumPayrollLessons(PayrollType type, SemesterEnum semester, double lessons) {
-        if (!type.lessonBased()) {
+        if (!lessonBased(type)) {
             throw new IllegalArgumentException("Cannot add lessons to percent-based payroll.");
         }
 
@@ -139,9 +151,9 @@ public abstract class Calculation {
     }
 
     void sumPayrollPercent(PayrollType type, SemesterEnum semester, double percent) {
-        if (type.lessonBased()) {
+        if (lessonBased(type)) {
             // calculate lessons from percent
-            addToPayroll(type, semester, type.percentToLessons(percent));
+            addToPayroll(type, semester, percentToLessons(type, percent));
         }
         else {
             addToPayroll(type, semester, percent);

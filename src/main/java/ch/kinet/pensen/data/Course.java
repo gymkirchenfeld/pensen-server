@@ -215,10 +215,12 @@ public final class Course extends Entity {
         return open1 > 0 || open2 > 0;
     }
 
+    public double percent(SemesterEnum semester) {
+        return schoolYear.lessonsToPercent(payrollType(), lessons(semester));
+    }
+
     public double percentFor(Teacher teacher, SemesterEnum semester) {
-        double lessons = lessonsFor(teacher, semester);
-        double result = getGrade().getPayrollType().lessonsToPercent(lessons);
-        return result;
+        return schoolYear.lessonsToPercent(payrollType(), lessonsFor(teacher, semester));
     }
 
     public Stream<SchoolClass> schoolClasses() {

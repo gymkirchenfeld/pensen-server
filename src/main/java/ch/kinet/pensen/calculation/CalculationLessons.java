@@ -34,8 +34,8 @@ public final class CalculationLessons extends Calculation {
     @Override
     void addToPayroll(PayrollType type, SemesterEnum semester, double value) {
         // Intern werden alle Berechnungen in Prozent durchgeführt
-        if (type.lessonBased()) {
-            value = type.lessonsToPercent(value);
+        if (lessonBased(type)) {
+            value = lessonsToPercent(type, value);
         }
 
         // Intern werden alle Berechnungen inklusive Altersentlastung durchgeführt
@@ -76,13 +76,13 @@ public final class CalculationLessons extends Calculation {
             });
 
             SemesterValue lessons = SemesterValue.create();
-            if (type.lessonBased()) {
+            if (lessonBased(type)) {
                 // aus Prozentwert wieder Lektionen berechnen (für Buchung in SAP)
-                lessons = percent.map((s, p) -> type.percentToLessons(employment.withoutAgeRelief(s, p)));
+                lessons = percent.map((s, p) -> percentToLessons(type, employment.withoutAgeRelief(s, p)));
                 // Runde Lektionen auf zwei Dezimalstellen
                 lessons = lessons.map((s, l) -> Math.round(l * 100) / 100.0);
                 // Gerundete Lektionen wider in Prozent umrechnen
-                percent = lessons.map((s, l) -> employment.withAgeRelief(s, type.lessonsToPercent(l)));
+                percent = lessons.map((s, l) -> employment.withAgeRelief(s, lessonsToPercent(type, l)));
                 // Runde Prozente auf drei Dezimalstellen
                 percent = percent.map((s, l) -> Math.round(l * 1000) / 1000.0);
             }
@@ -98,10 +98,11 @@ public final class CalculationLessons extends Calculation {
             return;
         }
 
-        final double ageReliefFactor = employment.ageReliefFactor(posting.semester());
-        final double percentWithoutAgeRelief = payrollType.lessonsToPercent(lessons) / employment.getSchoolYear().getWeeks();
-        final double ageRelief = percentWithoutAgeRelief * ageReliefFactor / 100.0;
-        postings.addDetail(posting, payrollType, lessons, percentWithoutAgeRelief, ageRelief);
+        double ageReliefFactor = employment.ageReliefFactor(posting.semester());
+        double percentWithoutAgeRelief = lessonsToPercent(payrollType, lessons) / employment.getSchoolYear().getWeeks();
+        double ageRelief = percentWithoutAgeRelief * ageReliefFactor / 100.0;
+        double weeklyLessons = employment.getSchoolYear().weeklyLessons(payrollType);
+        postings.addDetail(posting, payrollType, lessons, percentWithoutAgeRelief, ageRelief, weeklyLessons);
     }
 
     @Override
@@ -110,9 +111,9 @@ public final class CalculationLessons extends Calculation {
             return;
         }
 
-        final double ageReliefFactor = employment.ageReliefFactor(posting.semester());
-        final double ageRelief = percent * ageReliefFactor / 100.0;
-        postings.addDetail(posting, payrollType, 0, percent, ageRelief);
+        double ageReliefFactor = employment.ageReliefFactor(posting.semester());
+        double ageRelief = percent * ageReliefFactor / 100.0;
+        postings.addDetail(posting, payrollType, 0, percent, ageRelief, 0);
     }
 
     @Override

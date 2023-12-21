@@ -127,7 +127,7 @@ public class PostingsPDFGenerator {
         posting.streamDetails().forEachOrdered(entry -> {
             pdf.addCell(entry.payrollType().getDescription(), Alignment.Left);
             pdf.addCell(Format.lessons(entry.lessons()), Alignment.Right);
-            pdf.addCell(Format.lessons(entry.payrollType().getWeeklyLessons()), Alignment.Right);
+            pdf.addCell(Format.lessons(entry.weeklyLessons()), Alignment.Right);
             pdf.addCell(Format.percent(entry.percentWithoutAgeRelief(), false), Alignment.Right); // Prozent
             pdf.addCell(Format.percent(entry.ageRelief(), false), Alignment.Right); // AE
             pdf.addCell(Format.percent(entry.percentWithAgeRelief(), false), Alignment.Right); // Total

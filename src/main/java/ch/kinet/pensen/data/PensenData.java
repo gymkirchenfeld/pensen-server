@@ -102,6 +102,10 @@ public final class PensenData extends BaseData implements Context {
         postingTypes.addAll(getConnection().selectAll(schema, PostingType.class));
         schoolYears.addAll(getConnection().selectAll(schema, SchoolYear.class));
         thesisTypes.addAll(getConnection().selectAll(schema, ThesisType.class));
+        getConnection().selectAll(schema, WeeklyLessons.class).forEachOrdered(item -> {
+            item.getSchoolYear().putWeeklyLessons(item.getPayrollType(), item.getLessons());
+        });
+
         // use getSchoolYears to get sorted list
         SchoolYear previous = null;
         for (SchoolYear current : schoolYears) {
@@ -797,6 +801,24 @@ public final class PensenData extends BaseData implements Context {
                     properties.put(ThesisEntry.DB_TYPE, entry.getKey());
                     properties.put(ThesisEntry.DB_COUNT, entry.getValue());
                     getConnection().insert(schema, ThesisEntry.class, properties);
+                }
+            });
+        }
+    }
+
+    public void saveWeeklyLessons(SchoolYear schoolYear, ValueMap<PayrollType> map) {
+        synchronized (lock) {
+            Condition where = Condition.equals(WeeklyLessons.DB_SCHOOL_YEAR, schoolYear);
+            getConnection().delete(schema, WeeklyLessons.class, where);
+            schoolYear.clearWeeklyLessons();
+            map.stream().forEachOrdered(entry -> {
+                if (entry.getValue() != 0) {
+                    schoolYear.putWeeklyLessons(entry.getKey(), entry.getValue());
+                    PropertyMap properties = PropertyMap.create();
+                    properties.put(WeeklyLessons.DB_SCHOOL_YEAR, schoolYear);
+                    properties.put(WeeklyLessons.DB_PAYROLL_TYPE, entry.getKey());
+                    properties.put(WeeklyLessons.DB_LESSONS, entry.getValue());
+                    getConnection().insert(schema, WeeklyLessons.class, properties);
                 }
             });
         }

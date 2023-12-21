@@ -20,6 +20,7 @@ import ch.kinet.Date;
 import ch.kinet.Entity;
 import ch.kinet.JsonObject;
 import ch.kinet.reflect.PropertyInitializer;
+import java.util.Optional;
 
 public final class SchoolYear extends Entity {
 
@@ -36,8 +37,12 @@ public final class SchoolYear extends Entity {
     public static final String JSON_DESCRIPTION = "description";
     public static final String JSON_FINALISED = "finalised";
     public static final String JSON_GRADUATION_YEAR = "graduationYear";
+    public static final String JSON_LESSONS = "lessons";
+    public static final String JSON_PAYROLL_TYPE = "payrollType";
+    public static final String JSON_WEEKLY_LESSONS = "weeklyLessons";
     public static final String JSON_WEEKS = "weeks";
     private final int graduationYear;
+    private final ValueMap<PayrollType> weeklyLessons = ValueMap.create();
     private boolean archived;
     private CalculationMode calculationMode;
     private String code;
@@ -89,8 +94,30 @@ public final class SchoolYear extends Entity {
         return weeks;
     }
 
+    public boolean lessonBased(PayrollType payrollType) {
+        return weeklyLessons.contains(payrollType);
+    }
+
+    public double lessonsToPercent(PayrollType payrollType, double lessons) {
+        Optional<Double> wl = weeklyLessons.get(payrollType);
+        if (wl.isEmpty()) {
+            return 0;
+        }
+
+        return lessons * 100 / wl.get();
+    }
+
     public SchoolYear next() {
         return next;
+    }
+
+    public double percentToLessons(PayrollType payrollType, double percent) {
+        Optional<Double> wl = weeklyLessons.get(payrollType);
+        if (wl.isEmpty()) {
+            return 0;
+        }
+
+        return percent * wl.get() / 100;
     }
 
     public SchoolYear previous() {
@@ -156,12 +183,25 @@ public final class SchoolYear extends Entity {
         result.put(JSON_FINALISED, finalised);
         result.put(JSON_GRADUATION_YEAR, graduationYear);
         result.put(JSON_WEEKS, weeks);
+        result.putTerse(JSON_WEEKLY_LESSONS, weeklyLessons);
         return result;
     }
 
     @Override
     public String toString() {
         return getCode();
+    }
+
+    public double weeklyLessons(PayrollType payrollType) {
+        return weeklyLessons.get(payrollType).orElse(0.0);
+    }
+
+    void clearWeeklyLessons() {
+        weeklyLessons.clear();
+    }
+
+    void putWeeklyLessons(PayrollType payrollType, double lessons) {
+        weeklyLessons.put(payrollType, lessons);
     }
 
     private static double _ageReliefFactor(int age) {

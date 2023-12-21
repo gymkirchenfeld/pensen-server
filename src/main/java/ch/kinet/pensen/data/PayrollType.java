@@ -22,52 +22,23 @@ import ch.kinet.reflect.PropertyInitializer;
 public final class PayrollType extends LookupValue {
 
     public static final String DB_SALDO_RESOLVING_ORDER = "SaldoResolvingOrder";
-    public static final String DB_WEEKLY_LESSONS = "WeeklyLessons";
     public static final String JSON_SALDO_RESOLVING_ORDER = "saldoResolvingOrder";
-    public static final String JSON_WEEKLY_LESSONS = "weeklyLessons";
     private final int saldoResolvingOrder;
-    private final double weeklyLessons;
 
-    @PropertyInitializer({DB_CODE, DB_DESCRIPTION, DB_ID, DB_SALDO_RESOLVING_ORDER, DB_WEEKLY_LESSONS})
-    public PayrollType(String code, String description, int id, int saldoResolvingOrder, double weeklyLessons) {
+    @PropertyInitializer({DB_CODE, DB_DESCRIPTION, DB_ID, DB_SALDO_RESOLVING_ORDER})
+    public PayrollType(String code, String description, int id, int saldoResolvingOrder) {
         super(code, description, id);
         this.saldoResolvingOrder = saldoResolvingOrder;
-        this.weeklyLessons = weeklyLessons;
     }
 
     public int getSaldoResolvingOrder() {
         return saldoResolvingOrder;
     }
 
-    public double getWeeklyLessons() {
-        return weeklyLessons;
-    }
-
-    public boolean lessonBased() {
-        return weeklyLessons != 0;
-    }
-
-    public double lessonsToPercent(double lessons) {
-        if (weeklyLessons == 0) {
-            return 0;
-        }
-
-        return lessons * 100 / weeklyLessons;
-    }
-
-    public double percentToLessons(double percent) {
-        if (weeklyLessons == 0) {
-            return 0;
-        }
-
-        return percent * weeklyLessons / 100;
-    }
-
     @Override
     public JsonObject toJsonTerse() {
         JsonObject result = super.toJsonTerse();
         result.put(JSON_SALDO_RESOLVING_ORDER, saldoResolvingOrder);
-        result.put(JSON_WEEKLY_LESSONS, weeklyLessons);
         return result;
     }
 }

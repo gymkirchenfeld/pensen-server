@@ -53,10 +53,10 @@ public class SubjectCoursePDFGenerator {
         header();
         courses.stream().sorted().forEachOrdered(entry -> {
             PayrollType et = entry.payrollType();
-            double l1 = entry.getLessons1();
-            double l2 = entry.getLessons2();
-            double p1 = et.lessonsToPercent(l1);
-            double p2 = et.lessonsToPercent(l2);
+            double l1 = entry.lessons(SemesterEnum.First);
+            double l2 = entry.lessons(SemesterEnum.Second);
+            double p1 = entry.percent(SemesterEnum.First);
+            double p2 = entry.percent(SemesterEnum.Second);
 
             pdf.addCell(entry.getSubject().getCode(), Alignment.Left);
             pdf.addCell(entry.getSubject().getDescription(), Alignment.Left);

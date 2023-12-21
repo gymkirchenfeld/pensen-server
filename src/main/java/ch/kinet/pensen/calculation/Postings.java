@@ -54,9 +54,9 @@ public final class Postings extends ItemList<Postings.Item> {
         add(item);
     }
 
-    public void addDetail(Posting posting, PayrollType type, double lessons, double percent, double ageRelief) {
+    public void addDetail(Posting posting, PayrollType type, double lessons, double percent, double ageRelief, double weeklyLessons) {
         Item item = itemMap.get(posting);
-        item.add(type, lessons, percent, ageRelief);
+        item.add(type, lessons, percent, ageRelief, weeklyLessons);
     }
 
     public double totalPercent() {
@@ -107,8 +107,8 @@ public final class Postings extends ItemList<Postings.Item> {
             return totalPercent;
         }
 
-        void add(PayrollType payrollType, double lessons, double percent, double ageRelief) {
-            details.add(new Detail(payrollType, lessons, percent, ageRelief));
+        void add(PayrollType payrollType, double lessons, double percent, double ageRelief, double weeklyLessons) {
+            details.add(new Detail(payrollType, lessons, percent, ageRelief, weeklyLessons));
             totalPercent += percent + ageRelief;
         }
 
@@ -132,15 +132,17 @@ public final class Postings extends ItemList<Postings.Item> {
     public static final class Detail implements Json {
 
         private final PayrollType payrollType;
+        private final double ageRelief;
         private final double lessons;
         private final double percent;
-        private final double ageRelief;
+        private final double weeklyLessons;
 
-        private Detail(PayrollType payrollType, double lessons, double percent, double ageRelief) {
+        private Detail(PayrollType payrollType, double lessons, double percent, double ageRelief, double weeklyLessons) {
             this.payrollType = payrollType;
             this.lessons = lessons;
             this.percent = percent;
             this.ageRelief = ageRelief;
+            this.weeklyLessons = weeklyLessons;
         }
 
         public double ageRelief() {
@@ -164,7 +166,7 @@ public final class Postings extends ItemList<Postings.Item> {
         }
 
         public double weeklyLessons() {
-            return payrollType.getWeeklyLessons();
+            return weeklyLessons;
         }
 
         @Override
