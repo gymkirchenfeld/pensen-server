@@ -20,6 +20,7 @@ import ch.kinet.Mail;
 import ch.kinet.http.Request;
 import ch.kinet.http.RequestHandler;
 import ch.kinet.http.Response;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -37,24 +38,31 @@ public final class Server implements RequestHandler {
 
     @Override
     public void handleException(Throwable exception) {
-        try {
-            StringWriter out = new StringWriter();
-            PrintWriter writer = new PrintWriter(out);
-            exception.printStackTrace(writer);
-            writer.flush();
-            Mail mail = Mail.create();
-            mail.addTo(Configuration.getInstance().getSupportMail());
-            mail.setBody(out.toString());
-            mail.setSubject("Interner Fehler in Pensenmanager");
-            try {
+        logException(exception);
+        sendExceptionMail(exception);
+
+    }
+
+    private void logException(Throwable exception) {
+        exception.printStackTrace(System.err);
+    }
+
+    private void sendExceptionMail(Throwable exception) {
+        String supportMail = Configuration.getInstance().getSupportMail();
+        try (StringWriter out = new StringWriter()) {
+            try (PrintWriter writer = new PrintWriter(out)) {
+                exception.printStackTrace(writer);
+                writer.flush();
+                Mail mail = Mail.create();
+                mail.addTo(Configuration.getInstance().getSupportMail());
+                mail.setBody(out.toString());
+                mail.setSubject("Interner Fehler in Pensenmanager");
                 Configuration.getInstance().createMailer(null).sendMail(mail);
             }
-            catch (RuntimeException ex) {
-                // ignore
-            }
         }
-        catch (RuntimeException ex) {
-            // ignore exception
+        catch (RuntimeException | IOException ex) {
+            System.err.println("Cannot send exception mail to " + supportMail + ".");
+            logException(ex);
         }
     }
 }
