@@ -142,25 +142,19 @@ public abstract class Calculation {
         return employment.getSchoolYear().percentToLessons(type, lessons);
     }
 
-    void sumPayrollLessons(PayrollType type, SemesterEnum semester, double lessons) {
+    final void sumPayrollLessons(PayrollType type, SemesterEnum semester, double lessons) {
         if (!lessonBased(type)) {
             throw new IllegalArgumentException("Cannot add lessons to percent-based payroll.");
         }
 
-        addToPayroll(type, semester, lessons);
+        addToPayroll(type, semester, lessonsToPercent(type, lessons));
     }
 
-    void sumPayrollPercent(PayrollType type, SemesterEnum semester, double percent) {
-        if (lessonBased(type)) {
-            // calculate lessons from percent
-            addToPayroll(type, semester, percentToLessons(type, percent));
-        }
-        else {
-            addToPayroll(type, semester, percent);
-        }
+    final void sumPayrollPercent(PayrollType type, SemesterEnum semester, double percent) {
+        addToPayroll(type, semester, percent);
     }
 
-    abstract void addToPayroll(PayrollType type, SemesterEnum semester, double value);
+    abstract void addToPayroll(PayrollType type, SemesterEnum semester, double percent);
 
     abstract double calculatePayment();
 

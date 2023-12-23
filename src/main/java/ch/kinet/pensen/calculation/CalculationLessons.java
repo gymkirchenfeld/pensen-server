@@ -32,16 +32,11 @@ public final class CalculationLessons extends Calculation {
     }
 
     @Override
-    void addToPayroll(PayrollType type, SemesterEnum semester, double value) {
-        // Intern werden alle Berechnungen in Prozent durchgeführt
-        if (lessonBased(type)) {
-            value = lessonsToPercent(type, value);
-        }
-
+    void addToPayroll(PayrollType type, SemesterEnum semester, double percent) {
         // Intern werden alle Berechnungen inklusive Altersentlastung durchgeführt
-        value = employment.withAgeRelief(semester, value);
-        payrollMap.add(type, semester, value);
-        totalPercent.add(semester, value);
+        percent = employment.withAgeRelief(semester, percent);
+        payrollMap.add(type, semester, percent);
+        totalPercent.add(semester, percent);
     }
 
     @Override

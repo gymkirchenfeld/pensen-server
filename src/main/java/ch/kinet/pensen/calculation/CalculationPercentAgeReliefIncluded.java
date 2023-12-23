@@ -35,14 +35,9 @@ public final class CalculationPercentAgeReliefIncluded extends Calculation {
     }
 
     @Override
-    void addToPayroll(PayrollType type, SemesterEnum semester, double value) {
-        // Alle Berechnungen werden in Prozent durchgeführt
-        if (lessonBased(type)) {
-            value = lessonsToPercent(type, value);
-        }
-
-        totalPercent.add(semester, value);
-        payrollMap.add(type, semester, value);
+    void addToPayroll(PayrollType type, SemesterEnum semester, double percent) {
+        totalPercent.add(semester, percent);
+        payrollMap.add(type, semester, percent);
     }
 
     @Override
@@ -81,7 +76,6 @@ public final class CalculationPercentAgeReliefIncluded extends Calculation {
 
             payroll.add(type, lessons, percent);
         });
-
     }
 
     @Override
