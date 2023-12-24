@@ -305,12 +305,12 @@ public final class CourseResource extends EntityResource<Course> {
         }
 
         if (course.isCrossClass()) {
-            return Response.badRequest("Cannot split cross-class courses.");
+            return Response.badRequest("Gesamtschulische Kurse können nicht aufgeteilt werden.");
         }
 
         List<SchoolClass> schoolClasses = course.schoolClasses().collect(Collectors.toList());
         if (schoolClasses.size() < 2) {
-            return Response.badRequest("Cannot split courses with one school class.");
+            return Response.badRequest("Ein Kurs mit einer Klasse kann nicht aufgeteilt werden.");
         }
 
         SchoolClass first = schoolClasses.get(0);

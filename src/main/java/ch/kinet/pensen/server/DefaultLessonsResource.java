@@ -45,7 +45,7 @@ public final class DefaultLessonsResource extends EntityResource<DefaultLessons>
     protected Response list(Authorisation authorisation, Query query) {
         Curriculum curriculum = pensenData.getCurriculumById(query.getInt("curriculum", -1));
         if (curriculum == null) {
-            return Response.badRequest("missing curriculum");
+            return Response.badRequest("Bitte Lehrgang auswählen.");
         }
 
         Division division = pensenData.getDivisionById(query.getInt("division", -1));

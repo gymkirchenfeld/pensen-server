@@ -78,13 +78,13 @@ public final class PostingResource extends EntityResource<Posting> {
         String description = data.getString(Posting.JSON_DESCRIPTION);
         Date startDate = data.getDate(Posting.JSON_START_DATE);
         if (startDate == null) {
-            return Response.badRequest("Missing or invalid start date.");
+            return Response.badRequest("Bitte ein gültiges Anfangsdatum auswählen.");
         }
 
         Date endDate = data.getDate(Posting.JSON_END_DATE);
         SchoolYear schoolYear = pensenData.getSchoolYearById(data.getObjectId(Posting.JSON_SCHOOL_YEAR, -1));
         if (schoolYear == null) {
-            return Response.badRequest("Missing school year.");
+            return Response.badRequest("Bitte ein Schuljahr auswählen.");
         }
 
         if (schoolYear.isArchived()) {
@@ -93,7 +93,7 @@ public final class PostingResource extends EntityResource<Posting> {
 
         Teacher teacher = pensenData.getTeacherById(data.getObjectId(Posting.JSON_TEACHER, -1));
         if (teacher == null) {
-            return Response.badRequest("Missing teacher.");
+            return Response.badRequest("Bitte eine Lehrperson auswählen.");
         }
 
         Posting result = pensenData.createPosting(description, endDate, schoolYear, startDate, teacher);
