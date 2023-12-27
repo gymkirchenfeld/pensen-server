@@ -30,10 +30,15 @@ import java.util.stream.Stream;
 
 public class CourseTable implements Json {
 
+    private static final String JSON_COURSES = "courses";
+    private static final String JSON_ID = "id";
+    private static final String JSON_ITEMS = "items";
+    private static final String JSON_SCHOOL_CLASSES = "schoolClasses";
+    private static final String JSON_SUBJECT = "subject";
     private final List<Course> courseList = new ArrayList<>();
     private SortedMap<Subject, Map<SchoolClass, Entry>> map;
-    private final List<Subject> subjectList;
     private final List<SchoolClass> schoolClassList;
+    private final List<Subject> subjectList;
 
     public static CourseTable create(Stream<SchoolClass> schoolClasses, Stream<Subject> subjects,
                                      Stream<Course> courses) {
@@ -73,16 +78,16 @@ public class CourseTable implements Json {
     @Override
     public JsonObject toJsonTerse() {
         JsonObject result = JsonObject.create();
-        result.put("schoolClasses", JsonArray.createTerse(schoolClassList.stream()));
+        result.put(JSON_SCHOOL_CLASSES, JsonArray.createTerse(schoolClassList.stream()));
 
         JsonObject courses = JsonObject.create();
         courseList.forEach(course -> courses.putTerse(String.valueOf(course.getId()), course));
-        result.put("courses", courses);
+        result.put(JSON_COURSES, courses);
 
         JsonArray items = JsonArray.create();
         subjectList.forEach(subject -> {
             JsonObject item = JsonObject.create();
-            item.putTerse("subject", subject);
+            item.putTerse(JSON_SUBJECT, subject);
             schoolClassList.forEach(schoolClass -> {
                 Entry entry = getEntry(subject, schoolClass);
                 if (entry != null && !entry.isEmpty()) {
@@ -93,7 +98,7 @@ public class CourseTable implements Json {
             items.add(item);
         });
 
-        result.put("items", items);
+        result.put(JSON_ITEMS, items);
         return result;
     }
 
@@ -135,7 +140,7 @@ public class CourseTable implements Json {
         @Override
         public JsonObject toJsonTerse() {
             JsonObject result = JsonObject.create();
-            result.put("id", courses.get(0).getId());
+            result.put(JSON_ID, courses.get(0).getId());
             return result;
         }
 
