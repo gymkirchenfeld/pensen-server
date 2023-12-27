@@ -277,6 +277,8 @@ public final class PensenData extends BaseData implements Context {
         properties.put(SchoolYear.DB_WEEKS, weeks);
         SchoolYear result = getConnection().insert(schema, SchoolYear.class, properties);
         result.setPrevious(schoolYears.last());
+        // copy weekly lessons from previous school year
+        copyWeeklyLessons(result);
         schoolYears.add(result);
         return result;
     }
@@ -1033,6 +1035,13 @@ public final class PensenData extends BaseData implements Context {
             properties.put(TeacherDepartment.DB_TEACHER, teacher);
             getConnection().insert(schema, TeacherDepartment.class, properties);
         }
+    }
+
+    private void copyWeeklyLessons(SchoolYear schoolYear) {
+        ValueMap<PayrollType> map = ValueMap.create();
+        SchoolYear previous = schoolYear.previous();
+        payrollTypes.forEach(payrollType -> map.put(payrollType, previous.weeklyLessons(payrollType)));
+        saveWeeklyLessons(schoolYear, map);
     }
 
     private Workload createWorkload(Employment employment, Stream<Course> courses, Stream<PoolEntry> poolEntries,
