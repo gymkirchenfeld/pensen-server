@@ -31,6 +31,7 @@ import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.Subject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class LessonTableResource extends ObjectResource {
 
@@ -73,7 +74,6 @@ public class LessonTableResource extends ObjectResource {
     @Override
     protected Response get(Authorisation authorisation, Query query) {
         JsonObject result = toJson(curriculum, subject, division);
-        JsonArray items = JsonArray.create();
         result.put(JSON_DETAILS, JsonArray.createTerse(pensenData.loadLessonTableEntries(curriculum, division, subject)));
         return Response.json(result);
     }
@@ -92,15 +92,18 @@ public class LessonTableResource extends ObjectResource {
     @Override
     protected Response parseResourceId(String resourceId) {
         String[] parts = resourceId.split("-");
-        if (parts.length != 3) {
+        if (parts.length < 2 || parts.length > 3) {
             return Response.badRequest();
         }
 
         curriculum = pensenData.getCurriculumById(Util.parseInt(parts[0], -1));
         subject = pensenData.getSubjectById(Util.parseInt(parts[1], -1));
-        division = pensenData.getDivisionById(Util.parseInt(parts[2], -1));
         if (curriculum == null || subject == null) {
             return Response.notFound();
+        }
+
+        if (parts.length == 3) {
+            division = pensenData.getDivisionById(Util.parseInt(parts[2], -1));
         }
 
         return null;
@@ -131,15 +134,15 @@ public class LessonTableResource extends ObjectResource {
         return result.toString();
     }
 
-    private Map<Grade, LessonTable.Entry> parseEntries(JsonObject data) {
+    private Stream<LessonTable.Entry> parseEntries(JsonObject data) {
         Map<Grade, LessonTable.Entry> result = new HashMap<>();
         if (!data.hasKey(JSON_DETAILS)) {
-            return result;
+            return Stream.empty();
         }
 
         JsonArray jsonArray = data.getArray(JSON_DETAILS);
         if (jsonArray == null) {
-            return result;
+            return Stream.empty();
         }
 
         for (int i = 0; i < jsonArray.length(); ++i) {
@@ -155,6 +158,6 @@ public class LessonTableResource extends ObjectResource {
             }
         }
 
-        return result;
+        return result.values().stream();
     }
 }

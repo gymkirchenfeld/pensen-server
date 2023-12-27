@@ -405,7 +405,7 @@ public final class PensenData extends BaseData implements Context {
     }
 
     public LessonType emptyLessonType() {
-        return lessonTypes.byId(3);
+        return getLessonTypeByEnum(LessonType.Enum.NoLessons);
     }
 
     public Authorisation getAuthorisationByName(String name) {
@@ -437,7 +437,7 @@ public final class PensenData extends BaseData implements Context {
         return grades.byId(id);
     }
 
-    public LessonType getAccountStatusByEnum(LessonType.Enum lessonTypeEnum) {
+    public LessonType getLessonTypeByEnum(LessonType.Enum lessonTypeEnum) {
         return lessonTypes.byCode(lessonTypeEnum.getCode());
     }
 
@@ -815,7 +815,7 @@ public final class PensenData extends BaseData implements Context {
     }
 
     public void saveLessonTableEntries(Curriculum curriculum, Division division, Subject subject,
-                                       Map<Grade, LessonTable.Entry> map) {
+                                       Stream<LessonTable.Entry> entries) {
         synchronized (lock) {
             Condition where = Condition.and(
                 Condition.equals(LessonTableEntry.DB_CURRICULUM, curriculum),
@@ -823,16 +823,17 @@ public final class PensenData extends BaseData implements Context {
                 division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
                     Condition.equals(LessonTableEntry.DB_DIVISION, division));
             getConnection().delete(schema, LessonTableEntry.class, where);
-            map.entrySet().stream().forEachOrdered(entry -> {
-                if (entry.getValue().typeEnum() != LessonType.Enum.NoLessons) {
+            entries.forEachOrdered(entry -> {
+                if (entry.typeEnum() != LessonType.Enum.NoLessons) {
+                    System.out.println("Saving " + entry.getGrade() + " " + entry.getType());
                     PropertyMap properties = PropertyMap.create();
                     properties.put(LessonTableEntry.DB_CURRICULUM, curriculum);
                     properties.put(LessonTableEntry.DB_DIVISION, division);
                     properties.put(LessonTableEntry.DB_SUBJECT, subject);
-                    properties.put(LessonTableEntry.DB_GRADE, entry.getKey());
-                    properties.put(LessonTableEntry.DB_LESSONS_1, entry.getValue().getLessons1());
-                    properties.put(LessonTableEntry.DB_LESSONS_2, entry.getValue().getLessons2());
-                    properties.put(LessonTableEntry.DB_TYPE, entry.getValue().getType());
+                    properties.put(LessonTableEntry.DB_GRADE, entry.getGrade());
+                    properties.put(LessonTableEntry.DB_LESSONS_1, entry.getLessons1());
+                    properties.put(LessonTableEntry.DB_LESSONS_2, entry.getLessons2());
+                    properties.put(LessonTableEntry.DB_TYPE, entry.getType());
                     getConnection().insert(schema, LessonTableEntry.class, properties);
                 }
             });
