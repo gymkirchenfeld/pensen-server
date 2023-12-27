@@ -97,7 +97,7 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
             return Response.badRequest("Ein Typ muss ausgewählt werden.");
         }
 
-        PoolEntry result = pensenData.createPoolEntry(description, percent1, percent2, schoolYear, teacher, type);
+        pensenData.createPoolEntry(description, percent1, percent2, schoolYear, teacher, type);
         pensenData.recalculateBalance(schoolYear, teacher);
         return Response.noContent();
     }
