@@ -48,6 +48,7 @@ public final class PensenData extends BaseData implements Context {
     private final Entities<Division> divisions = Entities.create();
     private final Entities<Gender> genders = Entities.create();
     private final Entities<Grade> grades = Entities.create();
+    private final Lookup<LessonType> lessonTypes = Lookup.create();
     private final Object lock = new Object();
     private final Entities<PayrollType> payrollTypes = Entities.create();
     private final Entities<PoolType> poolTypes = Entities.create();
@@ -78,6 +79,7 @@ public final class PensenData extends BaseData implements Context {
         connection.addLookup(Gender.class);
         connection.addLookup(Grade.class);
         connection.addLookup(CalculationMode.class);
+        connection.addLookup(LessonType.class);
         connection.addLookup(PayrollType.class);
         connection.addLookup(PoolType.class);
         connection.addLookup(Posting.class);
@@ -97,6 +99,7 @@ public final class PensenData extends BaseData implements Context {
         calculationModes.addAll(getConnection().selectAll(schema, CalculationMode.class));
         divisions.addAll(getConnection().selectAll(schema, Division.class));
         genders.addAll(getConnection().selectAll(schema, Gender.class));
+        lessonTypes.addAll(getConnection().selectAll(schema, LessonType.class));
         payrollTypes.addAll(getConnection().selectAll(schema, PayrollType.class));
         poolTypes.addAll(getConnection().selectAll(schema, PoolType.class));
         postingTypes.addAll(getConnection().selectAll(schema, PostingType.class));
@@ -399,6 +402,10 @@ public final class PensenData extends BaseData implements Context {
         return true;
     }
 
+    public LessonType emptyLessonType() {
+        return lessonTypes.byId(3);
+    }
+
     public Authorisation getAuthorisationByName(String name) {
         if (!authorisations.containsKey(name)) {
             return null;
@@ -426,6 +433,14 @@ public final class PensenData extends BaseData implements Context {
     @Override
     public Grade getGradeById(int id) {
         return grades.byId(id);
+    }
+
+    public LessonType getAccountStatusByEnum(LessonType.Enum lessonTypeEnum) {
+        return lessonTypes.byCode(lessonTypeEnum.getCode());
+    }
+
+    public LessonType getLessonTypeById(int id) {
+        return lessonTypes.byId(id);
     }
 
     public PayrollType getPayrollTypeById(int id) {
@@ -571,6 +586,35 @@ public final class PensenData extends BaseData implements Context {
         }
 
         return getConnection().select(schema, Employment.class, where).sorted();
+    }
+
+    public LessonTable loadLessonTable(Curriculum curriculum, Division division) {
+        Condition where = Condition.and(
+            Condition.equals(LessonTableEntry.DB_CURRICULUM, curriculum),
+            division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
+                Condition.equals(LessonTableEntry.DB_DIVISION, division));
+        LessonType emptyType = emptyLessonType();
+        return LessonTable.create(
+            curriculum, division, emptyType, streamSubjects(), getConnection().select(schema, LessonTableEntry.class, where)
+        );
+    }
+
+    public Stream<LessonTable.Entry> loadLessonTableEntries(Curriculum curriculum, Division division, Subject subject) {
+        LessonType emptyType = emptyLessonType();
+        Map<Grade, LessonTable.Entry> map = curriculum.grades().collect(
+            Collectors.toMap(grade -> grade, grade -> LessonTable.createEntry(grade, emptyType))
+        );
+        Condition where = Condition.and(
+            Condition.equals(LessonTableEntry.DB_CURRICULUM, curriculum),
+            Condition.equals(LessonTableEntry.DB_SUBJECT, subject),
+            division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
+                Condition.equals(LessonTableEntry.DB_DIVISION, division));
+        getConnection().select(schema, LessonTableEntry.class, where).forEachOrdered(item -> {
+            if (map.containsKey(item.getGrade())) {
+                map.get(item.getGrade()).setData(item);
+            }
+        });
+        return map.values().stream().sorted();
     }
 
     public Note loadNote(int id) {
@@ -768,6 +812,31 @@ public final class PensenData extends BaseData implements Context {
         }
     }
 
+    public void saveLessonTableEntries(Curriculum curriculum, Division division, Subject subject,
+                                       Map<Grade, LessonTable.Entry> map) {
+        synchronized (lock) {
+            Condition where = Condition.and(
+                Condition.equals(LessonTableEntry.DB_CURRICULUM, curriculum),
+                Condition.equals(LessonTableEntry.DB_SUBJECT, subject),
+                division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
+                    Condition.equals(LessonTableEntry.DB_DIVISION, division));
+            getConnection().delete(schema, LessonTableEntry.class, where);
+            map.entrySet().stream().forEachOrdered(entry -> {
+                if (entry.getValue().typeEnum() != LessonType.Enum.NoLessons) {
+                    PropertyMap properties = PropertyMap.create();
+                    properties.put(LessonTableEntry.DB_CURRICULUM, curriculum);
+                    properties.put(LessonTableEntry.DB_DIVISION, division);
+                    properties.put(LessonTableEntry.DB_SUBJECT, subject);
+                    properties.put(LessonTableEntry.DB_GRADE, entry.getKey());
+                    properties.put(LessonTableEntry.DB_LESSONS_1, entry.getValue().getLessons1());
+                    properties.put(LessonTableEntry.DB_LESSONS_2, entry.getValue().getLessons2());
+                    properties.put(LessonTableEntry.DB_TYPE, entry.getValue().getType());
+                    getConnection().insert(schema, LessonTableEntry.class, properties);
+                }
+            });
+        }
+    }
+
     public void savePostingDetails(Posting posting, ValueMap<PostingType> map) {
         synchronized (lock) {
             Condition where = Condition.equals(PostingDetail.DB_POSTING, posting);
@@ -842,6 +911,10 @@ public final class PensenData extends BaseData implements Context {
 
     public Stream<Grade> streamGrades() {
         return grades.stream();
+    }
+
+    public Stream<LessonType> streamLessonTypes() {
+        return lessonTypes.stream();
     }
 
     public Stream<PayrollType> streamPayrollTypes() {

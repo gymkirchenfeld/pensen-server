@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 - 2022 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2014 - 2023 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,11 +18,11 @@ package ch.kinet.pensen.data;
 
 import ch.kinet.Util;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public final class Lookup<T extends LookupValue> {
 
@@ -45,12 +45,8 @@ public final class Lookup<T extends LookupValue> {
         Collections.sort(list);
     }
 
-    public void addAll(Collection<T> items) {
-        for (T item : items) {
-            doAdd(item);
-        }
-
-        Collections.sort(list);
+    public void addAll(Stream<T> stream) {
+        stream.sorted().forEachOrdered(item -> doAdd(item));
     }
 
     public void clear() {
@@ -59,7 +55,7 @@ public final class Lookup<T extends LookupValue> {
         byId.clear();
     }
 
-    public T getByCode(String code) {
+    public T byCode(String code) {
         if (Util.isEmpty(code)) {
             return null;
         }
@@ -67,13 +63,12 @@ public final class Lookup<T extends LookupValue> {
         return byCode.get(code.toLowerCase());
     }
 
-    public T getById(int id) {
+    public T byId(int id) {
         return byId.get(id);
     }
 
-    public void init(Collection<T> items) {
-        clear();
-        addAll(items);
+    public Stream<T> stream() {
+        return list.stream();
     }
 
     private void doAdd(T item) {
