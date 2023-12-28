@@ -63,7 +63,11 @@ public class LessonTableResource extends ObjectResource {
         }
 
         division = pensenData.getDivisionById(query.getInt("division", -1));
-        return Response.jsonTerse(pensenData.loadLessonTable(curriculum, division));
+        subject = pensenData.getSubjectById(query.getInt("subject", -1));
+        return Response.jsonTerse(subject == null ?
+            pensenData.loadLessonTable(curriculum, division) :
+            loadObject()
+        );
     }
 
     @Override
@@ -73,9 +77,7 @@ public class LessonTableResource extends ObjectResource {
 
     @Override
     protected Response get(Authorisation authorisation, Query query) {
-        JsonObject result = toJson(curriculum, subject, division);
-        result.put(JSON_DETAILS, JsonArray.createTerse(pensenData.loadLessonTableEntries(curriculum, division, subject)));
-        return Response.json(result);
+        return Response.json(loadObject());
     }
 
     @Override
@@ -109,7 +111,7 @@ public class LessonTableResource extends ObjectResource {
         return null;
     }
 
-    private JsonObject toJson(Curriculum curriculum, Subject subject, Division division) {
+    private JsonObject loadObject() {
         JsonObject result = JsonObject.create();
         result.put(JSON_ID, resourceId(curriculum, subject, division));
         result.putTerse(JSON_CURRICULUM, curriculum);
@@ -118,6 +120,7 @@ public class LessonTableResource extends ObjectResource {
             result.putTerse(JSON_DIVISION, division);
         }
 
+        result.put(JSON_DETAILS, JsonArray.createTerse(pensenData.loadLessonTableEntries(curriculum, division, subject)));
         return result;
     }
 
