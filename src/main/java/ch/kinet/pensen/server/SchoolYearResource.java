@@ -83,7 +83,19 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
         }
 
         object = pensenData.createSchoolYear(calculationMode, code, description, graduationYear, weeks);
-        ValueMap<PayrollType> weeklyLessons = ValueMap.parseJson(data, SchoolYear.JSON_WEEKLY_LESSONS, pensenData.streamPayrollTypes(), 0);
+        ValueMap<PayrollType> weeklyLessons;
+        if (data.hasKey(SchoolYear.JSON_WEEKLY_LESSONS)) {
+            weeklyLessons = ValueMap.parseJson(data, SchoolYear.JSON_WEEKLY_LESSONS, pensenData.streamPayrollTypes(), 0);
+        }
+        else {
+            // copy from previous school year
+            SchoolYear previous = object.previous();
+            weeklyLessons = ValueMap.create();
+            pensenData.streamPayrollTypes().forEachOrdered(
+                payrollType -> weeklyLessons.put(payrollType, previous.weeklyLessons(payrollType))
+            );
+        }
+
         pensenData.saveWeeklyLessons(object, weeklyLessons);
         return Response.createdJsonVerbose(object);
     }
