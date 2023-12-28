@@ -22,15 +22,15 @@ import ch.kinet.Util;
 import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.Course;
 import ch.kinet.pensen.data.Curriculum;
-import ch.kinet.pensen.data.DefaultLessons;
 import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.Grade;
+import ch.kinet.pensen.data.LessonTableEntry;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolClass;
 import ch.kinet.pensen.data.SchoolYear;
-import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.Subject;
 import ch.kinet.pensen.data.Teacher;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +73,7 @@ public final class InitializeSchoolYear extends JobImplementation {
             loadCourses(courses, previousSchoolYear, false);
             loadCourses(specialCourses, schoolYear, true);
             loadCourses(specialCourses, previousSchoolYear, true);
-            stepCount = pensenData.loadEmployments(previousSchoolYear, null).count();
+            stepCount += 1; // employments
             stepCount += schoolClasses.size();
             stepCount += 3;
         }
@@ -104,9 +104,7 @@ public final class InitializeSchoolYear extends JobImplementation {
         pensenData.loadEmployments(schoolYear, null).forEachOrdered(employment -> {
             existing.put(employment.getTeacher(), employment);
         });
-
         pensenData.loadEmployments(previousSchoolYear, null).forEachOrdered(employment -> {
-            callback.step();
             if (!existing.containsKey(employment.getTeacher())) {
                 pensenData.createEmployment(
                     schoolYear,
@@ -120,6 +118,7 @@ public final class InitializeSchoolYear extends JobImplementation {
                     null);
             }
         });
+        callback.step();
     }
 
     private void initSchoolClasses(JobCallback callback) {
@@ -127,7 +126,9 @@ public final class InitializeSchoolYear extends JobImplementation {
         for (SchoolClass schoolClass : schoolClasses) {
             Grade grade = schoolClass.gradeFor(schoolYear);
             callback.info("Erstelle Kurse für Klasse {0} auf Stufe {1}.", schoolClass.getCode(), grade.getCode());
-            pensenData.loadDefaultLessons(schoolClass.getCurriculum(), schoolClass.getDivision()).forEachOrdered(
+            pensenData.loadLessonTableEntriesRaw(schoolClass.getCurriculum(), schoolClass.getDivision()).filter(
+                entry -> Util.equal(entry.getGrade(), grade)
+            ).forEachOrdered(
                 entry -> checkCourse(schoolClass, grade, entry, callback)
             );
             callback.step();
@@ -137,7 +138,15 @@ public final class InitializeSchoolYear extends JobImplementation {
     private void initSpecialCourses(JobCallback callback) {
         callback.info("Erstelle gesamtschulische Kurse.");
         callback.step();
-        specialCourses.get(previousSchoolYear).forEach(course -> checkSpecialCourse(course, callback));
+        pensenData.streamCurriculums().filter(curriculum -> !curriculum.isArchived()).forEachOrdered(
+            curriculum -> initSpecialCourses(curriculum, callback)
+        );
+    }
+
+    private void initSpecialCourses(Curriculum curriculum, JobCallback callback) {
+        pensenData.loadLessonTableEntriesRaw(curriculum, null).forEachOrdered(
+            entry -> checkSpecialCourse(entry, callback)
+        );
     }
 
     private void copyPool(JobCallback callback) {
@@ -170,80 +179,86 @@ public final class InitializeSchoolYear extends JobImplementation {
         return null;
     }
 
-    private void checkCourse(SchoolClass schoolClass, Grade grade, DefaultLessons entry, JobCallback callback) {
-        double lessons1 = entry.lessonsFor(SemesterEnum.First, grade);
-        double lessons2 = entry.lessonsFor(SemesterEnum.Second, grade);
+    private void checkCourse(SchoolClass schoolClass, Grade grade, LessonTableEntry entry, JobCallback callback) {
         Subject subject = entry.getSubject();
-        Curriculum curriculum = schoolClass.getCurriculum();
-        if (subject.isCrossClass() || (lessons1 < 0 && lessons2 < 0)) {
+        if (subject.isCrossClass()) {
             return;
-        }
-
-        // don't enter negative lessons in course
-        if (lessons1 < 0) {
-            lessons1 = 0;
-        }
-
-        if (lessons2 < 0) {
-            lessons2 = 0;
         }
 
         Course course = findCourse(schoolYear, schoolClass, subject);
-        if (course == null || course.isCancelled()) {
-            Course previousCourse = findCourse(previousSchoolYear, schoolClass, subject);
-            if (previousCourse == null) {
-                callback.info("Erstelle Kurs {0} {1}.", subject.getCode(), schoolClass.getCode());
-
-                course = pensenData.createCourse("", curriculum, grade, lessons1, lessons2, schoolYear, subject);
-                course.setSchoolClasses(Stream.of(schoolClass));
-                pensenData.updateCourse(course, Util.createSet(Course.DB_SCHOOL_CLASS_IDS));
-            }
-            else {
-                callback.info("Kopiere Kurs {0}.", previousCourse);
-                course = pensenData.copyCourse(previousCourse, lessons1, lessons2, schoolYear, grade);
-            }
-
-            courses.get(schoolYear).add(course);
-        }
-    }
-
-    private Course findSpecialCourse(Grade grade, Subject subject, Stream<Teacher> teachers) {
-        List<Teacher> teacherList = teachers.collect(Collectors.toList());
-        for (Course course : specialCourses.get(schoolYear)) {
-            if (Util.equal(course.getSubject(), subject) && Util.equal(course.getGrade(), grade) &&
-                course.containsAny(teacherList)) {
-                return course;
-            }
-        }
-
-        return null;
-    }
-
-    private void checkSpecialCourse(Course previousCourse, JobCallback callback) {
-        Curriculum curriculum = previousCourse.getCurriculum();
-        Grade grade = curriculum.nextGrade(previousCourse.getGrade());
-        if (grade == null) {
-            return;
-        }
-
-        Subject subject = previousCourse.getSubject();
-        Course course = findSpecialCourse(grade, subject, previousCourse.teachers());
         if (course != null) {
             return;
         }
 
-        DefaultLessons defaultLessons = pensenData.loadDefaultLessons(curriculum, null, subject);
-        double lessons1 = defaultLessons.lessonsFor(SemesterEnum.First, grade);
-        double lessons2 = defaultLessons.lessonsFor(SemesterEnum.Second, grade);
-        if (lessons1 < 0 && lessons2 < 0) {
+        Curriculum curriculum = schoolClass.getCurriculum();
+        double lessons1 = entry.getLessons1();
+        double lessons2 = entry.getLessons2();
+        switch (entry.typeEnum()) {
+            case Start:
+                callback.info("Erstelle Kurs {0} {1}.", subject.getCode(), schoolClass.getCode());
+                course = pensenData.createCourse("", curriculum, grade, lessons1, lessons2, schoolYear, subject);
+                course.setSchoolClasses(Stream.of(schoolClass));
+                pensenData.updateCourse(course, Util.createSet(Course.DB_SCHOOL_CLASS_IDS));
+                courses.get(schoolYear).add(course);
+                break;
+            case Continuation:
+                Course previousCourse = findCourse(previousSchoolYear, schoolClass, subject);
+                if (previousCourse != null && !previousCourse.isCancelled()) {
+                    callback.info("Kopiere Kurs {0}.", previousCourse);
+                    course = pensenData.copyCourse(previousCourse, lessons1, lessons2, schoolYear, grade);
+                    courses.get(schoolYear).add(course);
+                }
+                break;
+        }
+    }
+
+    private List<Course> findSpecialCourses(SchoolYear schoolYear, Curriculum curriculum, Grade grade, Subject subject) {
+        List<Course> result = new ArrayList<>();
+        for (Course course : specialCourses.get(schoolYear)) {
+            if (Util.equal(course.getCurriculum(), curriculum) &&
+                Util.equal(course.getSubject(), subject) &&
+                Util.equal(course.getGrade(), grade)) {
+                result.add(course);
+            }
+        }
+
+        return result;
+    }
+
+    private void checkSpecialCourse(LessonTableEntry entry, JobCallback callback) {
+        Curriculum curriculum = entry.getCurriculum();
+        Subject subject = entry.getSubject();
+        Grade grade = entry.getGrade();
+        if (!subject.isCrossClass()) {
             return;
         }
 
-        callback.info("Erstelle Kurs {0} {1}.", subject.getCode(), grade.getCode());
-        course = pensenData.createCourse("", curriculum, grade, lessons1, lessons2, schoolYear, subject);
-        course.setTeachers1(previousCourse.teachers(SemesterEnum.First));
-        course.setTeachers2(previousCourse.teachers(SemesterEnum.Second));
-        pensenData.updateCourse(course, Util.createSet(Course.DB_TEACHER_IDS_1, Course.DB_TEACHER_IDS_2));
+        List<Course> courses = findSpecialCourses(schoolYear, curriculum, grade, subject);
+        if (!courses.isEmpty()) {
+            return;
+        }
+
+        double lessons1 = entry.getLessons1();
+        double lessons2 = entry.getLessons2();
+        switch (entry.typeEnum()) {
+            case Start:
+                // create same amount of courses as last year
+                int count = findSpecialCourses(previousSchoolYear, curriculum, grade, subject).size();
+                for (int i = 0; i < count; ++i) {
+                    callback.info("Erstelle Kurs {0} {1}.", subject.getCode(), grade.getCode());
+                    pensenData.createCourse("", curriculum, grade, lessons1, lessons2, schoolYear, subject);
+                }
+                break;
+            case Continuation:
+                findSpecialCourses(previousSchoolYear, curriculum, curriculum.previousGrade(grade), subject).
+                    forEach(previousCourse -> {
+                        callback.info("Kopiere Kurs {0}.", previousCourse);
+                        Course course = pensenData.copyCourse(previousCourse, lessons1, lessons2, schoolYear, grade);
+                        specialCourses.get(schoolYear).add(course);
+                    });
+                break;
+
+        }
     }
 
     private void loadCourses(Map<SchoolYear, List<Course>> map, SchoolYear sy, boolean crossClass) {

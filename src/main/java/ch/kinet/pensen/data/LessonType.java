@@ -23,6 +23,7 @@ public final class LessonType extends LookupValue {
     private static final String NO_LESSONS = "X";
     private static final String START = "A";
     private static final String START_OPTIONAL = "AO";
+    private static final String START_REPEATING = "AW";
     private static final String CONTINUATION = "W";
 
     public enum Enum {
@@ -30,7 +31,8 @@ public final class LessonType extends LookupValue {
         NoLessons(NO_LESSONS),
         Continuation(CONTINUATION),
         Start(START),
-        StartOptiona(START_OPTIONAL);
+        StartOptional(START_OPTIONAL),
+        StartRepeating(START_REPEATING);
 
         private final String code;
 
@@ -56,7 +58,9 @@ public final class LessonType extends LookupValue {
             case START:
                 return Enum.Start;
             case START_OPTIONAL:
-                return Enum.StartOptiona;
+                return Enum.StartOptional;
+            case START_REPEATING:
+                return Enum.StartRepeating;
             default:
                 return Enum.None;
         }

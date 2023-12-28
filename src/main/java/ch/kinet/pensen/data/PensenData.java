@@ -146,8 +146,9 @@ public final class PensenData extends BaseData implements Context {
     }
 
     public Course copyCourse(Course original, double lessons1, double lessons2, SchoolYear schoolYear, Grade grade) {
-        Course result = createCourse(original.getComments(), original.getCurriculum(), grade, lessons1, lessons2,
-                                     schoolYear, original.getSubject());
+        Course result = createCourse(
+            "", original.getCurriculum(), grade, lessons1, lessons2, schoolYear, original.getSubject()
+        );
 
         Set<Teacher> origTeachers1 = original.teachers(SemesterEnum.First).collect(Collectors.toSet());
         Set<Teacher> origTeachers2 = original.teachers(SemesterEnum.Second).collect(Collectors.toSet());
@@ -514,58 +515,6 @@ public final class PensenData extends BaseData implements Context {
         );
     }
 
-    public DefaultLessons loadDefaultLessons(int id) {
-        Condition where = Condition.equals(DefaultLessons.DB_ID, id);
-        DefaultLessons result = getConnection().selectOne(schema, DefaultLessons.class, where);
-        return result == null ? null : result.resolve();
-    }
-
-    public Stream<DefaultLessons> loadDefaultLessons(Curriculum curriculum, Division division) {
-        Condition where;
-        if (division == null) {
-            where = Condition.and(
-                Condition.equals(DefaultLessons.DB_CURRICULUM, curriculum),
-                Condition.isNull(DefaultLessons.DB_DIVISION)
-            );
-        }
-        else {
-            where = Condition.and(
-                Condition.equals(DefaultLessons.DB_CURRICULUM, curriculum),
-                Condition.equals(DefaultLessons.DB_DIVISION, division)
-            );
-        }
-
-        return getConnection().select(schema, DefaultLessons.class, where).map(
-            defaultLessons -> defaultLessons.resolve()
-        ).sorted();
-    }
-
-    public DefaultLessons loadDefaultLessons(Curriculum curriculum, Division division, Subject subject) {
-        Condition where;
-        if (division == null) {
-            where = Condition.and(Condition.equals(DefaultLessons.DB_CURRICULUM, curriculum),
-                                  Condition.isNull(DefaultLessons.DB_DIVISION),
-                                  Condition.equals(DefaultLessons.DB_SUBJECT, subject)
-            );
-        }
-        else {
-            where = Condition.and(Condition.equals(DefaultLessons.DB_CURRICULUM, curriculum),
-                                  Condition.equals(DefaultLessons.DB_DIVISION, division),
-                                  Condition.equals(DefaultLessons.DB_SUBJECT, subject)
-            );
-        }
-        DefaultLessons result = getConnection().selectOne(schema, DefaultLessons.class, where);
-        if (result == null) {
-            PropertyMap properties = PropertyMap.create();
-            properties.put(DefaultLessons.DB_CURRICULUM, curriculum);
-            properties.put(DefaultLessons.DB_DIVISION, division);
-            properties.put(DefaultLessons.DB_SUBJECT, subject);
-            result = getConnection().insert(schema, DefaultLessons.class, properties);
-        }
-
-        return result.resolve();
-    }
-
     public Employment loadEmployment(int id) {
         Condition where = Condition.equals(Employment.DB_ID, id);
         return getConnection().selectOne(schema, Employment.class, where);
@@ -588,14 +537,27 @@ public final class PensenData extends BaseData implements Context {
         return getConnection().select(schema, Employment.class, where).sorted();
     }
 
-    public LessonTable loadLessonTable(Curriculum curriculum, Division division) {
+    public Stream<LessonTableEntry> loadLessonTableEntriesRaw(Curriculum curriculum, Division division) {
         Condition where = Condition.and(
             Condition.equals(LessonTableEntry.DB_CURRICULUM, curriculum),
             division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
                 Condition.equals(LessonTableEntry.DB_DIVISION, division));
+        return getConnection().select(schema, LessonTableEntry.class, where);
+    }
+
+    public Stream<LessonTableEntry> loadLessonTableEntriesRaw(Curriculum curriculum, Division division, Subject subject) {
+        Condition where = Condition.and(
+            Condition.equals(LessonTableEntry.DB_CURRICULUM, curriculum),
+            Condition.equals(LessonTableEntry.DB_SUBJECT, subject),
+            division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
+                Condition.equals(LessonTableEntry.DB_DIVISION, division));
+        return getConnection().select(schema, LessonTableEntry.class, where);
+    }
+
+    public LessonTable loadLessonTable(Curriculum curriculum, Division division) {
         LessonType emptyType = emptyLessonType();
         return LessonTable.create(
-            curriculum, division, emptyType, streamSubjects(), getConnection().select(schema, LessonTableEntry.class, where)
+            curriculum, division, emptyType, streamSubjects(), loadLessonTableEntriesRaw(curriculum, division)
         );
     }
 
@@ -823,7 +785,6 @@ public final class PensenData extends BaseData implements Context {
             getConnection().delete(schema, LessonTableEntry.class, where);
             entries.forEachOrdered(entry -> {
                 if (entry.typeEnum() != LessonType.Enum.NoLessons) {
-                    System.out.println("Saving " + entry.getGrade() + " " + entry.getType());
                     PropertyMap properties = PropertyMap.create();
                     properties.put(LessonTableEntry.DB_CURRICULUM, curriculum);
                     properties.put(LessonTableEntry.DB_DIVISION, division);
@@ -971,10 +932,6 @@ public final class PensenData extends BaseData implements Context {
 
     public void updateCurriculum(Curriculum curriculum, Set<String> properties) {
         getConnection().update(schema, curriculum, properties);
-    }
-
-    public void updateDefaultLessons(DefaultLessons defaultLessons) {
-        getConnection().update(schema, defaultLessons);
     }
 
     public void updateDivision(Division division, Set<String> properties) {

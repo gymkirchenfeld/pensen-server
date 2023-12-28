@@ -141,7 +141,7 @@ public class LessonTable implements Json {
 
     public static final class Entry implements Comparable<Entry>, Json {
 
-        private Grade grade;
+        private final Grade grade;
         private double lessons1;
         private double lessons2;
         private LessonType type;

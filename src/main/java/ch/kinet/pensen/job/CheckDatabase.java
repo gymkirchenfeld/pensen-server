@@ -22,8 +22,8 @@ import ch.kinet.Util;
 import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.Course;
 import ch.kinet.pensen.data.Curriculum;
-import ch.kinet.pensen.data.DefaultLessons;
 import ch.kinet.pensen.data.Grade;
+import ch.kinet.pensen.data.LessonTableEntry;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolClass;
 import ch.kinet.pensen.data.SchoolYear;
@@ -67,18 +67,18 @@ public class CheckDatabase extends JobImplementation {
     private void checkCurriculum(Curriculum curriculum, JobCallback callback) {
         callback.info("Überprüfe Lehrgang {0}", curriculum);
         callback.step();
-        pensenData.loadDefaultLessons(curriculum, null).forEachOrdered(
-            defaultLessons -> checkDefaultLessons(defaultLessons, true, callback)
+        pensenData.loadLessonTableEntriesRaw(curriculum, null).forEachOrdered(
+            entry -> checkLessonTableEntry(entry, true, callback)
         );
         pensenData.streamDivisions().forEachOrdered(division -> {
-            pensenData.loadDefaultLessons(curriculum, division).forEachOrdered(
-                defaultLessons -> checkDefaultLessons(defaultLessons, false, callback)
+            pensenData.loadLessonTableEntriesRaw(curriculum, division).forEachOrdered(
+                entry -> checkLessonTableEntry(entry, false, callback)
             );
         });
     }
 
-    private void checkDefaultLessons(DefaultLessons defaultLessons, boolean crossClass, JobCallback callback) {
-        Subject subject = defaultLessons.getSubject();
+    private void checkLessonTableEntry(LessonTableEntry entry, boolean crossClass, JobCallback callback) {
+        Subject subject = entry.getSubject();
         if (subject.isCrossClass() && !crossClass) {
             callback.info("Der Datenbankeintrag zum Fach {0} muss einer Organisationseinheit zugeorndet sein.",
                           subject);
@@ -101,6 +101,11 @@ public class CheckDatabase extends JobImplementation {
         Curriculum courseCurriculum = course.getCurriculum();
         Grade courseGrade = course.getGrade();
         boolean updateCurriculum = courseCurriculum == null;
+
+        if (!course.getSchoolYear().lessonBased(course.payrollType())) {
+            callback.info("Der Kurs {0} hat die Anstellungsart {1}, welche nicht lektionenbasiert ist.",
+                          course, course.payrollType());
+        }
 
         if (course.isCrossClass()) {
             if (!course.getSubject().isCrossClass()) {

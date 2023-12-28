@@ -86,6 +86,15 @@ public final class Curriculum extends Entity {
         return grades.get(index + 1);
     }
 
+    public Grade previousGrade(Grade grade) {
+        int index = grades.indexOf(grade);
+        if (index <= 0) {
+            return null;
+        }
+
+        return grades.get(index - 1);
+    }
+
     public void setArchived(boolean archived) {
         this.archived = archived;
     }
