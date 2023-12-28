@@ -41,7 +41,6 @@ public final class PayrollTypeResource extends EntityResource<PayrollType> {
     protected Response list(Authorisation auth, Query query) {
         if (query.hasKey(QUERY_LESSON_BASED)) {
             boolean lessonBased = query.getBoolean(QUERY_LESSON_BASED, false);
-            System.out.println("with query " + lessonBased);
             return Response.jsonTerse(pensenData.streamPayrollTypes().filter(
                 item -> item.isLessonBased() == lessonBased
             ));
