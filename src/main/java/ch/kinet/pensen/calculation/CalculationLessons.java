@@ -71,7 +71,7 @@ public final class CalculationLessons extends Calculation {
             });
 
             SemesterValue lessons = SemesterValue.create();
-            if (lessonBased(type)) {
+            if (type.isLessonBased()) {
                 // aus Prozentwert wieder Lektionen berechnen (für Buchung in SAP)
                 lessons = percent.map((s, p) -> percentToLessons(type, employment.withoutAgeRelief(s, p)));
                 // Runde Lektionen auf zwei Dezimalstellen

@@ -24,6 +24,7 @@ import ch.kinet.pensen.data.PensenData;
 
 public final class PayrollTypeResource extends EntityResource<PayrollType> {
 
+    private static final String QUERY_LESSON_BASED = "lessonBased";
     private PensenData pensenData;
 
     @Override
@@ -38,7 +39,16 @@ public final class PayrollTypeResource extends EntityResource<PayrollType> {
 
     @Override
     protected Response list(Authorisation auth, Query query) {
-        return Response.jsonTerse(pensenData.streamPayrollTypes());
+        if (query.hasKey(QUERY_LESSON_BASED)) {
+            boolean lessonBased = query.getBoolean(QUERY_LESSON_BASED, false);
+            System.out.println("with query " + lessonBased);
+            return Response.jsonTerse(pensenData.streamPayrollTypes().filter(
+                item -> item.isLessonBased() == lessonBased
+            ));
+        }
+        else {
+            return Response.jsonTerse(pensenData.streamPayrollTypes());
+        }
     }
 
     @Override

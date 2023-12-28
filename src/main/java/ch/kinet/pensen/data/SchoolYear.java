@@ -94,10 +94,6 @@ public final class SchoolYear extends Entity {
         return weeks;
     }
 
-    public boolean lessonBased(PayrollType payrollType) {
-        return weeklyLessons.contains(payrollType);
-    }
-
     public double lessonsToPercent(PayrollType payrollType, double lessons) {
         Optional<Double> wl = weeklyLessons.get(payrollType);
         if (wl.isEmpty()) {

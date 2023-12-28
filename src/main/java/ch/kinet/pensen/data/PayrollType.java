@@ -22,12 +22,16 @@ import ch.kinet.reflect.PropertyInitializer;
 public final class PayrollType extends LookupValue {
 
     public static final String DB_SALDO_RESOLVING_ORDER = "SaldoResolvingOrder";
+    public static final String DB_LESSON_BASED = "LessonBased";
     public static final String JSON_SALDO_RESOLVING_ORDER = "saldoResolvingOrder";
+    public static final String JSON_LESSON_BASED = "lessonBased";
+    private final boolean lessonBased;
     private final int saldoResolvingOrder;
 
-    @PropertyInitializer({DB_CODE, DB_DESCRIPTION, DB_ID, DB_SALDO_RESOLVING_ORDER})
-    public PayrollType(String code, String description, int id, int saldoResolvingOrder) {
+    @PropertyInitializer({DB_CODE, DB_DESCRIPTION, DB_ID, DB_LESSON_BASED, DB_SALDO_RESOLVING_ORDER})
+    public PayrollType(String code, String description, int id, boolean lessonBased, int saldoResolvingOrder) {
         super(code, description, id);
+        this.lessonBased = lessonBased;
         this.saldoResolvingOrder = saldoResolvingOrder;
     }
 
@@ -35,9 +39,14 @@ public final class PayrollType extends LookupValue {
         return saldoResolvingOrder;
     }
 
+    public boolean isLessonBased() {
+        return lessonBased;
+    }
+
     @Override
     public JsonObject toJsonTerse() {
         JsonObject result = super.toJsonTerse();
+        result.put(JSON_LESSON_BASED, lessonBased);
         result.put(JSON_SALDO_RESOLVING_ORDER, saldoResolvingOrder);
         return result;
     }

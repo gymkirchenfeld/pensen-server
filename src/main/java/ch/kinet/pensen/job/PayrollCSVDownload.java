@@ -80,7 +80,7 @@ public final class PayrollCSVDownload extends JobImplementation {
             csv.append(roundPercent(workload.payroll().percent().get(semester)));
             pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
                 Payroll.Item item = payroll.getItem(payrollType);
-                if (schoolYear.lessonBased(payrollType)) {
+                if (payrollType.isLessonBased()) {
                     if (item == null) {
                         csv.append();
                     }
@@ -112,7 +112,7 @@ public final class PayrollCSVDownload extends JobImplementation {
         result.add("Altersentlastung");
         result.add("Auszahlung");
         pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
-            if (schoolYear.lessonBased(payrollType)) {
+            if (payrollType.isLessonBased()) {
                 result.add(payrollType.getCode() + " L");
             }
 

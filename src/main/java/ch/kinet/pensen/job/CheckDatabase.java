@@ -102,7 +102,7 @@ public class CheckDatabase extends JobImplementation {
         Grade courseGrade = course.getGrade();
         boolean updateCurriculum = courseCurriculum == null;
 
-        if (!course.getSchoolYear().lessonBased(course.payrollType())) {
+        if (!course.payrollType().isLessonBased()) {
             callback.info("Der Kurs {0} hat die Anstellungsart {1}, welche nicht lektionenbasiert ist.",
                           course, course.payrollType());
         }

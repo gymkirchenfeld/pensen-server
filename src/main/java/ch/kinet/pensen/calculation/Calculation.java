@@ -130,10 +130,6 @@ public abstract class Calculation {
         return new Workload(employment, courses, pool, theses, postings, summary, payroll, payment);
     }
 
-    final boolean lessonBased(PayrollType type) {
-        return employment.getSchoolYear().lessonBased(type);
-    }
-
     final double lessonsToPercent(PayrollType type, double lessons) {
         return employment.getSchoolYear().lessonsToPercent(type, lessons);
     }
@@ -143,7 +139,7 @@ public abstract class Calculation {
     }
 
     final void sumPayrollLessons(PayrollType type, SemesterEnum semester, double lessons) {
-        if (!lessonBased(type)) {
+        if (!type.isLessonBased()) {
             throw new IllegalArgumentException("Cannot add lessons to percent-based payroll.");
         }
 
