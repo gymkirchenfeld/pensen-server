@@ -147,7 +147,7 @@ public final class PensenData extends BaseData implements Context {
 
     public Course copyCourse(Course original, double lessons1, double lessons2, SchoolYear schoolYear, Grade grade) {
         Course result = createCourse(
-            "", original.getCurriculum(), grade, lessons1, lessons2, schoolYear, original.getSubject()
+            original.getComments(), original.getCurriculum(), grade, lessons1, lessons2, schoolYear, original.getSubject()
         );
 
         Set<Teacher> origTeachers1 = original.teachers(SemesterEnum.First).collect(Collectors.toSet());
