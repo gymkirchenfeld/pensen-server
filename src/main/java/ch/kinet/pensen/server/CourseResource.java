@@ -25,7 +25,9 @@ import ch.kinet.http.Response;
 import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.Course;
 import ch.kinet.pensen.data.Curriculum;
+import ch.kinet.pensen.data.Division;
 import ch.kinet.pensen.data.Grade;
+import ch.kinet.pensen.data.LessonTableEntry;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolClass;
 import ch.kinet.pensen.data.SchoolYear;
@@ -116,6 +118,7 @@ public final class CourseResource extends EntityResource<Course> {
 
         Curriculum curriculum = null;
         Grade grade = null;
+        Division division = null;
         Set<SchoolClass> schoolClasses = new HashSet<>();
         if (subject.isCrossClass()) {
             curriculum = pensenData.getCurriculumById(data.getObjectId(Course.JSON_CURRICULUM, -1));
@@ -125,6 +128,10 @@ public final class CourseResource extends EntityResource<Course> {
             schoolClasses.addAll(pensenData.parseSchoolClasses(data.getArray(Course.JSON_SCHOOL_CLASSES)));
             for (SchoolClass schoolClass : schoolClasses) {
                 Curriculum schoolClassCurriculum = schoolClass.getCurriculum();
+                if (division == null) {
+                    division = schoolClass.getDivision();
+                }
+
                 if (curriculum == null) {
                     curriculum = schoolClassCurriculum;
                 }
@@ -153,7 +160,11 @@ public final class CourseResource extends EntityResource<Course> {
         double lessons1 = data.getDouble(Course.JSON_LESSONS_1, 0.0);
         double lessons2 = data.getDouble(Course.JSON_LESSONS_2, 0.0);
         if (lessons1 < 0 || lessons2 < 0) {
-            return Response.badRequest("Negative Lektionenzahlen sind nicht erlaubt.");
+            LessonTableEntry entry = pensenData.loadLessonTableEntry(curriculum, division, subject, grade);
+            if (entry != null) {
+                lessons1 = entry.getLessons1();
+                lessons2 = entry.getLessons2();
+            }
         }
 
         String comments = data.getString(Course.JSON_COMMENTS);
@@ -168,16 +179,18 @@ public final class CourseResource extends EntityResource<Course> {
                                 Course.DB_SCHOOL_CLASS_IDS, Course.DB_TEACHER_IDS_1, Course.DB_TEACHER_IDS_2));
         teachers1.addAll(teachers2);
         teachers1.stream().forEachOrdered(teacher -> pensenData.recalculateBalance(schoolYear, teacher));
-        return Response.noContent();
+        return Response.createdJsonVerbose(result);
     }
 
     @Override
-    protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
+    protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data
+    ) {
         return authorisation != null && authorisation.isAdmin();
     }
 
     @Override
-    protected Response update(Authorisation authorisation, JsonObject data) {
+    protected Response update(Authorisation authorisation, JsonObject data
+    ) {
         if (object.getSchoolYear().isArchived()) {
             return Response.badRequest("Kurse in archivierten Schuljahren können nicht verändert werden.");
         }
@@ -238,12 +251,14 @@ public final class CourseResource extends EntityResource<Course> {
     }
 
     @Override
-    protected boolean isDeleteAllowed(Authorisation authorisation) {
+    protected boolean isDeleteAllowed(Authorisation authorisation
+    ) {
         return authorisation != null && authorisation.isAdmin();
     }
 
     @Override
-    protected Response delete(Authorisation authorisation) {
+    protected Response delete(Authorisation authorisation
+    ) {
         if (object.getSchoolYear().isArchived()) {
             return Response.forbidden();
         }
@@ -253,7 +268,8 @@ public final class CourseResource extends EntityResource<Course> {
     }
 
     @Override
-    protected Course loadObject(int id) {
+    protected Course loadObject(int id
+    ) {
         return pensenData.loadCourse(id);
     }
 

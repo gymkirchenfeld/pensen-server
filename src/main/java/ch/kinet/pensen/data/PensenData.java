@@ -530,14 +530,6 @@ public final class PensenData extends BaseData implements Context {
         return getConnection().select(schema, Employment.class, where).sorted();
     }
 
-    public Stream<LessonTableEntry> loadLessonTableEntriesRaw(Curriculum curriculum, Division division) {
-        Condition where = Condition.and(
-            Condition.equals(LessonTableEntry.DB_CURRICULUM, curriculum),
-            division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
-                Condition.equals(LessonTableEntry.DB_DIVISION, division));
-        return getConnection().select(schema, LessonTableEntry.class, where);
-    }
-
     public LessonTable loadLessonTable(Curriculum curriculum, Division division) {
         LessonType emptyType = emptyLessonType();
         return LessonTable.create(
@@ -561,6 +553,24 @@ public final class PensenData extends BaseData implements Context {
             }
         });
         return map.values().stream().sorted();
+    }
+
+    public Stream<LessonTableEntry> loadLessonTableEntriesRaw(Curriculum curriculum, Division division) {
+        Condition where = Condition.and(
+            Condition.equals(LessonTableEntry.DB_CURRICULUM, curriculum),
+            division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
+                Condition.equals(LessonTableEntry.DB_DIVISION, division));
+        return getConnection().select(schema, LessonTableEntry.class, where);
+    }
+
+    public LessonTableEntry loadLessonTableEntry(Curriculum curriculum, Division division, Subject subject, Grade grade) {
+        Condition where = Condition.and(
+            Condition.equals(LessonTableEntry.DB_CURRICULUM, curriculum),
+            Condition.equals(LessonTableEntry.DB_SUBJECT, subject),
+            Condition.equals(LessonTableEntry.DB_GRADE, grade),
+            division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
+                Condition.equals(LessonTableEntry.DB_DIVISION, division));
+        return getConnection().selectOne(schema, LessonTableEntry.class, where);
     }
 
     public Note loadNote(int id) {
