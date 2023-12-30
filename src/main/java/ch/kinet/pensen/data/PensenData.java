@@ -137,14 +137,6 @@ public final class PensenData extends BaseData implements Context {
         subjects.addAll(getConnection().selectAll(schema, Subject.class));
     }
 
-    public Curriculum copyCurriculum(Curriculum original) {
-        Curriculum result = createCurriculum(
-            original.getCode(),
-            "Kopie von " + original.getDescription()
-        );
-        return result;
-    }
-
     public Course copyCourse(Course original, double lessons1, double lessons2, SchoolYear schoolYear, Grade grade) {
         Course result = createCourse(
             original.getComments(), original.getCurriculum(), grade, lessons1, lessons2, schoolYear, original.getSubject()
@@ -509,9 +501,10 @@ public final class PensenData extends BaseData implements Context {
 
     public CourseTable loadCourseTable(SchoolYear schoolYear, Division division, Grade grade,
                                        SubjectCategory subjectCategory) {
-        return CourseTable.create(streamSchoolClassesFor(schoolYear, null).filter(schoolClass -> schoolClass.filter(division, grade, schoolYear)),
-                                  streamSubjects().filter(subject -> !subject.isCrossClass() && !subject.isArchived() && subject.filter(subjectCategory)),
-                                  loadCourses(schoolYear, false)
+        return CourseTable.create(
+            streamSchoolClassesFor(schoolYear, null).filter(schoolClass -> schoolClass.filter(division, grade, schoolYear)),
+            streamSubjects().filter(subject -> !subject.isCrossClass() && !subject.isArchived() && subject.filter(subjectCategory)),
+            loadCourses(schoolYear, false)
         );
     }
 
@@ -540,15 +533,6 @@ public final class PensenData extends BaseData implements Context {
     public Stream<LessonTableEntry> loadLessonTableEntriesRaw(Curriculum curriculum, Division division) {
         Condition where = Condition.and(
             Condition.equals(LessonTableEntry.DB_CURRICULUM, curriculum),
-            division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
-                Condition.equals(LessonTableEntry.DB_DIVISION, division));
-        return getConnection().select(schema, LessonTableEntry.class, where);
-    }
-
-    public Stream<LessonTableEntry> loadLessonTableEntriesRaw(Curriculum curriculum, Division division, Subject subject) {
-        Condition where = Condition.and(
-            Condition.equals(LessonTableEntry.DB_CURRICULUM, curriculum),
-            Condition.equals(LessonTableEntry.DB_SUBJECT, subject),
             division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
                 Condition.equals(LessonTableEntry.DB_DIVISION, division));
         return getConnection().select(schema, LessonTableEntry.class, where);
