@@ -16,7 +16,6 @@
  */
 package ch.kinet.pensen.calculation;
 
-import ch.kinet.Util;
 import ch.kinet.pensen.data.Course;
 import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.PayrollType;
@@ -27,23 +26,20 @@ import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.SemesterValue;
 import ch.kinet.pensen.data.Teacher;
 import ch.kinet.pensen.data.ThesisEntry;
-import java.util.Comparator;
+import java.util.stream.Stream;
 
 public abstract class Calculation {
 
-    static final Comparator<PayrollType> SALDO_RESOLVING_ORDER =
-        (PayrollType o1, PayrollType o2) -> Util.compare(o1.getSaldoResolvingOrder(), o2.getSaldoResolvingOrder());
-
-    public static Calculation create(Employment employment, PayrollType defaultType) {
+    public static Calculation create(Employment employment, Stream<PayrollType> payrollTypes) {
         switch (employment.getSchoolYear().calculationModeEnum()) {
             case Lessons:
-                return new CalculationLessons(employment);
+                return new CalculationLessons(employment, payrollTypes);
             case LessonsAgeReliefIncluded:
-                return new CalculationLessonsAgeReliefIncluded(employment);
+                return new CalculationLessonsAgeReliefIncluded(employment, payrollTypes);
             case PercentAgeReliefIncluded:
-                return new CalculationPercentAgeReliefIncluded(employment, defaultType);
+                return new CalculationPercentAgeReliefIncluded(employment, payrollTypes);
             case Percent:
-                return new CalculationPercent(employment);
+                return new CalculationPercent(employment, payrollTypes);
             default:
                 throw new IllegalArgumentException();
         }
@@ -51,15 +47,17 @@ public abstract class Calculation {
 
     final Employment employment;
     final Payroll payroll;
+    final PayrollMap payrollMap;
     final Postings postings;
     private final Courses courses;
     private final Pool pool;
     private final Theses theses;
 
-    Calculation(Employment employment, String poolTitle) {
+    Calculation(Employment employment, Stream<PayrollType> payrollTypes, String poolTitle) {
         this.employment = employment;
         courses = Courses.create();
         payroll = Payroll.create();
+        payrollMap = PayrollMap.create(payrollTypes);
         pool = Pool.create(poolTitle);
         theses = Theses.create();
         postings = Postings.create();

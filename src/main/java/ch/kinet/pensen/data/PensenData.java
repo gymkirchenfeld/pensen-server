@@ -311,11 +311,6 @@ public final class PensenData extends BaseData implements Context {
         return result;
     }
 
-    @Deprecated
-    public PayrollType defaultPayrollType() {
-        return payrollTypes.byId(2);
-    }
-
     public void deleteCourse(Course course) {
         getConnection().delete(schema, course);
     }
@@ -989,7 +984,7 @@ public final class PensenData extends BaseData implements Context {
 
     private Workload createWorkload(Employment employment, Stream<Course> courses, Stream<PoolEntry> poolEntries,
                                     Stream<Posting> postings, Stream<PostingDetail> postingDetails, Stream<ThesisEntry> thesisEntries) {
-        Calculation calculation = Calculation.create(employment, defaultPayrollType());
+        Calculation calculation = Calculation.create(employment, streamPayrollTypes());
         courses.forEachOrdered(entry -> calculation.addCourse(entry));
         poolEntries.forEachOrdered(entry -> calculation.addPoolEntry(entry));
         postings.forEachOrdered(entry -> calculation.addPosting(entry));

@@ -21,14 +21,14 @@ import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.Posting;
 import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.SemesterValue;
+import java.util.stream.Stream;
 
 public final class CalculationPercent extends Calculation {
 
-    private final PayrollMap payrollMap = PayrollMap.create();
     private final SemesterValue totalPercent = SemesterValue.create();
 
-    CalculationPercent(Employment employment) {
-        super(employment, "Pensum: Pool");
+    CalculationPercent(Employment employment, Stream<PayrollType> payrollTypes) {
+        super(employment, payrollTypes, "Pensum: Pool");
     }
 
     @Override
@@ -51,7 +51,7 @@ public final class CalculationPercent extends Calculation {
             (s, payment) -> payment - totalPercent.get(s)
         );
         // Differenz in vorgegebener Reihenfolge bei verschiedenen Teilanstellungen verbuchen
-        payrollMap.types().sorted(SALDO_RESOLVING_ORDER).forEachOrdered(type -> {
+        payrollMap.types().forEachOrdered(type -> {
             SemesterValue percent = payrollMap.get(type).map((s, p) -> {
                 // Berechne Prozentwert inklusive Altersentlastung
                 double result = p;

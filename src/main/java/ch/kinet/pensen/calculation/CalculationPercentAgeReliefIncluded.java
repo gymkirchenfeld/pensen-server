@@ -16,22 +16,19 @@
  */
 package ch.kinet.pensen.calculation;
 
-import ch.kinet.Util;
 import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.Posting;
 import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.SemesterValue;
+import java.util.stream.Stream;
 
 public final class CalculationPercentAgeReliefIncluded extends Calculation {
 
-    private final PayrollType defaultType;
-    private final PayrollMap payrollMap = PayrollMap.create();
     private final SemesterValue totalPercent = SemesterValue.create();
 
-    CalculationPercentAgeReliefIncluded(Employment employment, PayrollType defaultType) {
-        super(employment, poolTitle(employment));
-        this.defaultType = defaultType;
+    CalculationPercentAgeReliefIncluded(Employment employment, Stream<PayrollType> payrollTypes) {
+        super(employment, payrollTypes, poolTitle(employment));
     }
 
     @Override
@@ -48,20 +45,31 @@ public final class CalculationPercentAgeReliefIncluded extends Calculation {
     @Override
     void calculatePayroll() {
         // Die Teilanstellung GYM2-4 muss zwingend vorhanden sein, um die Differenz buchen zu können.
-        payrollMap.ensureType(defaultType);
+        //payrollMap.ensureType(defaultType);
         // Differenz zwischen Auszahlung und tatsächlichem Pensum berechnen
         SemesterValue diff = employment.paymentTarget().map(
             (s, payment) -> payment - employment.withAgeRelief(s, totalPercent.get(s))
         );
 
-        payrollMap.types().sorted(SALDO_RESOLVING_ORDER).forEachOrdered(type -> {
-            // Berechne Prozentwert inklusive Altersentlastung
-            SemesterValue percent = payrollMap.get(type).map((s, p) -> employment.withAgeRelief(s, p));
-            // Am Kirchenfeld wurde die Differenz zwischen Pensum und Auszahlung immer
-            // mit der Teilanstellung Unterricht GYM2-4 verrechnet.
-            if (Util.equal(defaultType, type)) {
-                percent.add(diff);
-            }
+        // Differenz in vorgegebener Reihenfolge bei verschiedenen Teilanstellungen verbuchen
+        payrollMap.types().forEachOrdered(type -> {
+            SemesterValue percent = payrollMap.get(type).map((s, p) -> {
+                // Berechne Prozentwert inklusive Altersentlastung
+                double result = p;
+                // Addiere die Differenz zwischen Auszahlung und Pensum
+                result += diff.get(s);
+                if (result < 0) {
+                    // negatives Pensum kann nicht gemeldet werden, buche auf nächste Teilanstellung
+                    diff.set(s, result);
+                    result = 0;
+                }
+                else {
+                    // Differenz konnte verbucht werden
+                    diff.set(s, 0);
+                }
+
+                return result;
+            });
 
             SemesterValue lessons = SemesterValue.create();
             if (type.isLessonBased()) {

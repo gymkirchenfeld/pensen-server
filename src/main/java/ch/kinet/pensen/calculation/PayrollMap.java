@@ -16,25 +16,36 @@
  */
 package ch.kinet.pensen.calculation;
 
+import ch.kinet.Util;
 import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.SemesterValue;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
 final class PayrollMap {
 
-    static PayrollMap create() {
-        return new PayrollMap();
+    static final Comparator<PayrollType> SALDO_RESOLVING_ORDER =
+        (PayrollType o1, PayrollType o2) -> Util.compare(o1.getSaldoResolvingOrder(), o2.getSaldoResolvingOrder());
+
+    static PayrollMap create(Stream<PayrollType> payrollTypes) {
+        return new PayrollMap(payrollTypes);
     }
 
     private final Map<PayrollType, SemesterValue> payrollMap = new HashMap<>();
     private final SortedSet<PayrollType> payrollTypes = new TreeSet<>();
 
-    private PayrollMap() {
+    private PayrollMap(Stream<PayrollType> payrollTypes) {
+        Optional<PayrollType> defaultType = payrollTypes.sorted(SALDO_RESOLVING_ORDER).findFirst();
+        if (defaultType.isPresent()) {
+            // Die Teilanstellung GYM2-4 muss zwingend vorhanden sein, um die Differenz buchen zu können.
+            ensureType(defaultType.get());
+        }
     }
 
     void add(PayrollType type, SemesterEnum semester, double value) {
@@ -62,6 +73,6 @@ final class PayrollMap {
     }
 
     Stream<PayrollType> types() {
-        return payrollTypes.stream();
+        return payrollTypes.stream().sorted(SALDO_RESOLVING_ORDER);
     }
 }
