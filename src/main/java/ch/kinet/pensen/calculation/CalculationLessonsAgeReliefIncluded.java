@@ -33,6 +33,11 @@ public final class CalculationLessonsAgeReliefIncluded extends Calculation {
 
     @Override
     void addToPayroll(PayrollType type, SemesterEnum semester, double percent) {
+        // Intern werden alle Berechnungen inklusive Altersentlastung durchgeführt
+        if (type.isLessonBased()) {
+            percent = employment.withAgeRelief(semester, percent);
+        }
+
         totalPercent.add(semester, percent);
         payrollMap.add(type, semester, percent);
     }

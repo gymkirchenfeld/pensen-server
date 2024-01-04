@@ -240,6 +240,7 @@ public final class Course extends Entity {
         this.curriculum = curriculum;
     }
 
+    @Deprecated
     public void setGrade(Grade grade) {
         this.grade = grade;
     }
