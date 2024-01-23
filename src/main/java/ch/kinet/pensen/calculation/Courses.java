@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -85,7 +85,7 @@ public final class Courses extends ItemList<Courses.Item> {
         this.percent2 += percent2;
     }
 
-    public static final class Item implements Json {
+    public static final class Item implements Comparable<Item>, Json {
 
         private final Course course;
         private final double lessons1;
@@ -102,16 +102,8 @@ public final class Courses extends ItemList<Courses.Item> {
         }
 
         @Override
-        public JsonObject toJsonTerse() {
-            JsonObject result = JsonObject.create();
-            result.put(JSON_LESSONS1, lessons1);
-            result.put(JSON_LESSONS2, lessons2);
-            result.put(JSON_PERCENT1, percent1);
-            result.put(JSON_PERCENT2, percent2);
-            result.putTerse(JSON_SUBJECT, course.getSubject());
-            result.put(JSON_SCHOOL_CLASSES, JsonArray.createTerse(course.schoolClasses()));
-            result.putTerse(JSON_GRADE, course.getGrade());
-            return result;
+        public int compareTo(Item other) {
+            return course.compareTo(other.course);
         }
 
         public Grade grade() {
@@ -140,6 +132,19 @@ public final class Courses extends ItemList<Courses.Item> {
 
         public Subject subject() {
             return course.getSubject();
+        }
+
+        @Override
+        public JsonObject toJsonTerse() {
+            JsonObject result = JsonObject.create();
+            result.put(JSON_LESSONS1, lessons1);
+            result.put(JSON_LESSONS2, lessons2);
+            result.put(JSON_PERCENT1, percent1);
+            result.put(JSON_PERCENT2, percent2);
+            result.putTerse(JSON_SUBJECT, course.getSubject());
+            result.put(JSON_SCHOOL_CLASSES, JsonArray.createTerse(course.schoolClasses()));
+            result.putTerse(JSON_GRADE, course.getGrade());
+            return result;
         }
 
         @Override

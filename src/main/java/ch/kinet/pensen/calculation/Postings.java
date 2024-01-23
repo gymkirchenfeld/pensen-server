@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -73,30 +73,31 @@ public final class Postings extends ItemList<Postings.Item> {
         return result;
     }
 
-    public static final class Item implements Json {
+    public static final class Item implements Comparable<Item>, Json {
 
-        private final String description;
-        private final Date endDate;
         private final List<Detail> details = new ArrayList<>();
-        private final Date startDate;
+        private final Posting posting;
         private double totalPercent;
 
         private Item(Posting posting) {
-            this.description = posting.getDescription();
-            this.startDate = posting.getStartDate();
-            this.endDate = posting.getEndDate();
+            this.posting = posting;
+        }
+
+        @Override
+        public int compareTo(Item other) {
+            return posting.compareTo(other.posting);
         }
 
         public String description() {
-            return description;
+            return posting.getDescription();
         }
 
         public Date endDate() {
-            return endDate;
+            return posting.getEndDate();
         }
 
         public Date startDate() {
-            return startDate;
+            return posting.getStartDate();
         }
 
         public Stream<Detail> streamDetails() {
@@ -115,9 +116,9 @@ public final class Postings extends ItemList<Postings.Item> {
         @Override
         public JsonObject toJsonTerse() {
             JsonObject result = JsonObject.create();
-            result.put(JSON_DESCRIPTION, description);
-            result.put(JSON_END_DATE, endDate);
-            result.put(JSON_START_DATE, startDate);
+            result.put(JSON_DESCRIPTION, posting.getDescription());
+            result.put(JSON_END_DATE, posting.getEndDate());
+            result.put(JSON_START_DATE, posting.getStartDate());
             result.put(JSON_TOTAL_PERCENT, totalPercent);
             return result;
         }

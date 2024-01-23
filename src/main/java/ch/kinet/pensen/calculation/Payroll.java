@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -73,26 +73,27 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
         this.totalPercent.add(percent);
     }
 
-    public static final class Item implements Json {
+    public static final class Item implements Comparable<Item>, Json {
 
-        private final PayrollType payrollType;
+        private final PayrollType type;
         private final SemesterValue lessons = SemesterValue.create();
         private final SemesterValue percent = SemesterValue.create();
 
-        public Item(PayrollType payrollType) {
-            this.payrollType = payrollType;
+        public Item(PayrollType type) {
+            this.type = type;
+        }
+
+        @Override
+        public int compareTo(Item other) {
+            return type.compareTo(other.type);
         }
 
         public String description() {
-            return payrollType.getDescription();
+            return type.getDescription();
         }
 
         public SemesterValue lessons() {
             return SemesterValue.copy(lessons);
-        }
-
-        public PayrollType payrollType() {
-            return payrollType;
         }
 
         public SemesterValue percent() {
@@ -102,7 +103,7 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
         @Override
         public JsonObject toJsonTerse() {
             JsonObject result = JsonObject.create();
-            result.putTerse(JSON_PAYROLL_TYPE, payrollType);
+            result.putTerse(JSON_PAYROLL_TYPE, type);
             result.put(JSON_LESSONS1, lessons.semester1());
             result.put(JSON_PERCENT1, percent.semester1());
             result.put(JSON_LESSONS2, lessons.semester2());
@@ -113,6 +114,10 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
         @Override
         public JsonObject toJsonVerbose() {
             return toJsonTerse();
+        }
+
+        public PayrollType type() {
+            return type;
         }
     }
 }

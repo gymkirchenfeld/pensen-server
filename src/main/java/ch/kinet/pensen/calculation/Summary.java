@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,6 +18,7 @@ package ch.kinet.pensen.calculation;
 
 import ch.kinet.Json;
 import ch.kinet.JsonObject;
+import ch.kinet.Util;
 
 public final class Summary extends ItemList<Summary.Item> {
 
@@ -37,7 +38,8 @@ public final class Summary extends ItemList<Summary.Item> {
 
     private final double ageReliefFactor1;
     private final double ageReliefFactor2;
-    private final Item total = new Item("Total", 0.0, 0.0);
+    private final Item total = new Item(Integer.MAX_VALUE, "Total", 0.0, 0.0);
+    private int nextId = 1;
 
     private Summary(double ageReliefFactor1, double ageReliefFactor2) {
         this.ageReliefFactor1 = ageReliefFactor1;
@@ -58,22 +60,30 @@ public final class Summary extends ItemList<Summary.Item> {
     }
 
     void add(String description, double percent1, double percent2) {
-        add(new Item(description, percent1, percent2));
+        add(new Item(nextId, description, percent1, percent2));
+        nextId += 1;
         total.percent1 += percent1;
         total.percent2 += percent2;
 
     }
 
-    public final class Item implements Json {
+    public final class Item implements Comparable<Item>, Json {
 
+        private final int id;
         private final String description;
         private double percent1;
         private double percent2;
 
-        public Item(String description, double percent1, double percent2) {
+        public Item(int id, String description, double percent1, double percent2) {
+            this.id = id;
             this.description = description;
             this.percent1 = percent1;
             this.percent2 = percent2;
+        }
+
+        @Override
+        public int compareTo(Item other) {
+            return Util.compare(id, other.id);
         }
 
         public double ageRelief1() {
@@ -116,6 +126,5 @@ public final class Summary extends ItemList<Summary.Item> {
         public JsonObject toJsonVerbose() {
             return toJsonTerse();
         }
-
     }
 }

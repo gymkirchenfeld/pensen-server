@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -67,7 +67,7 @@ public final class Pool extends ItemList<Pool.Item> {
         totalPercent.add(percent);
     }
 
-    public static final class Item implements Json {
+    public static final class Item implements Comparable<Item>, Json {
 
         private final String description;
         private final PoolType type;
@@ -77,6 +77,11 @@ public final class Pool extends ItemList<Pool.Item> {
             this.description = description;
             this.type = type;
             this.percent = SemesterValue.copy(percent);
+        }
+
+        @Override
+        public int compareTo(Item other) {
+            return type.compareTo(other.type);
         }
 
         public String description() {
@@ -89,10 +94,6 @@ public final class Pool extends ItemList<Pool.Item> {
 
         public double percent2() {
             return percent.semester2();
-        }
-
-        public PoolType type() {
-            return type;
         }
 
         @Override
@@ -111,6 +112,10 @@ public final class Pool extends ItemList<Pool.Item> {
         @Override
         public JsonObject toJsonVerbose() {
             return toJsonTerse();
+        }
+
+        public PoolType type() {
+            return type;
         }
     }
 }

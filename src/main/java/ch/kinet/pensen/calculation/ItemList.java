@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -33,13 +33,13 @@ public abstract class ItemList<T extends Json> implements Json {
     }
 
     public final Stream<T> items() {
-        return items.stream();
+        return items.stream().sorted();
     }
 
     @Override
     public JsonObject toJsonTerse() {
         JsonObject result = JsonObject.create();
-        result.put(JSON_ITEMS, JsonArray.createVerbose(items.stream()));
+        result.put(JSON_ITEMS, JsonArray.createVerbose(items()));
         return result;
     }
 

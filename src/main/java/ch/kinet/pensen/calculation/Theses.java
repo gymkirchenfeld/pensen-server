@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -58,7 +58,7 @@ public final class Theses extends ItemList<Theses.Item> {
         add(item);
     }
 
-    public static final class Item implements Json {
+    public static final class Item implements Comparable<Item>, Json {
 
         private final double count;
         private final double percent;
@@ -68,6 +68,11 @@ public final class Theses extends ItemList<Theses.Item> {
             this.count = count;
             this.percent = percent;
             this.type = type;
+        }
+
+        @Override
+        public int compareTo(Item other) {
+            return type.compareTo(other.type);
         }
 
         public double count() {
