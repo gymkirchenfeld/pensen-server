@@ -42,7 +42,6 @@ import java.util.stream.Stream;
 
 public final class PensenData extends BaseData implements Context {
 
-    private final Map<String, Authorisation> authorisations = new HashMap<>();
     private final Entities<CalculationMode> calculationModes = Entities.create();
     private final Entities<Curriculum> curriculums = Entities.create();
     private final Entities<Division> divisions = Entities.create();
@@ -61,6 +60,7 @@ public final class PensenData extends BaseData implements Context {
     private final Entities<Teacher> teachers = Entities.create();
     private final Entities<ThesisType> thesisTypes = Entities.create();
     private final String schema;
+    private Map<String, Authorisation> authorisations = new HashMap<>();
 
     public PensenData() {
         schema = Configuration.getInstance().getDbSchema();
@@ -116,15 +116,15 @@ public final class PensenData extends BaseData implements Context {
             previous = current;
         }
 
-        getConnection().selectAll(schema, Authorisation.class).forEachOrdered(item -> {
-            authorisations.put(item.getAccountName(), item);
-        });
-
+        authorisations = getConnection().selectAll(schema, Authorisation.class).collect(Collectors.toMap(
+            item -> item.getAccountName(), item -> item
+        ));
         grades.addAll(getConnection().selectAll(schema, Grade.class));
         curriculums.addAll(getConnection().selectAll(schema, Curriculum.class));
         getConnection().selectAll(schema, CurriculumGrade.class).forEachOrdered(
             item -> item.getCurriculum().addGrade(item.getGrade())
         );
+
         curriculums.forEach(curriculum -> curriculum.sortGrades());
         schoolClasses.addAll(getConnection().selectAll(schema, SchoolClass.class));
         teachers.addAll(getConnection().selectAll(schema, Teacher.class));
@@ -677,32 +677,35 @@ public final class PensenData extends BaseData implements Context {
     public Workload loadWorkload(Employment employment) {
         SchoolYear schoolYear = employment.getSchoolYear();
         Teacher teacher = employment.getTeacher();
-        return createWorkload(employment,
-                              loadAllCourses(schoolYear).filter(course -> course.contains(teacher) && !course.isCancelled()),
-                              loadPoolEntries(schoolYear, teacher),
-                              loadPostings(schoolYear, teacher),
-                              loadPostingDetails(schoolYear, teacher),
-                              loadThesisEntries(schoolYear, teacher)
+        return createWorkload(
+            employment,
+            loadAllCourses(schoolYear).filter(course -> course.contains(teacher) && !course.isCancelled()),
+            loadPoolEntries(schoolYear, teacher),
+            loadPostings(schoolYear, teacher),
+            loadPostingDetails(schoolYear, teacher),
+            loadThesisEntries(schoolYear, teacher)
         );
     }
 
     public Workloads loadWorkloads(SchoolYear schoolYear, Division division) {
-        Map<Teacher, Workload> map = new HashMap<>();
         List<Course> courses = loadAllCourses(schoolYear).collect(Collectors.toList());
         List<PoolEntry> poolEntries = loadPoolEntries(schoolYear).collect(Collectors.toList());
         List<Posting> postings = loadPostings(schoolYear).collect(Collectors.toList());
         List<PostingDetail> postingDetails = loadPostingDetails(schoolYear).collect(Collectors.toList());
         List<ThesisEntry> thesisEntries = loadThesisEntries(schoolYear).collect(Collectors.toList());
-        loadEmployments(schoolYear, division).forEachOrdered(employment -> {
-            Teacher teacher = employment.getTeacher();
-            map.put(teacher, createWorkload(
+        Map<Teacher, Workload> map = loadEmployments(schoolYear, division).collect(Collectors.toMap(
+            employment -> employment.getTeacher(),
+            employment -> {
+                Teacher teacher = employment.getTeacher();
+                return createWorkload(
                     employment,
                     courses.stream().filter(course -> course.contains(teacher) && !course.isCancelled()),
                     poolEntries.stream().filter(item -> item.filter(teacher)),
                     postings.stream().filter(item -> item.filter(teacher)),
                     postingDetails.stream().filter(item -> item.filter(teacher)),
-                    thesisEntries.stream().filter(item -> item.filter(teacher))));
-        });
+                    thesisEntries.stream().filter(item -> item.filter(teacher))
+                );
+            }));
 
         return Workloads.create(schoolYear, map);
     }
@@ -772,18 +775,16 @@ public final class PensenData extends BaseData implements Context {
                 division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
                     Condition.equals(LessonTableEntry.DB_DIVISION, division));
             getConnection().delete(schema, LessonTableEntry.class, where);
-            entries.forEachOrdered(entry -> {
-                if (entry.typeEnum() != LessonType.Enum.NoLessons) {
-                    PropertyMap properties = PropertyMap.create();
-                    properties.put(LessonTableEntry.DB_CURRICULUM, curriculum);
-                    properties.put(LessonTableEntry.DB_DIVISION, division);
-                    properties.put(LessonTableEntry.DB_SUBJECT, subject);
-                    properties.put(LessonTableEntry.DB_GRADE, entry.getGrade());
-                    properties.put(LessonTableEntry.DB_LESSONS_1, entry.getLessons1());
-                    properties.put(LessonTableEntry.DB_LESSONS_2, entry.getLessons2());
-                    properties.put(LessonTableEntry.DB_TYPE, entry.getType());
-                    getConnection().insert(schema, LessonTableEntry.class, properties);
-                }
+            entries.filter(entry -> entry.typeEnum() != LessonType.Enum.NoLessons).forEachOrdered(entry -> {
+                PropertyMap properties = PropertyMap.create();
+                properties.put(LessonTableEntry.DB_CURRICULUM, curriculum);
+                properties.put(LessonTableEntry.DB_DIVISION, division);
+                properties.put(LessonTableEntry.DB_SUBJECT, subject);
+                properties.put(LessonTableEntry.DB_GRADE, entry.getGrade());
+                properties.put(LessonTableEntry.DB_LESSONS_1, entry.getLessons1());
+                properties.put(LessonTableEntry.DB_LESSONS_2, entry.getLessons2());
+                properties.put(LessonTableEntry.DB_TYPE, entry.getType());
+                getConnection().insert(schema, LessonTableEntry.class, properties);
             });
         }
     }
@@ -792,16 +793,14 @@ public final class PensenData extends BaseData implements Context {
         synchronized (lock) {
             Condition where = Condition.equals(PostingDetail.DB_POSTING, posting);
             getConnection().delete(schema, PostingDetail.class, where);
-            map.stream().forEachOrdered(entry -> {
-                if (entry.getValue() != 0) {
-                    PropertyMap properties = PropertyMap.create();
-                    properties.put(PostingDetail.DB_POSTING, posting);
-                    properties.put(PostingDetail.DB_SCHOOL_YEAR, posting.getSchoolYear());
-                    properties.put(PostingDetail.DB_TEACHER, posting.getTeacher());
-                    properties.put(PostingDetail.DB_TYPE, entry.getKey());
-                    properties.put(PostingDetail.DB_VALUE, entry.getValue());
-                    getConnection().insert(schema, PostingDetail.class, properties);
-                }
+            map.stream().filter(entry -> entry.getValue() != 0).forEachOrdered(entry -> {
+                PropertyMap properties = PropertyMap.create();
+                properties.put(PostingDetail.DB_POSTING, posting);
+                properties.put(PostingDetail.DB_SCHOOL_YEAR, posting.getSchoolYear());
+                properties.put(PostingDetail.DB_TEACHER, posting.getTeacher());
+                properties.put(PostingDetail.DB_TYPE, entry.getKey());
+                properties.put(PostingDetail.DB_VALUE, entry.getValue());
+                getConnection().insert(schema, PostingDetail.class, properties);
             });
         }
     }
@@ -813,15 +812,13 @@ public final class PensenData extends BaseData implements Context {
                 Condition.equals(ThesisEntry.DB_TEACHER, teacher)
             );
             getConnection().delete(schema, ThesisEntry.class, where);
-            map.stream().forEachOrdered(entry -> {
-                if (entry.getValue() != 0) {
-                    PropertyMap properties = PropertyMap.create();
-                    properties.put(ThesisEntry.DB_SCHOOL_YEAR, schoolYear);
-                    properties.put(ThesisEntry.DB_TEACHER, teacher);
-                    properties.put(ThesisEntry.DB_TYPE, entry.getKey());
-                    properties.put(ThesisEntry.DB_COUNT, entry.getValue());
-                    getConnection().insert(schema, ThesisEntry.class, properties);
-                }
+            map.stream().filter(entry -> entry.getValue() != 0).forEachOrdered(entry -> {
+                PropertyMap properties = PropertyMap.create();
+                properties.put(ThesisEntry.DB_SCHOOL_YEAR, schoolYear);
+                properties.put(ThesisEntry.DB_TEACHER, teacher);
+                properties.put(ThesisEntry.DB_TYPE, entry.getKey());
+                properties.put(ThesisEntry.DB_COUNT, entry.getValue());
+                getConnection().insert(schema, ThesisEntry.class, properties);
             });
         }
     }
@@ -831,15 +828,13 @@ public final class PensenData extends BaseData implements Context {
             Condition where = Condition.equals(WeeklyLessons.DB_SCHOOL_YEAR, schoolYear);
             getConnection().delete(schema, WeeklyLessons.class, where);
             schoolYear.clearWeeklyLessons();
-            map.stream().forEachOrdered(entry -> {
-                if (entry.getValue() != 0) {
-                    schoolYear.putWeeklyLessons(entry.getKey(), entry.getValue());
-                    PropertyMap properties = PropertyMap.create();
-                    properties.put(WeeklyLessons.DB_SCHOOL_YEAR, schoolYear);
-                    properties.put(WeeklyLessons.DB_PAYROLL_TYPE, entry.getKey());
-                    properties.put(WeeklyLessons.DB_LESSONS, entry.getValue());
-                    getConnection().insert(schema, WeeklyLessons.class, properties);
-                }
+            map.stream().filter(entry -> entry.getValue() != 0).forEachOrdered(entry -> {
+                schoolYear.putWeeklyLessons(entry.getKey(), entry.getValue());
+                PropertyMap properties = PropertyMap.create();
+                properties.put(WeeklyLessons.DB_SCHOOL_YEAR, schoolYear);
+                properties.put(WeeklyLessons.DB_PAYROLL_TYPE, entry.getKey());
+                properties.put(WeeklyLessons.DB_LESSONS, entry.getValue());
+                getConnection().insert(schema, WeeklyLessons.class, properties);
             });
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -58,19 +58,19 @@ public final class Course extends Entity {
 
     private final boolean crossClass;
     private Curriculum curriculum;
-    private final List<SchoolClass> schoolClasses = new ArrayList<>();
-    private final List<Integer> schoolClassIds = new ArrayList<>();
     private final SchoolYear schoolYear;
     private final Subject subject;
-    private final List<Teacher> teachers1 = new ArrayList<>();
-    private final List<Integer> teacherIds1 = new ArrayList<>();
-    private final List<Teacher> teachers2 = new ArrayList<>();
-    private final List<Integer> teacherIds2 = new ArrayList<>();
     private boolean cancelled;
     private String comments;
     private Grade grade;
     private double lessons1;
     private double lessons2;
+    private List<SchoolClass> schoolClasses = new ArrayList<>();
+    private List<Integer> schoolClassIds = new ArrayList<>();
+    private List<Teacher> teachers1 = new ArrayList<>();
+    private List<Integer> teacherIds1 = new ArrayList<>();
+    private List<Teacher> teachers2 = new ArrayList<>();
+    private List<Integer> teacherIds2 = new ArrayList<>();
 
     @PropertyInitializer({DB_CROSS_CLASS, DB_GRADE, DB_ID, DB_SCHOOL_YEAR, DB_SUBJECT})
     public Course(boolean crossClass, Grade grade, int id, SchoolYear schoolYear,
@@ -255,35 +255,29 @@ public final class Course extends Entity {
 
     @Persistence(ignore = true)
     public void setSchoolClasses(Stream<SchoolClass> schoolClasses) {
-        this.schoolClasses.clear();
-        schoolClasses.forEachOrdered(item -> this.schoolClasses.add(item));
+        this.schoolClasses = schoolClasses.collect(Collectors.toList());
     }
 
     public void setSchoolClassIds(Stream<Integer> schoolClassIds) {
-        this.schoolClassIds.clear();
-        schoolClassIds.forEachOrdered(item -> this.schoolClassIds.add(item));
+        this.schoolClassIds = schoolClassIds.collect(Collectors.toList());
     }
 
     public void setTeacherIds1(Stream<Integer> teacherIds1) {
-        this.teacherIds1.clear();
-        teacherIds1.forEachOrdered(item -> this.teacherIds1.add(item));
+        this.teacherIds1 = teacherIds1.collect(Collectors.toList());
     }
 
     public void setTeacherIds2(Stream<Integer> teacherIds2) {
-        this.teacherIds2.clear();
-        teacherIds2.forEachOrdered(item -> this.teacherIds2.add(item));
+        this.teacherIds2 = teacherIds2.collect(Collectors.toList());
     }
 
     @Persistence(ignore = true)
     public void setTeachers1(Stream<Teacher> teachers1) {
-        this.teachers1.clear();
-        teachers1.forEachOrdered(item -> this.teachers1.add(item));
+        this.teachers1 = teachers1.collect(Collectors.toList());
     }
 
     @Persistence(ignore = true)
     public void setTeachers2(Stream<Teacher> teachers2) {
-        this.teachers2.clear();
-        teachers2.forEachOrdered(item -> this.teachers2.add(item));
+        this.teachers2 = teachers2.collect(Collectors.toList());
     }
 
     public Stream<Teacher> teachers() {
@@ -342,12 +336,9 @@ public final class Course extends Entity {
     }
 
     Course resolve(Context context) {
-        schoolClasses.clear();
-        schoolClassIds.stream().map(id -> context.getSchoolClassById(id)).sorted().forEachOrdered(item -> schoolClasses.add(item));
-        teachers1.clear();
-        teacherIds1.stream().map(id -> context.getTeacherById(id)).sorted().forEachOrdered(item -> teachers1.add(item));
-        teachers2.clear();
-        teacherIds2.stream().map(id -> context.getTeacherById(id)).sorted().forEachOrdered(item -> teachers2.add(item));
+        schoolClasses = schoolClassIds.stream().map(id -> context.getSchoolClassById(id)).sorted().collect(Collectors.toList());
+        teachers1 = teacherIds1.stream().map(id -> context.getTeacherById(id)).sorted().collect(Collectors.toList());
+        teachers2 = teacherIds2.stream().map(id -> context.getTeacherById(id)).sorted().collect(Collectors.toList());
         return this;
     }
 
