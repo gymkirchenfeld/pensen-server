@@ -21,13 +21,14 @@ import ch.kinet.Util;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
 import ch.kinet.pensen.data.Authorisation;
+import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.Teacher;
 import ch.kinet.pensen.data.ThesisType;
 import ch.kinet.pensen.data.ValueMap;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ThesisResource extends ObjectResource {
 
@@ -78,19 +79,18 @@ public class ThesisResource extends ObjectResource {
             return Response.notFound();
         }
 
-        SortedMap<Teacher, JsonObject> map = new TreeMap<>();
-        pensenData.loadEmployments(schoolYearFilter, null).forEachOrdered(
-            entry -> map.put(entry.getTeacher(), toJson(schoolYearFilter, entry.getTeacher()))
+        Map<Teacher, JsonObject> map = pensenData.loadEmployments(schoolYearFilter, null).collect(
+            Collectors.toMap(Employment::getTeacher, item -> toJson(schoolYearFilter, item.getTeacher()))
         );
 
         pensenData.loadThesisEntries(schoolYearFilter).forEachOrdered(entry -> {
             if (map.containsKey(entry.getTeacher())) {
                 String key = String.valueOf(entry.getType().getId());
-                map.get(entry.getTeacher()).put(key, entry.getCount());
+                map.get(entry.getTeacher()).getObject(JSON_THESIS_COUNTS).put(key, entry.getCount());
             }
         });
 
-        return Response.jsonTerse(map.values().stream());
+        return Response.jsonTerse(map.keySet().stream().sorted().map(teacher -> map.get(teacher)));
     }
 
     @Override
@@ -131,6 +131,7 @@ public class ThesisResource extends ObjectResource {
         result.put(JSON_ID, resourceId(schoolYear, teacher));
         result.putTerse(JSON_SCHOOL_YEAR, schoolYear);
         result.putTerse(JSON_TEACHER, teacher);
+        result.putTerse(JSON_THESIS_COUNTS, JsonObject.create());
         return result;
     }
 
