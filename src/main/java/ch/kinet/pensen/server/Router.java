@@ -83,11 +83,6 @@ public final class Router {
         }
 
         Token token = JJWT.parseToken(authorisation.substring(7), keys);
-        if (Configuration.getInstance().isDebugEnabled()) {
-            System.out.println("Received token");
-            System.out.println(token);
-        }
-
         switch (token.getStatus()) {
             case Expired:
                 System.out.println("Token is expired.");

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -130,7 +130,13 @@ public final class WorkloadMail extends JobImplementation {
             Data product = pdf.toData();
             mail.setSubject(mailSubject);
             mail.setBody(mailBody);
-            mail.addTo(workload.getTeacher().getEmail());
+            if (Configuration.getInstance().isTestSystem()) {
+                mail.addTo(Configuration.getInstance().getTestMailRecipient());
+            }
+            else {
+                mail.addTo(workload.getTeacher().getEmail());
+            }
+
             mail.addAttachment(product);
             try {
                 mailer.sendMail(mail);
@@ -148,21 +154,35 @@ public final class WorkloadMail extends JobImplementation {
     }
 
     private void checkEmailAddresses() {
-        checkEmailAddress(mailFrom);
+        if (!isValidEmailAddress(mailFrom)) {
+            setErrorMessage("Der Absender '" + mailFrom + "' ist keine gültige E-Mail-Adresse.");
+        }
+
         if (workloads == null) {
-            checkEmailAddress(workload.getTeacher().getEmail());
+            checkEmailAddress(workload.getTeacher());
         }
         else {
-            workloads.teachers().forEachOrdered(teacher -> checkEmailAddress(teacher.getEmail()));
+            workloads.teachers().forEachOrdered(teacher -> checkEmailAddress(teacher));
         }
     }
 
-    private void checkEmailAddress(String address) {
+    private void checkEmailAddress(Teacher teacher) {
+        if (!isValidEmailAddress(teacher.getEmail())) {
+            setErrorMessage("Die Lehrperson mit dem Kürzel '" + teacher.getCode() + "' hat keine gültige E-Mail-Adresse.");
+        }
+    }
+
+    private boolean isValidEmailAddress(String address) {
+        if (address == null) {
+            return false;
+        }
+
         try {
             new InternetAddress(address);
+            return true;
         }
         catch (AddressException ex) {
-            setErrorMessage("'" + workload.getTeacher().getEmail() + "' ist keine gültige E-Mail-Adresse.");
+            return false;
         }
     }
 

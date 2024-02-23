@@ -35,8 +35,9 @@ public final class Configuration {
     private static final String DB_PASSWORD = "db.password";
     private static final String DB_SCHEMA = "db.schema";
     private static final String DB_USER = "db.user";
-    private static final String DEBUG_ENABLED = "debug";
     private static final String HTTP_PORT = "http.port";
+    private static final String TEST_ENABLED = "test.enabled";
+    private static final String TEST_MAIL_TO = "test.mailto";
     private static final String MICROSOFT_CLIENT = "microsoft.client";
     private static final String MICROSOFT_TENANT = "microsoft.tenant";
     private static final String PERCENT_DECIMALS = "percentDecimals";
@@ -48,7 +49,6 @@ public final class Configuration {
     private static final String SUPPORT_MAIL = "support.mail";
     private final String dbSchema;
     private final DbSpec dbSpec;
-    private final boolean debugEnabled;
     private final Properties properties;
     private SshConnection sshConnection;
 
@@ -70,8 +70,6 @@ public final class Configuration {
         }
 
         dbSchema = getString(DB_SCHEMA);
-
-        debugEnabled = getBoolean(DEBUG_ENABLED);
         dbSpec = DbSpec.create(DbSpec.Dbms.Postgresql);
         dbSpec.setDatabase(getString(DB_NAME));
         dbSpec.setPort(getInt(DB_PORT, 5432));
@@ -142,11 +140,15 @@ public final class Configuration {
         return getString(SUPPORT_MAIL);
     }
 
-    public boolean isDebugEnabled() {
-        return debugEnabled;
+    public String getTestMailRecipient() {
+        return getString(TEST_MAIL_TO);
     }
 
-    private boolean getBoolean(String key) {
+    public boolean isTestSystem() {
+        return getBoolean(TEST_ENABLED, false);
+    }
+
+    private boolean getBoolean(String key, boolean defaultValue) {
         return Boolean.parseBoolean(properties.getProperty(key));
     }
 
