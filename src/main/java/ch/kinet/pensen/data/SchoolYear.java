@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -59,7 +59,8 @@ public final class SchoolYear extends Entity {
     }
 
     public double ageReliefFactor(Teacher teacher, SemesterEnum semester) {
-        return _ageReliefFactor(teacher.ageOn(startOfSemester(semester)));
+        // Stichtag ist der Tag vor dem Beginn des Semesters
+        return _ageReliefFactor(teacher.ageOn(startOfSemester(semester).addDays(-1)));
     }
 
     public CalculationMode.Enum calculationModeEnum() {
