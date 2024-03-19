@@ -18,5 +18,5 @@ package ch.kinet.pensen.server;
 
 public final class Version {
 
-    static final String VERSION = "3.4.10";
+    static final String VERSION = "3.4.11";
 }
