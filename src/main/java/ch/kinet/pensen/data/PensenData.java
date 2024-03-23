@@ -483,7 +483,12 @@ public final class PensenData extends BaseData implements Context {
 
     public Course loadCourse(int id) {
         Condition where = Condition.equals(Course.DB_ID, id);
-        return getConnection().selectOne(schema, Course.class, where).resolve(this);
+        Course result = getConnection().selectOne(schema, Course.class, where);
+        if (result != null) {
+            result.resolve(this);
+        }
+
+        return result;
     }
 
     public Stream<Course> loadCourses(SchoolYear schoolYear, boolean crossClass) {
