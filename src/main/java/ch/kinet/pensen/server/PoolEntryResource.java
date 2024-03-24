@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -51,7 +51,7 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
             return Response.badRequest();
         }
 
-        return Response.jsonTerse(pensenData.loadPoolEntries(schoolYear));
+        return Response.jsonArrayTerse(pensenData.loadPoolEntries(schoolYear));
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -70,10 +70,10 @@ public final class CourseResource extends EntityResource<Course> {
 
         if (query.hasKey(QUERY_CROSS_CLASS)) {
             boolean crossClass = query.getBoolean(QUERY_CROSS_CLASS, true);
-            return Response.jsonTerse(pensenData.loadCourses(schoolYear, crossClass));
+            return Response.jsonArrayTerse(pensenData.loadCourses(schoolYear, crossClass));
         }
         else {
-            return Response.jsonTerse(pensenData.loadAllCourses(schoolYear));
+            return Response.jsonArrayTerse(pensenData.loadAllCourses(schoolYear));
         }
     }
 

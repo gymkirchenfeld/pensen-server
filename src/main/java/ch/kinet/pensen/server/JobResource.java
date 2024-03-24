@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -41,7 +41,7 @@ public final class JobResource extends ObjectResource {
 
     @Override
     protected Response list(Authorisation authorisation, Query query) {
-        return Response.jsonTerse(jobData.getJobs());
+        return Response.jsonArrayTerse(jobData.getJobs());
     }
 
     @Override
@@ -70,11 +70,15 @@ public final class JobResource extends ObjectResource {
             return Response.badRequest("Invalid job name.");
         }
 
+        if (!job.isFinished()) {
+            return Response.badRequest("Job is already running.");
+        }
+
         if (job.start(authorisation, data)) {
             return Response.jsonVerbose(job);
         }
         else {
-            return Response.badRequest();
+            return Response.badRequest("Invalid parameters.");
         }
     }
 

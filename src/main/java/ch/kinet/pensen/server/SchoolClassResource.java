@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -50,7 +50,7 @@ public final class SchoolClassResource extends EntityResource<SchoolClass> {
     protected Response list(Authorisation authorisation, Query query) {
         Grade grade = null;
         if (!query.hasKey(QUERY_SCHOOL_YEAR)) {
-            return Response.jsonVerbose(pensenData.streamSchoolClasses());
+            return Response.jsonArrayVerbose(pensenData.streamSchoolClasses());
         }
 
         if (query.hasKey(QUERY_GRADE)) {
@@ -62,7 +62,7 @@ public final class SchoolClassResource extends EntityResource<SchoolClass> {
             return Response.notFound();
         }
 
-        return Response.jsonTerse(pensenData.streamSchoolClassesFor(schoolYear, grade));
+        return Response.jsonArrayTerse(pensenData.streamSchoolClassesFor(schoolYear, grade));
     }
 
     @Override

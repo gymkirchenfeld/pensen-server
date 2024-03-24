@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -41,12 +41,12 @@ public final class PayrollTypeResource extends EntityResource<PayrollType> {
     protected Response list(Authorisation auth, Query query) {
         if (query.hasKey(QUERY_LESSON_BASED)) {
             boolean lessonBased = query.getBoolean(QUERY_LESSON_BASED, false);
-            return Response.jsonTerse(pensenData.streamPayrollTypes().filter(
-                item -> item.isLessonBased() == lessonBased
-            ));
+            return Response.jsonArrayTerse(pensenData.streamPayrollTypes()
+                .filter(item -> item.isLessonBased() == lessonBased)
+            );
         }
         else {
-            return Response.jsonTerse(pensenData.streamPayrollTypes());
+            return Response.jsonArrayTerse(pensenData.streamPayrollTypes());
         }
     }
 

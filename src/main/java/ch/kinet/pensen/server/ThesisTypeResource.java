@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -38,7 +38,7 @@ public final class ThesisTypeResource extends EntityResource<ThesisType> {
 
     @Override
     protected Response list(Authorisation auth, Query query) {
-        return Response.jsonTerse(pensenData.streamThesisTypes());
+        return Response.jsonArrayTerse(pensenData.streamThesisTypes());
     }
 
     @Override

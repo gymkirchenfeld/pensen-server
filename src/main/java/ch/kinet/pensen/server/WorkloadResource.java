@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -49,9 +49,9 @@ public final class WorkloadResource extends GlobalResource {
 
         Teacher teacher = pensenData.getTeacherById(query.getInt(QUERY_TEACHER, -1));
         if (teacher == null) {
-            return Response.jsonTerse(pensenData.loadEmployments(schoolYear, null).map(
-                employment -> pensenData.loadWorkload(employment)
-            ));
+            return Response.jsonArrayTerse(pensenData.loadEmployments(schoolYear, null)
+                .map(employment -> pensenData.loadWorkload(employment))
+            );
         }
         else {
             Employment employment = pensenData.loadEmployment(schoolYear, teacher);

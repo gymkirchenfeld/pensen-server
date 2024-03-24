@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -45,7 +45,7 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
 
     @Override
     protected Response list(Authorisation auth, Query query) {
-        return Response.jsonVerbose(pensenData.streamSchoolYears());
+        return Response.jsonArrayVerbose(pensenData.streamSchoolYears());
     }
 
     @Override

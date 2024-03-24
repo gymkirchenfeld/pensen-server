@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -47,12 +47,12 @@ public final class SubjectResource extends EntityResource<Subject> {
     protected Response list(Authorisation authorisation, Query query) {
         if (query.hasKey(QUERY_CROSS_CLASS)) {
             boolean crossClass = query.getBoolean(QUERY_CROSS_CLASS, true);
-            return Response.jsonTerse(pensenData.streamSubjects().filter(
-                item -> !item.isArchived() && (item.isCrossClass() == crossClass)
-            ));
+            return Response.jsonArrayTerse(pensenData.streamSubjects()
+                .filter(item -> !item.isArchived() && (item.isCrossClass() == crossClass))
+            );
         }
 
-        return Response.jsonTerse(pensenData.streamSubjects());
+        return Response.jsonArrayTerse(pensenData.streamSubjects());
     }
 
     @Override

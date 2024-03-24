@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -53,7 +53,7 @@ public final class PostingResource extends EntityResource<Posting> {
             return Response.badRequest();
         }
 
-        return Response.jsonTerse(pensenData.loadPostings(schoolYear));
+        return Response.jsonArrayTerse(pensenData.loadPostings(schoolYear));
     }
 
     @Override

@@ -42,7 +42,7 @@ public final class CurriculumResource extends EntityResource<Curriculum> {
 
     @Override
     protected Response list(Authorisation auth, Query query) {
-        return Response.jsonVerbose(pensenData.streamCurriculums());
+        return Response.jsonArrayVerbose(pensenData.streamCurriculums());
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -53,7 +53,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
                 return Response.notFound();
             }
 
-            return Response.jsonTerse(pensenData.loadEmployments(schoolYear, null));
+            return Response.jsonArrayTerse(pensenData.loadEmployments(schoolYear, null));
         }
 
         if (query.hasKey(QUERY_TEACHER)) {
@@ -62,7 +62,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
                 return Response.notFound();
             }
 
-            return Response.jsonTerse(pensenData.loadTeacherHistory(teacher));
+            return Response.jsonArrayTerse(pensenData.loadTeacherHistory(teacher));
         }
 
         return Response.badRequest();

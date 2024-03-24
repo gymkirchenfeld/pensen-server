@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -38,7 +38,7 @@ public final class LessonTypeResource extends EntityResource<LessonType> {
 
     @Override
     protected Response list(Authorisation auth, Query query) {
-        return Response.jsonTerse(pensenData.streamLessonTypes());
+        return Response.jsonArrayTerse(pensenData.streamLessonTypes());
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -51,7 +51,7 @@ public final class TeacherResource extends EntityResource<Teacher> {
     @Override
     protected Response list(Authorisation authorisation, Query query) {
         if (!query.hasKey(QUERY_SCHOOL_YEAR)) {
-            return Response.jsonVerbose(pensenData.streamTeachers());
+            return Response.jsonArrayVerbose(pensenData.streamTeachers());
         }
 
         SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt(QUERY_SCHOOL_YEAR, -1));
@@ -61,11 +61,11 @@ public final class TeacherResource extends EntityResource<Teacher> {
 
         boolean active = query.getBoolean(QUERY_EMPLOYED, true);
         if (active) {
-            return Response.jsonVerbose(pensenData.loadTeachersForSchoolYear(schoolYear));
+            return Response.jsonArrayVerbose(pensenData.loadTeachersForSchoolYear(schoolYear));
         }
 
         Set<Teacher> activeTeachers = pensenData.loadTeachersForSchoolYear(schoolYear).collect(Collectors.toSet());
-        return Response.jsonVerbose(pensenData.streamTeachers().filter(teacher -> !activeTeachers.contains(teacher)));
+        return Response.jsonArrayVerbose(pensenData.streamTeachers().filter(teacher -> !activeTeachers.contains(teacher)));
     }
 
     @Override

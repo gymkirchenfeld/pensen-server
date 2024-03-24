@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -90,7 +90,7 @@ public class ThesisResource extends ObjectResource {
             }
         });
 
-        return Response.jsonTerse(map.keySet().stream().sorted().map(teacher -> map.get(teacher)));
+        return Response.jsonArrayTerse(map.keySet().stream().sorted().map(teacher -> map.get(teacher)));
     }
 
     @Override
