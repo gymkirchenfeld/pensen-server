@@ -328,7 +328,7 @@ public final class Course extends Entity {
         StringBuilder result = new StringBuilder();
         result.append(subject.getCode());
         result.append(' ');
-        result.append(Util.concat(schoolClasses.stream().map(sc -> sc == null ? "???" : sc.getCode()), " "));
+        result.append(schoolClasses.stream().map(sc -> sc == null ? "???" : sc.getCode()).collect(Collectors.joining(" ")));
         result.append(" (ID ");
         result.append(getId());
         result.append(")");

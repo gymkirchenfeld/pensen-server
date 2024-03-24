@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,7 +16,6 @@
  */
 package ch.kinet.pensen.job;
 
-import ch.kinet.Util;
 import ch.kinet.pdf.Alignment;
 import ch.kinet.pdf.Border;
 import ch.kinet.pdf.Document;
@@ -24,6 +23,7 @@ import ch.kinet.pensen.data.Course;
 import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.SemesterEnum;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SubjectCoursePDFGenerator {
 
@@ -61,14 +61,14 @@ public class SubjectCoursePDFGenerator {
             pdf.addCell(entry.getSubject().getCode(), Alignment.Left);
             pdf.addCell(entry.getSubject().getDescription(), Alignment.Left);
             pdf.addCell(entry.getGrade().getDescription(), Alignment.Left);
-            pdf.addCell(Util.concat(entry.schoolClasses().map(sc -> sc.getCode()), ", "), Alignment.Left);
+            pdf.addCell(entry.schoolClasses().map(sc -> sc.getCode()).collect(Collectors.joining(", ")), Alignment.Left);
             pdf.addCell(Format.lessons(entry.getLessons1()), Alignment.Right);
             pdf.addCell("", Alignment.Left);
             if (openWorkload) {
                 pdf.addCell(Format.percent(p1, false), Alignment.Right);
             }
             else {
-                pdf.addCell(Util.concat(entry.teachers(SemesterEnum.First).map(t -> t.getCode()), ", "), Alignment.Left);
+                pdf.addCell(entry.teachers(SemesterEnum.First).map(t -> t.getCode()).collect(Collectors.joining(", ")), Alignment.Left);
             }
 
             pdf.addCell(Format.lessons(entry.getLessons2()), Alignment.Right);
@@ -77,7 +77,7 @@ public class SubjectCoursePDFGenerator {
                 pdf.addCell(Format.percent(p2, false), Alignment.Right);
             }
             else {
-                pdf.addCell(Util.concat(entry.teachers(SemesterEnum.Second).map(t -> t.getCode()), ", "), Alignment.Left);
+                pdf.addCell(entry.teachers(SemesterEnum.Second).map(t -> t.getCode()).collect(Collectors.joining(", ")), Alignment.Left);
             }
 
             this.lessons1 += l1;

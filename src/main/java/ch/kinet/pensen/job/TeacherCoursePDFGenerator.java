@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,7 +17,6 @@
 package ch.kinet.pensen.job;
 
 import ch.kinet.Date;
-import ch.kinet.Util;
 import ch.kinet.pdf.Alignment;
 import ch.kinet.pdf.Border;
 import ch.kinet.pdf.Document;
@@ -26,6 +25,7 @@ import ch.kinet.pensen.calculation.Courses;
 import ch.kinet.pensen.calculation.Workload;
 import ch.kinet.pensen.data.Division;
 import ch.kinet.pensen.data.Employment;
+import java.util.stream.Collectors;
 
 public final class TeacherCoursePDFGenerator {
 
@@ -98,7 +98,7 @@ public final class TeacherCoursePDFGenerator {
             pdf.addCell(item.subject().getCode(), Alignment.Left);
             pdf.addCell(item.subject().getDescription(), Alignment.Left);
             pdf.addCell(item.grade().getDescription(), Alignment.Left);
-            pdf.addCell(Util.concat(item.schoolClasses().map(sc -> sc.getCode()), ", "), Alignment.Left);
+            pdf.addCell(item.schoolClasses().map(sc -> sc.getCode()).collect(Collectors.joining(", ")), Alignment.Left);
             pdf.addCell(Format.lessons(item.lessons1()), Alignment.Right);
             pdf.addCell(Format.percent(item.percent1(), false), Alignment.Right);
             pdf.addCell(Format.lessons(item.lessons2()), Alignment.Right);
