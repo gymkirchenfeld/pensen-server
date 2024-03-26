@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,8 +16,6 @@
  */
 package ch.kinet.pensen.data;
 
-import static ch.kinet.pensen.data.SemesterEnum.First;
-import static ch.kinet.pensen.data.SemesterEnum.Second;
 import java.util.function.BiFunction;
 
 public final class SemesterValue {
