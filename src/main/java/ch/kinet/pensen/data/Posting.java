@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -99,8 +99,7 @@ public final class Posting extends Entity {
 
     @Override
     public JsonObject toJsonTerse() {
-        JsonObject result = JsonObject.create();
-        result.put(JSON_ID, getId());
+        JsonObject result = super.toJsonTerse();
         result.put(JSON_DESCRIPTION, description);
         result.put(JSON_END_DATE, endDate);
         result.put(JSON_START_DATE, startDate);

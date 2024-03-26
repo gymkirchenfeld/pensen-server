@@ -109,11 +109,10 @@ public final class Curriculum extends Entity {
 
     @Override
     public JsonObject toJsonTerse() {
-        JsonObject result = JsonObject.create();
+        JsonObject result = super.toJsonTerse();
         result.put(JSON_ARCHIVED, archived);
         result.put(JSON_CODE, code);
         result.put(JSON_DESCRIPTION, description);
-        result.put(JSON_ID, getId());
         return result;
     }
 

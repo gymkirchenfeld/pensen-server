@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -96,13 +96,12 @@ public final class SchoolClass extends Entity {
 
     @Override
     public JsonObject toJsonTerse() {
-        JsonObject result = JsonObject.create();
+        JsonObject result = super.toJsonTerse();
         result.put(JSON_ARCHIVED, archived);
         result.put(JSON_CODE, code);
         result.putTerse(JSON_CURRICULUM, curriculum);
         result.putTerse(JSON_DIVISION, division);
         result.put(JSON_GRADUATION_YEAR, graduationYear);
-        result.put(JSON_ID, getId());
         return result;
     }
 

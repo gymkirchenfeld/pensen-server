@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -141,12 +141,11 @@ public final class Subject extends Entity {
 
     @Override
     public JsonObject toJsonTerse() {
-        JsonObject result = JsonObject.create();
+        JsonObject result = super.toJsonTerse();
         result.put(JSON_ARCHIVED, archived);
         result.putTerse(JSON_CATEGORY, category);
         result.put(JSON_CODE, code);
         result.put(JSON_DESCRIPTION, description);
-        result.put(JSON_ID, getId());
         result.put(JSON_SORT_ORDER, sortOrder);
         result.putTerse(JSON_TYPE, type);
         return result;

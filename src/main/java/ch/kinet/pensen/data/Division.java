@@ -109,10 +109,9 @@ public final class Division extends Entity {
 
     @Override
     public JsonObject toJsonTerse() {
-        JsonObject result = JsonObject.create();
+        JsonObject result = super.toJsonTerse();
         result.put(JSON_CODE, code);
         result.put(JSON_DESCRIPTION, description);
-        result.put(JSON_ID, getId());
         return result;
     }
 

@@ -299,12 +299,11 @@ public final class Course extends Entity {
     public JsonObject toJsonTerse() {
         double open1 = !cancelled && teachers1.isEmpty() ? lessons1 : 0;
         double open2 = !cancelled && teachers2.isEmpty() ? lessons2 : 0;
-        JsonObject result = JsonObject.create();
-        result.put(JSON_ID, getId());
+        JsonObject result = super.toJsonTerse();
         result.put(JSON_CANCELLED, cancelled);
         result.put(JSON_COMMENTS, comments);
         result.putTerse(JSON_CURRICULUM, curriculum);
-        result.putTerse(JSON_GRADE, getGrade());
+        result.putTerse(JSON_GRADE, grade);
         result.put(JSON_LESSONS_1, lessons1);
         result.put(JSON_LESSONS_2, lessons2);
         result.putTerse(JSON_SCHOOL_YEAR, schoolYear);

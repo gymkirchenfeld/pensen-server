@@ -170,8 +170,7 @@ public final class Employment extends Entity {
 
     @Override
     public JsonObject toJsonTerse() {
-        JsonObject result = JsonObject.create();
-        result.put(JSON_ID, getId());
+        JsonObject result = super.toJsonTerse();
         result.put(JSON_CHANGE, closingBalance - openingBalance);
         result.put(JSON_CLOSING_BALANCE, closingBalance);
         result.put(JSON_COMMENTS, comments);

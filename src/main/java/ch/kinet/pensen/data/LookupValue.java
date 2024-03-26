@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2011 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -44,10 +44,9 @@ public class LookupValue extends Entity {
 
     @Override
     public JsonObject toJsonTerse() {
-        JsonObject result = JsonObject.create();
-        result.put(JSON_ID, getId());
-        result.put(JSON_CODE, getCode());
-        result.put(JSON_DESCRIPTION, getDescription());
+        JsonObject result = super.toJsonTerse();
+        result.put(JSON_CODE, code);
+        result.put(JSON_DESCRIPTION, description);
         return result;
     }
 
