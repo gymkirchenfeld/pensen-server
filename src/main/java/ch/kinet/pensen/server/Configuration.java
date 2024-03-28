@@ -91,11 +91,6 @@ public final class Configuration {
             sshConnection.addTunnel(dbTunnelPort, dbSpec.getDbServer(), dbSpec.getPort());
             dbSpec.setPort(dbTunnelPort);
             dbSpec.setDbServer("localhost");
-
-//            int ldapTunnelPort = ldapSpec.getPort() + 5000;
-//            sshConnection.addTunnel(ldapTunnelPort, ldapSpec.getServerName(), ldapSpec.getPort());
-//            ldapSpec.setPort(ldapTunnelPort);
-//            ldapSpec.setServerName("dclocal.ad.kinet.ch");
             sshConnection.connect();
         }
     }
