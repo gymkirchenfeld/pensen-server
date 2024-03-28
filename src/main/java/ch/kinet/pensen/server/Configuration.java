@@ -140,10 +140,10 @@ public final class Configuration {
     }
 
     public boolean isTestSystem() {
-        return getBoolean(TEST_ENABLED, false);
+        return getBoolean(TEST_ENABLED);
     }
 
-    private boolean getBoolean(String key, boolean defaultValue) {
+    private boolean getBoolean(String key) {
         return Boolean.parseBoolean(properties.getProperty(key));
     }
 
