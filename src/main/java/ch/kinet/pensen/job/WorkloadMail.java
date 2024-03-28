@@ -21,6 +21,7 @@ import ch.kinet.DataManager;
 import ch.kinet.JsonObject;
 import ch.kinet.Mail;
 import ch.kinet.Mailer;
+import ch.kinet.Util;
 import ch.kinet.pdf.Document;
 import ch.kinet.pensen.calculation.Workload;
 import ch.kinet.pensen.calculation.Workloads;
@@ -31,8 +32,6 @@ import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.Teacher;
 import ch.kinet.pensen.server.Configuration;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 
 public final class WorkloadMail extends JobImplementation {
 
@@ -73,6 +72,11 @@ public final class WorkloadMail extends JobImplementation {
         mailSubject = data.getString("mailSubject");
         if (schoolYear == null) {
             setErrorMessage("Ein Schuljahr muss ausgewählt werden.");
+            return false;
+        }
+
+        if (!Util.isValidEmailAddress(mailFrom)) {
+            setErrorMessage("Der Absender " + mailFrom + " ist keine gültier E-Mail-Adresse.");
             return false;
         }
 
@@ -154,10 +158,6 @@ public final class WorkloadMail extends JobImplementation {
     }
 
     private void checkEmailAddresses() {
-        if (!isValidEmailAddress(mailFrom)) {
-            setErrorMessage("Der Absender '" + mailFrom + "' ist keine gültige E-Mail-Adresse.");
-        }
-
         if (workloads == null) {
             checkEmailAddress(workload.getTeacher());
         }
@@ -167,22 +167,8 @@ public final class WorkloadMail extends JobImplementation {
     }
 
     private void checkEmailAddress(Teacher teacher) {
-        if (!isValidEmailAddress(teacher.getEmail())) {
+        if (!Util.isValidEmailAddress(teacher.getEmail())) {
             setErrorMessage("Die Lehrperson mit dem Kürzel '" + teacher.getCode() + "' hat keine gültige E-Mail-Adresse.");
-        }
-    }
-
-    private boolean isValidEmailAddress(String address) {
-        if (address == null) {
-            return false;
-        }
-
-        try {
-            new InternetAddress(address);
-            return true;
-        }
-        catch (AddressException ex) {
-            return false;
         }
     }
 
