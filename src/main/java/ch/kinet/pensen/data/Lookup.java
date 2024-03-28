@@ -46,7 +46,7 @@ public final class Lookup<T extends LookupValue> {
     }
 
     public void addAll(Stream<T> stream) {
-        stream.sorted().forEachOrdered(item -> doAdd(item));
+        stream.sorted().forEachOrdered(this::doAdd);
     }
 
     public void clear() {

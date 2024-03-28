@@ -985,11 +985,11 @@ public final class PensenData extends BaseData implements Context {
     private Workload createWorkload(Employment employment, Stream<Course> courses, Stream<PoolEntry> poolEntries,
                                     Stream<Posting> postings, Stream<PostingDetail> postingDetails, Stream<ThesisEntry> thesisEntries) {
         Calculation calculation = Calculation.create(employment, streamPayrollTypes());
-        courses.forEachOrdered(entry -> calculation.addCourse(entry));
-        poolEntries.forEachOrdered(entry -> calculation.addPoolEntry(entry));
-        postings.forEachOrdered(entry -> calculation.addPosting(entry));
-        postingDetails.forEachOrdered(entry -> calculation.addPostingDetail(entry));
-        thesisEntries.forEachOrdered(entry -> calculation.addThesisEntry(entry));
+        courses.forEachOrdered(calculation::addCourse);
+        poolEntries.forEachOrdered(calculation::addPoolEntry);
+        postings.forEachOrdered(calculation::addPosting);
+        postingDetails.forEachOrdered(calculation::addPostingDetail);
+        thesisEntries.forEachOrdered(calculation::addThesisEntry);
         return calculation.createWorkload();
     }
 

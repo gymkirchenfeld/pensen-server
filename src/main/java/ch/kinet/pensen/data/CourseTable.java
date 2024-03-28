@@ -43,7 +43,7 @@ public class CourseTable implements Json {
     public static CourseTable create(Stream<SchoolClass> schoolClasses, Stream<Subject> subjects,
                                      Stream<Course> courses) {
         CourseTable result = new CourseTable(subjects, schoolClasses);
-        courses.forEachOrdered(course -> result.addCourse(course));
+        courses.forEachOrdered(result::addCourse);
         return result;
     }
 

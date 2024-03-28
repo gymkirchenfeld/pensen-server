@@ -46,7 +46,7 @@ public class LessonTable implements Json {
     public static LessonTable create(Curriculum curriculum, Division division, LessonType emptyType,
                                      Stream<Subject> subjects, Stream<LessonTableEntry> slots) {
         LessonTable result = new LessonTable(curriculum, division, emptyType, subjects);
-        slots.forEachOrdered(slot -> result.addLessonTableEntry(slot));
+        slots.forEachOrdered(result::addLessonTableEntry);
         return result;
     }
 
