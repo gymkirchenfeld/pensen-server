@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ch.kinet.exportlib</artifactId>
+            <artifactId>ch.kinet.pdflib</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
