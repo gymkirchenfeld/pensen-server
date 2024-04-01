@@ -99,7 +99,7 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
 
         pensenData.createPoolEntry(description, percent1, percent2, schoolYear, teacher, type);
         pensenData.recalculateBalance(schoolYear, teacher);
-        return Response.noContent();
+        return Response.created();
     }
 
     @Override

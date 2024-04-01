@@ -100,7 +100,7 @@ public final class PostingResource extends EntityResource<Posting> {
         ValueMap<PostingType> details = ValueMap.parseJson(data, Posting.JSON_DETAILS, pensenData.streamPostingTypes(), 0);
         pensenData.savePostingDetails(result, details);
         pensenData.recalculateBalance(schoolYear, teacher);
-        return Response.noContent();
+        return Response.created();
     }
 
     @Override

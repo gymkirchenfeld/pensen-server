@@ -73,7 +73,7 @@ public final class NoteResource extends EntityResource<Note> {
 
         String text = data.getString(Note.JSON_TEXT);
         pensenData.createNote(teacher, text, authorisation.getAccountName());
-        return Response.noContent();
+        return Response.created();
     }
 
     @Override

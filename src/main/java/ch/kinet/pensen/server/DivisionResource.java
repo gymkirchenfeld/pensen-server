@@ -74,7 +74,7 @@ public final class DivisionResource extends EntityResource<Division> {
         pensenData.createDivision(
             code, description, grouping, headName, headSignature.toBinary(), headTitle, logo.toBinary()
         );
-        return Response.noContent();
+        return Response.created();
     }
 
     @Override

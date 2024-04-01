@@ -247,7 +247,7 @@ public final class CourseResource extends EntityResource<Course> {
 
         pensenData.updateCourse(object, changed);
         affectedTeachers.stream().forEachOrdered(teacher -> pensenData.recalculateBalance(object.getSchoolYear(), teacher));
-        return Response.noContent();
+        return Response.created();
     }
 
     @Override

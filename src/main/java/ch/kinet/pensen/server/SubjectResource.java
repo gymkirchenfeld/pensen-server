@@ -87,7 +87,7 @@ public final class SubjectResource extends EntityResource<Subject> {
         }
 
         pensenData.createSubject(category, code, crossClass, description, eventoCode, type);
-        return Response.noContent();
+        return Response.created();
     }
 
     @Override

@@ -121,7 +121,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
         pensenData.createEmployment(
             schoolYear, teacher, division, employmentMax, employmentMin, payment1, payment2, temporary, comments
         );
-        return Response.noContent();
+        return Response.created();
     }
 
     @Override
