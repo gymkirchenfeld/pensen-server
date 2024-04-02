@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ch.kinet</groupId>
     <artifactId>pensen-server</artifactId>
-    <version>1.0</version>
+    <version>3.4.12</version>
     <packaging>jar</packaging>
     <build>
         <plugins>
@@ -39,6 +39,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <finalName>pensen-server</finalName>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
@@ -55,12 +56,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ch.kinet.datalib</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ch.kinet.pdflib</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
     <properties>

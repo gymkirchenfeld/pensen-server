@@ -8,7 +8,7 @@ HOST="pensen.gymhofwil.ch"
 
 STAGE2_FILE="install-stage2.sh"
 
-ORIG_JAR_LOCAL_FILE="${BASE_DIR}/target/pensen-server-1.0-jar-with-dependencies.jar"
+ORIG_JAR_LOCAL_FILE="${BASE_DIR}/target/pensen-server-jar-with-dependencies.jar"
 JAR_LOCAL_FILE="${BASE_DIR}/target/pensen-server.jar"
 SERVICE_LOCAL_FILE="${BASE_DIR}/hofwil/pensen.service"
 STAGE2_LOCAL_FILE="${BASE_DIR}/hofwil/${STAGE2_FILE}"
