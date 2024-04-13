@@ -16,7 +16,7 @@
  */
 package ch.kinet.pensen.job;
 
-import ch.kinet.Date;
+import ch.kinet.TimeUtil;
 import ch.kinet.pdf.Alignment;
 import ch.kinet.pdf.Border;
 import ch.kinet.pdf.Document;
@@ -25,6 +25,7 @@ import ch.kinet.pensen.calculation.Courses;
 import ch.kinet.pensen.calculation.Workload;
 import ch.kinet.pensen.data.Division;
 import ch.kinet.pensen.data.Employment;
+import java.time.LocalDate;
 import java.util.stream.Collectors;
 
 public final class TeacherCoursePDFGenerator {
@@ -65,7 +66,7 @@ public final class TeacherCoursePDFGenerator {
         pdf.addCell(title.toString(), Alignment.Center);
 
         pdf.setFontSize(8);
-        pdf.addCell(Date.formatDMY(Date.today()), Alignment.Right);
+        pdf.addCell(TimeUtil.formatDMY(LocalDate.now()), Alignment.Right);
         pdf.endTable();
     }
 

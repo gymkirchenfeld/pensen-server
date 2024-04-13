@@ -19,7 +19,6 @@ package ch.kinet.pensen.data;
 import ch.kinet.BaseData;
 import ch.kinet.Binary;
 import ch.kinet.DataManager;
-import ch.kinet.Date;
 import ch.kinet.Entities;
 import ch.kinet.JsonArray;
 import ch.kinet.PropertyMap;
@@ -32,6 +31,7 @@ import ch.kinet.pensen.calculation.Workloads;
 import ch.kinet.pensen.server.Configuration;
 import ch.kinet.sql.Condition;
 import ch.kinet.sql.Connection;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -236,7 +236,8 @@ public final class PensenData extends BaseData implements Context {
         return getConnection().insert(schema, PoolEntry.class, properties);
     }
 
-    public Posting createPosting(String description, Date endDate, SchoolYear schoolYear, Date startDate, Teacher teacher) {
+    public Posting createPosting(String description, LocalDate endDate, SchoolYear schoolYear, LocalDate startDate,
+                                 Teacher teacher) {
         PropertyMap properties = PropertyMap.create();
         properties.put(Posting.DB_DESCRIPTION, description);
         properties.put(Posting.DB_END_DATE, endDate);
@@ -295,7 +296,7 @@ public final class PensenData extends BaseData implements Context {
         return result;
     }
 
-    public Teacher createTeacher(Date birthday, String code, String email, String employeeNumber, String firstName,
+    public Teacher createTeacher(LocalDate birthday, String code, String email, String employeeNumber, String firstName,
                                  String lastName, String title) {
         PropertyMap properties = PropertyMap.create();
         properties.put(Teacher.DB_ARCHIVED, false);

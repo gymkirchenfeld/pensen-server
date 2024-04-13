@@ -70,14 +70,15 @@ public final class OpenWorkloadDownload extends JobImplementation {
     public void run(Authorisation creator, JobCallback callback) {
         Document pdf = Document.createPortrait(fileName());
         callback.step();
-        pensenData.streamSubjectCategories().forEachOrdered(subjectCategory -> {
-            List<Course> courses = map.get(subjectCategory);
-            if (!courses.isEmpty()) {
-                SubjectCoursePDFGenerator.writePDF(pdf, subjectCategory.getDescription(), courses, true);
-            }
+        pensenData.streamSubjectCategories()
+            .forEachOrdered(subjectCategory -> {
+                List<Course> courses = map.get(subjectCategory);
+                if (!courses.isEmpty()) {
+                    SubjectCoursePDFGenerator.writePDF(pdf, subjectCategory.getDescription(), courses, true);
+                }
 
-            callback.step();
-        });
+                callback.step();
+            });
         setProduct(pdf.toData());
     }
 
@@ -90,8 +91,8 @@ public final class OpenWorkloadDownload extends JobImplementation {
     }
 
     private void loadMap() {
-        pensenData.loadAllCourses(schoolYear).filter(course -> course.open()).forEachOrdered(course
-            -> map.get(course.getSubject().getCategory()).add(course)
-        );
+        pensenData.loadAllCourses(schoolYear)
+            .filter(course -> course.open())
+            .forEachOrdered(course -> map.get(course.getSubject().getCategory()).add(course));
     }
 }

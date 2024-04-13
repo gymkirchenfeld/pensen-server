@@ -16,11 +16,11 @@
  */
 package ch.kinet.pensen.data;
 
-import ch.kinet.Date;
 import ch.kinet.Entity;
 import ch.kinet.JsonObject;
 import ch.kinet.Util;
 import ch.kinet.reflect.PropertyInitializer;
+import java.time.LocalDate;
 
 public final class Posting extends Entity {
 
@@ -38,8 +38,8 @@ public final class Posting extends Entity {
 
     private final SchoolYear schoolYear;
     private String description;
-    private Date endDate;
-    private Date startDate;
+    private LocalDate endDate;
+    private LocalDate startDate;
     private Teacher teacher;
 
     @PropertyInitializer({DB_ID, DB_SCHOOL_YEAR})
@@ -56,7 +56,7 @@ public final class Posting extends Entity {
         return description;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
@@ -64,7 +64,7 @@ public final class Posting extends Entity {
         return schoolYear;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
@@ -73,7 +73,7 @@ public final class Posting extends Entity {
     }
 
     public SemesterEnum semester() {
-        if (startDate == null || startDate.before(schoolYear.startOfSemester(SemesterEnum.Second))) {
+        if (startDate == null || startDate.isBefore(schoolYear.startOfSemester(SemesterEnum.Second))) {
             return SemesterEnum.First;
         }
         else {
@@ -85,11 +85,11 @@ public final class Posting extends Entity {
         this.description = description;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 

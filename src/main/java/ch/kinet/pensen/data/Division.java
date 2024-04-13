@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -121,8 +121,8 @@ public final class Division extends Entity {
         result.put(JSON_HEAD_NAME, headName);
         result.put(JSON_GROUPING, grouping);
         result.put(JSON_HEAD_TITLE, headTitle);
-        result.putVerbose(JSON_HEAD_SIGNATURE, Data.png(headSignature, "Unterschrift_" + code + ".png"));
-        result.putVerbose(JSON_LOGO, Data.png(logo, "logo_" + code + ".png"));
+        result.putTerse(JSON_HEAD_SIGNATURE, Data.png(headSignature, "Unterschrift_" + code + ".png"));
+        result.putTerse(JSON_LOGO, Data.png(logo, "logo_" + code + ".png"));
         return result;
     }
 }

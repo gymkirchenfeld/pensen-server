@@ -16,10 +16,10 @@
  */
 package ch.kinet.pensen.data;
 
-import ch.kinet.Date;
 import ch.kinet.Entity;
 import ch.kinet.JsonObject;
 import ch.kinet.reflect.PropertyInitializer;
+import java.time.LocalDate;
 import java.util.Optional;
 
 public final class SchoolYear extends Entity {
@@ -60,7 +60,7 @@ public final class SchoolYear extends Entity {
 
     public double ageReliefFactor(Teacher teacher, SemesterEnum semester) {
         // Stichtag ist der Tag vor dem Beginn des Semesters
-        return _ageReliefFactor(teacher.ageOn(startOfSemester(semester).addDays(-1)));
+        return _ageReliefFactor(teacher.ageOn(startOfSemester(semester).minusDays(1)));
     }
 
     public CalculationMode.Enum calculationModeEnum() {
@@ -145,12 +145,12 @@ public final class SchoolYear extends Entity {
         this.weeks = weeks;
     }
 
-    public Date startOfSemester(SemesterEnum semester) {
+    public LocalDate startOfSemester(SemesterEnum semester) {
         switch (semester) {
             case First:
-                return Date.create(1, 8, graduationYear - 1);
+                return LocalDate.of(graduationYear - 1, 8, 1);
             case Second:
-                return Date.create(1, 2, graduationYear);
+                return LocalDate.of(graduationYear, 2, 1);
             default:
                 throw new IllegalArgumentException();
         }

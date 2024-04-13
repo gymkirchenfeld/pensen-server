@@ -16,7 +16,6 @@
  */
 package ch.kinet.pensen.server;
 
-import ch.kinet.Date;
 import ch.kinet.JsonArray;
 import ch.kinet.JsonObject;
 import ch.kinet.Util;
@@ -28,6 +27,7 @@ import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.SubjectCategory;
 import ch.kinet.pensen.data.Teacher;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -100,7 +100,7 @@ public final class TeacherResource extends EntityResource<Teacher> {
             return Response.badRequest();
         }
 
-        Date birthday = data.getDate(Teacher.JSON_BIRTHDAY);
+        LocalDate birthday = data.getLocalDate(Teacher.JSON_BIRTHDAY);
         String code = data.getString(Teacher.JSON_CODE);
         String email = data.getString(Teacher.JSON_EMAIL);
         String employeeNumber = data.getString(Teacher.JSON_EMPLOYEE_NUMBER);
@@ -122,7 +122,7 @@ public final class TeacherResource extends EntityResource<Teacher> {
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
         boolean archived = data.getBoolean(Teacher.JSON_ARCHIVED, false);
-        Date birthday = data.getDate(Teacher.JSON_BIRTHDAY);
+        LocalDate birthday = data.getLocalDate(Teacher.JSON_BIRTHDAY);
         String code = data.getString(Teacher.JSON_CODE);
         String email = data.getString(Teacher.JSON_EMAIL);
         String firstName = data.getString(Teacher.JSON_FIRST_NAME);

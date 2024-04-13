@@ -16,11 +16,11 @@
  */
 package ch.kinet.pensen.calculation;
 
-import ch.kinet.Date;
 import ch.kinet.Json;
 import ch.kinet.JsonObject;
 import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.Posting;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,11 +92,11 @@ public final class Postings extends ItemList<Postings.Item> {
             return posting.getDescription();
         }
 
-        public Date endDate() {
+        public LocalDate endDate() {
             return posting.getEndDate();
         }
 
-        public Date startDate() {
+        public LocalDate startDate() {
             return posting.getStartDate();
         }
 

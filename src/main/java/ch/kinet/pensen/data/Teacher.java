@@ -16,13 +16,13 @@
  */
 package ch.kinet.pensen.data;
 
-import ch.kinet.Date;
 import ch.kinet.Entity;
 import ch.kinet.JsonArray;
 import ch.kinet.JsonObject;
 import ch.kinet.Util;
 import ch.kinet.reflect.Persistence;
 import ch.kinet.reflect.PropertyInitializer;
+import java.time.LocalDate;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -50,7 +50,7 @@ public final class Teacher extends Entity {
 
     private final SortedSet<SubjectCategory> departments = new TreeSet<>();
     private boolean archived;
-    private Date birthday;
+    private LocalDate birthday;
     private String code;
     private String email;
     private String employeeNumber;
@@ -64,21 +64,21 @@ public final class Teacher extends Entity {
         super(id);
     }
 
-    public final int ageOn(Date date) {
+    public final int ageOn(LocalDate date) {
         if (getBirthday() == null) {
             return -1;
         }
 
         int result = date.getYear() - birthday.getYear();
-        if ((birthday.getMonth() > date.getMonth()) ||
-            (birthday.getMonth() == date.getMonth() && birthday.getDay() > date.getDay())) {
+        if ((birthday.getMonthValue() > date.getMonthValue()) ||
+            (birthday.getMonthValue() == date.getMonthValue() && birthday.getDayOfMonth() > date.getDayOfMonth())) {
             result--;
         }
 
         return result;
     }
 
-    public final Date getBirthday() {
+    public final LocalDate getBirthday() {
         return birthday;
     }
 
@@ -118,7 +118,7 @@ public final class Teacher extends Entity {
         this.archived = archived;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
 

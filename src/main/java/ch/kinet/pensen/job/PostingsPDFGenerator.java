@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,7 +16,7 @@
  */
 package ch.kinet.pensen.job;
 
-import ch.kinet.Date;
+import ch.kinet.TimeUtil;
 import ch.kinet.Util;
 import ch.kinet.pdf.Alignment;
 import ch.kinet.pdf.Border;
@@ -26,6 +26,7 @@ import ch.kinet.pensen.calculation.Postings;
 import ch.kinet.pensen.calculation.Workload;
 import ch.kinet.pensen.data.Division;
 import ch.kinet.pensen.data.Employment;
+import java.time.LocalDate;
 
 public class PostingsPDFGenerator {
 
@@ -65,7 +66,7 @@ public class PostingsPDFGenerator {
         pdf.addCell(title.toString(), Alignment.Center);
 
         pdf.setFontSize(8);
-        pdf.addCell(Date.formatDMY(Date.today()), Alignment.Right);
+        pdf.addCell(TimeUtil.formatDMY(LocalDate.now()), Alignment.Right);
         pdf.endTable();
     }
 
@@ -138,8 +139,8 @@ public class PostingsPDFGenerator {
         StringBuilder result = new StringBuilder();
         result.append(entry.description());
         result.append(" (");
-        String start = Date.formatDMY(entry.startDate());
-        String end = Date.formatDMY(entry.endDate());
+        String start = TimeUtil.formatDMY(entry.startDate());
+        String end = TimeUtil.formatDMY(entry.endDate());
         result.append(start);
         if (end != null && !Util.equal(start, end)) {
             result.append(" - ");
