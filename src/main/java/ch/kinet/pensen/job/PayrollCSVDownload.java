@@ -18,7 +18,7 @@ package ch.kinet.pensen.job;
 
 import ch.kinet.DataManager;
 import ch.kinet.JsonObject;
-import ch.kinet.TimeUtil;
+import ch.kinet.Util;
 import ch.kinet.csv.CsvWriter;
 import ch.kinet.pensen.calculation.Payroll;
 import ch.kinet.pensen.calculation.Workload;
@@ -76,7 +76,7 @@ public final class PayrollCSVDownload extends JobImplementation {
             csv.append(teacher.getCode());
             csv.append(teacher.getLastName());
             csv.append(teacher.getFirstName());
-            csv.append(TimeUtil.formatDMY(teacher.getBirthday()));
+            csv.append(Util.formatDMY(teacher.getBirthday()));
             csv.append(workload.ageReliefFactor(semester));
             csv.append(roundPercent(workload.payroll().percent().get(semester)));
             pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {

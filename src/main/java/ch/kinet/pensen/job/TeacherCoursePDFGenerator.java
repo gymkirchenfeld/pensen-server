@@ -16,7 +16,7 @@
  */
 package ch.kinet.pensen.job;
 
-import ch.kinet.TimeUtil;
+import ch.kinet.Util;
 import ch.kinet.pdf.Alignment;
 import ch.kinet.pdf.Border;
 import ch.kinet.pdf.Document;
@@ -66,7 +66,7 @@ public final class TeacherCoursePDFGenerator {
         pdf.addCell(title.toString(), Alignment.Center);
 
         pdf.setFontSize(8);
-        pdf.addCell(TimeUtil.formatDMY(LocalDate.now()), Alignment.Right);
+        pdf.addCell(Util.formatDMY(LocalDate.now()), Alignment.Right);
         pdf.endTable();
     }
 
