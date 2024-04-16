@@ -60,7 +60,7 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
 
     @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isAdmin();
+        return authorisation != null && authorisation.isEditAllowed();
     }
 
     @Override
@@ -102,7 +102,7 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
 
     @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isAdmin();
+        return authorisation != null && authorisation.isEditAllowed();
     }
 
     @Override

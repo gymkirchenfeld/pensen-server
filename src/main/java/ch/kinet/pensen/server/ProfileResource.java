@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -48,7 +48,7 @@ public final class ProfileResource extends GlobalResource {
             }
         }
 
-        JsonObject result = JsonObject.create();
+        JsonObject result = auth.toJsonTerse();
         result.put(JSON_FEATURES, features);
         return Response.jsonVerbose(result);
     }

@@ -84,7 +84,7 @@ public final class JobResource extends ObjectResource {
 
     @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isAdmin();
+        return authorisation != null && authorisation.isEditAllowed();
     }
 
     @Override

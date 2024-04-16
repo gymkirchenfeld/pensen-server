@@ -66,7 +66,7 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
 
     @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isAdmin();
+        return authorisation != null && authorisation.isEditAllowed();
     }
 
     @Override
@@ -104,7 +104,7 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
 
     @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isAdmin();
+        return authorisation != null && authorisation.isEditAllowed();
     }
 
     @Override
@@ -172,7 +172,7 @@ public final class PoolEntryResource extends EntityResource<PoolEntry> {
 
     @Override
     protected boolean isDeleteAllowed(Authorisation authorisation) {
-        return authorisation != null && authorisation.isAdmin();
+        return authorisation != null && authorisation.isEditAllowed();
     }
 
     @Override

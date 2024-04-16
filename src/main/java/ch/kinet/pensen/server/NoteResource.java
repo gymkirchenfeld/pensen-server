@@ -36,7 +36,7 @@ public final class NoteResource extends EntityResource<Note> {
 
     @Override
     protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null && authorisation.isAdmin();
+        return authorisation != null && authorisation.isEditAllowed();
     }
 
     @Override
@@ -61,7 +61,7 @@ public final class NoteResource extends EntityResource<Note> {
 
     @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isAdmin();
+        return authorisation != null && authorisation.isEditAllowed();
     }
 
     @Override
@@ -78,7 +78,7 @@ public final class NoteResource extends EntityResource<Note> {
 
     @Override
     protected boolean isDeleteAllowed(Authorisation authorisation) {
-        return authorisation != null && authorisation.isAdmin();
+        return authorisation != null && authorisation.isEditAllowed();
     }
 
     @Override

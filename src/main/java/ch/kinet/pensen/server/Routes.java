@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,6 +30,7 @@ public final class Routes {
     }
 
     private Routes() {
+        addResource("authorisation", ch.kinet.pensen.server.AuthorisationResource.class);
         addResource("calculationmode", ch.kinet.pensen.server.CalculationModeResource.class);
         addResource("config", ch.kinet.pensen.server.ConfigResource.class);
         addResource("course", ch.kinet.pensen.server.CourseResource.class);

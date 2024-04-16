@@ -43,7 +43,7 @@ public final class CalculateBalances extends JobImplementation {
 
     @Override
     public boolean isAllowed(Authorisation authorisation) {
-        return authorisation != null && authorisation.isAdmin();
+        return authorisation != null && authorisation.isEditAllowed();
     }
 
     @Override
