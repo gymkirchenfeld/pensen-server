@@ -67,6 +67,10 @@ public final class AuthorisationResource extends EntityResource<Authorisation> {
         boolean editAllowed = data.getBoolean(Authorisation.JSON_EDIT_ALLOWED, false);
         boolean grantAllowed = data.getBoolean(Authorisation.JSON_GRANT_ALLOWED, false);
 
+        if (authorisation.equals(object) && !grantAllowed) {
+            return Response.badRequest("Die eigene Berechtigung kann nicht entzogen werden.");
+        }
+
         Set<String> changed = new HashSet<>();
         if (object.isEditAllowed() != editAllowed) {
             object.setEditAllowed(editAllowed);
@@ -77,6 +81,7 @@ public final class AuthorisationResource extends EntityResource<Authorisation> {
             object.setGrantAllowed(grantAllowed);
             changed.add(Authorisation.DB_GRANT_ALLOWED);
         }
+
         if (!changed.isEmpty()) {
             pensenData.updateAuthorisation(object, changed);
         }
