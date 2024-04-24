@@ -78,7 +78,7 @@ public final class WorkloadPDFGenerator {
         pdf.addCell(title.toString(), Alignment.Center);
 
         pdf.setFontSize(8);
-        pdf.addCell(Util.formatDMY(LocalDate.now()), Alignment.Right);
+        pdf.addCell(Util.formatDateDMY(LocalDate.now()), Alignment.Right);
         pdf.endTable();
     }
 
