@@ -100,7 +100,7 @@ public final class TeacherResource extends EntityResource<Teacher> {
             return Response.badRequest();
         }
 
-        LocalDate birthday = data.getLocalDate(Teacher.JSON_BIRTHDAY);
+        LocalDate birthday = data.getDate(Teacher.JSON_BIRTHDAY);
         String code = data.getString(Teacher.JSON_CODE);
         String email = data.getString(Teacher.JSON_EMAIL);
         String employeeNumber = data.getString(Teacher.JSON_EMPLOYEE_NUMBER);
@@ -122,7 +122,7 @@ public final class TeacherResource extends EntityResource<Teacher> {
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
         boolean archived = data.getBoolean(Teacher.JSON_ARCHIVED, false);
-        LocalDate birthday = data.getLocalDate(Teacher.JSON_BIRTHDAY);
+        LocalDate birthday = data.getDate(Teacher.JSON_BIRTHDAY);
         String code = data.getString(Teacher.JSON_CODE);
         String email = data.getString(Teacher.JSON_EMAIL);
         String firstName = data.getString(Teacher.JSON_FIRST_NAME);

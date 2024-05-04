@@ -16,7 +16,7 @@
  */
 package ch.kinet.pensen.job;
 
-import ch.kinet.Util;
+import ch.kinet.Date;
 import ch.kinet.pdf.Alignment;
 import ch.kinet.pdf.Border;
 import ch.kinet.pdf.Document;
@@ -78,7 +78,7 @@ public final class WorkloadPDFGenerator {
         pdf.addCell(title.toString(), Alignment.Center);
 
         pdf.setFontSize(8);
-        pdf.addCell(Util.formatDateDMY(LocalDate.now()), Alignment.Right);
+        pdf.addCell(Date.formatDMY(LocalDate.now()), Alignment.Right);
         pdf.endTable();
     }
 

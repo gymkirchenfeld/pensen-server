@@ -76,12 +76,12 @@ public final class PostingResource extends EntityResource<Posting> {
     @Override
     protected Response create(Authorisation authorisation, JsonObject data) {
         String description = data.getString(Posting.JSON_DESCRIPTION);
-        LocalDate startDate = data.getLocalDate(Posting.JSON_START_DATE);
+        LocalDate startDate = data.getDate(Posting.JSON_START_DATE);
         if (startDate == null) {
             return Response.badRequest("Bitte ein gültiges Anfangsdatum auswählen.");
         }
 
-        LocalDate endDate = data.getLocalDate(Posting.JSON_END_DATE);
+        LocalDate endDate = data.getDate(Posting.JSON_END_DATE);
         SchoolYear schoolYear = pensenData.getSchoolYearById(data.getObjectId(Posting.JSON_SCHOOL_YEAR, -1));
         if (schoolYear == null) {
             return Response.badRequest("Bitte ein Schuljahr auswählen.");
@@ -115,8 +115,8 @@ public final class PostingResource extends EntityResource<Posting> {
         }
 
         String description = data.getString(Posting.JSON_DESCRIPTION);
-        LocalDate startDate = data.getLocalDate(Posting.JSON_START_DATE);
-        LocalDate endDate = data.getLocalDate(Posting.JSON_END_DATE);
+        LocalDate startDate = data.getDate(Posting.JSON_START_DATE);
+        LocalDate endDate = data.getDate(Posting.JSON_END_DATE);
         Teacher teacher = pensenData.getTeacherById(data.getObjectId(Posting.JSON_TEACHER, -1));
         if (teacher == null) {
             return Response.badRequest();

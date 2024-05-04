@@ -18,9 +18,9 @@ package ch.kinet.pensen.data;
 
 import ch.kinet.Entity;
 import ch.kinet.JsonObject;
-import ch.kinet.Timestamp;
 import ch.kinet.Util;
 import ch.kinet.reflect.PropertyInitializer;
+import java.time.LocalDateTime;
 
 public final class Note extends Entity {
 
@@ -33,12 +33,12 @@ public final class Note extends Entity {
     public static final String JSON_TEACHER = "teacher";
     public static final String JSON_TEXT = "text";
     private final String createdBy;
-    private final Timestamp createdOn;
+    private final LocalDateTime createdOn;
     private final Teacher teacher;
     private String text;
 
     @PropertyInitializer({DB_CREATED_BY, DB_CREATED_ON, DB_ID, DB_TEACHER})
-    public Note(String createdBy, Timestamp createdOn, int id, Teacher teacher) {
+    public Note(String createdBy, LocalDateTime createdOn, int id, Teacher teacher) {
         super(id);
         this.createdBy = createdBy;
         this.createdOn = createdOn;
@@ -49,7 +49,7 @@ public final class Note extends Entity {
         return createdBy;
     }
 
-    public Timestamp getCreatedOn() {
+    public LocalDateTime getCreatedOn() {
         return createdOn;
     }
 

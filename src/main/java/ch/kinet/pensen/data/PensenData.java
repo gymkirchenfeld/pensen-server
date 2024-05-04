@@ -23,7 +23,6 @@ import ch.kinet.Entities;
 import ch.kinet.JsonArray;
 import ch.kinet.PropertyMap;
 import ch.kinet.SetComparison;
-import ch.kinet.Timestamp;
 import ch.kinet.Util;
 import ch.kinet.pensen.calculation.Calculation;
 import ch.kinet.pensen.calculation.Workload;
@@ -32,6 +31,7 @@ import ch.kinet.pensen.server.Configuration;
 import ch.kinet.sql.Condition;
 import ch.kinet.sql.Connection;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -235,7 +235,7 @@ public final class PensenData extends BaseData implements Context {
     public Note createNote(Teacher teacher, String text, String createdBy) {
         PropertyMap properties = PropertyMap.create();
         properties.put(Note.DB_CREATED_BY, createdBy);
-        properties.put(Note.DB_CREATED_ON, Timestamp.now());
+        properties.put(Note.DB_CREATED_ON, LocalDateTime.now());
         properties.put(Note.DB_TEACHER, teacher);
         properties.put(Note.DB_TEXT, text);
         return getConnection().insert(schema, Note.class, properties);
