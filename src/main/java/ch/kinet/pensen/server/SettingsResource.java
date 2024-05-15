@@ -47,7 +47,7 @@ public final class SettingsResource extends GlobalResource {
 
     @Override
     protected boolean isPostAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isEditAllowed();
+        return authorisation != null;
     }
 
     @Override
