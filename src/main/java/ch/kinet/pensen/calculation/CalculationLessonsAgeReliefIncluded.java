@@ -28,7 +28,7 @@ public final class CalculationLessonsAgeReliefIncluded extends Calculation {
     private final SemesterValue totalPercent = SemesterValue.create();
 
     CalculationLessonsAgeReliefIncluded(Employment employment, Stream<PayrollType> payrollTypes) {
-        super(employment, payrollTypes, poolTitle(employment));
+        super(employment, payrollTypes, poolTitle(employment), 2);
     }
 
     @Override
@@ -78,8 +78,8 @@ public final class CalculationLessonsAgeReliefIncluded extends Calculation {
                 lessons = lessons.map((s, l) -> Math.round(l * 100) / 100.0);
                 // Gerundete Lektionen wider in Prozent umrechnen
                 percent = lessons.map((s, l) -> employment.withAgeRelief(s, lessonsToPercent(type, l)));
-                // Runde Prozente auf drei Dezimalstellen
-                percent = percent.map((s, l) -> Math.round(l * 1000) / 1000.0);
+                // Runde Prozente auf zwei Dezimalstellen
+                percent = percent.map((s, l) -> Math.round(l * 100) / 100.0);
             }
 
             payroll.add(type, lessons, percent);

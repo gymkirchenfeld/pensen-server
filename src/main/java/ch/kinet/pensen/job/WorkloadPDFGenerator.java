@@ -292,9 +292,9 @@ public final class WorkloadPDFGenerator {
         payroll.items().forEachOrdered(item -> {
             pdf.addCell(item.description(), Alignment.Left);
             pdf.addCell(Format.lessons(item.lessons().semester1()), Alignment.Right);
-            pdf.addCell(Format.percent(item.percent().semester1(), false), Alignment.Right);
+            pdf.addCell(Format.percent(item.percent().semester1(), false, payroll.percentDecimals()), Alignment.Right);
             pdf.addCell(Format.lessons(item.lessons().semester2()), Alignment.Right);
-            pdf.addCell(Format.percent(item.percent().semester2(), false), Alignment.Right);
+            pdf.addCell(Format.percent(item.percent().semester2(), false, payroll.percentDecimals()), Alignment.Right);
         });
         payrollFooter(payroll);
     }
@@ -318,9 +318,9 @@ public final class WorkloadPDFGenerator {
         pdf.setBold();
         pdf.addCell("Total", Alignment.Left, Border.Top);
         pdf.addCell("", Alignment.Right, Border.Top);
-        pdf.addCell(Format.percent(payroll.percent().semester1(), false), Alignment.Right, Border.Top);
+        pdf.addCell(Format.percent(payroll.percent().semester1(), false, payroll.percentDecimals()), Alignment.Right, Border.Top);
         pdf.addCell("", Alignment.Right, Border.Top);
-        pdf.addCell(Format.percent(payroll.percent().semester2(), false), Alignment.Right, Border.Top);
+        pdf.addCell(Format.percent(payroll.percent().semester2(), false, payroll.percentDecimals()), Alignment.Right, Border.Top);
         pdf.setNormal();
         pdf.endTable();
     }

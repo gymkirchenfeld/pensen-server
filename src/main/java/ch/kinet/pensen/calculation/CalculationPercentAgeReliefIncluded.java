@@ -28,7 +28,7 @@ public final class CalculationPercentAgeReliefIncluded extends Calculation {
     private final SemesterValue totalPercent = SemesterValue.create();
 
     CalculationPercentAgeReliefIncluded(Employment employment, Stream<PayrollType> payrollTypes) {
-        super(employment, payrollTypes, poolTitle(employment));
+        super(employment, payrollTypes, poolTitle(employment), 3);
     }
 
     @Override

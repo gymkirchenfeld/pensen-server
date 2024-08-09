@@ -25,8 +25,8 @@ import java.util.Map;
 
 public final class Payroll extends ItemList<Payroll.Item> implements Json {
 
-    static Payroll create() {
-        return new Payroll();
+    static Payroll create(int percentDecimals) {
+        return new Payroll(percentDecimals);
     }
 
     private static final String JSON_LESSONS1 = "lessons1";
@@ -34,12 +34,15 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
     private static final String JSON_PAYROLL_TYPE = "payrollType";
     private static final String JSON_PERCENT1 = "percent1";
     private static final String JSON_PERCENT2 = "percent2";
+    private static final String JSON_PERCENT_DECIMALS = "percentDecimals";
     private static final String JSON_TOTAL = "total";
 
     private final Map<PayrollType, Item> itemMap = new HashMap<>();
     private final SemesterValue totalPercent = SemesterValue.create();
+    private final int percentDecimals;
 
-    private Payroll() {
+    private Payroll(int percentDecimals) {
+        this.percentDecimals = percentDecimals;
     }
 
     public Item getItem(PayrollType type) {
@@ -50,12 +53,17 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
         return SemesterValue.copy(totalPercent);
     }
 
+    public int percentDecimals() {
+        return percentDecimals;
+    }
+
     @Override
     public JsonObject toJsonTerse() {
         JsonObject total = JsonObject.create();
         total.put(JSON_PERCENT1, totalPercent.semester1());
         total.put(JSON_PERCENT2, totalPercent.semester2());
         JsonObject result = super.toJsonTerse();
+        result.put(JSON_PERCENT_DECIMALS, percentDecimals);
         result.put(JSON_TOTAL, total);
         return result;
     }

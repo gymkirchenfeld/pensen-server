@@ -53,10 +53,10 @@ public abstract class Calculation {
     private final Pool pool;
     private final Theses theses;
 
-    Calculation(Employment employment, Stream<PayrollType> payrollTypes, String poolTitle) {
+    Calculation(Employment employment, Stream<PayrollType> payrollTypes, String poolTitle, int payrollPercentDecimals) {
         this.employment = employment;
         courses = Courses.create();
-        payroll = Payroll.create();
+        payroll = Payroll.create(payrollPercentDecimals);
         payrollMap = PayrollMap.create(payrollTypes);
         pool = Pool.create(poolTitle);
         theses = Theses.create();

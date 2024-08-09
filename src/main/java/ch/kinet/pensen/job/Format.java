@@ -47,12 +47,15 @@ public final class Format {
     }
 
     public static String percent(double value, boolean printZero) {
+        return percent(value, printZero, Configuration.getInstance().getPercentDecimals());
+    }
+
+    public static String percent(double value, boolean printZero, int decimals) {
         if (!printZero && value == 0) {
             return "";
         }
 
-        int decimalPlaces = Configuration.getInstance().getPercentDecimals();
-        return number(value, decimalPlaces) + "%";
+        return number(value, decimals) + "%";
     }
 
     public static String percentRange(double min, double max) {

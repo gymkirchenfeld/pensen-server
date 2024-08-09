@@ -28,7 +28,7 @@ public final class CalculationLessons extends Calculation {
     private final SemesterValue totalPercent = SemesterValue.create();
 
     CalculationLessons(Employment employment, Stream<PayrollType> payrollTypes) {
-        super(employment, payrollTypes, "Pensum: Pool");
+        super(employment, payrollTypes, "Pensum: Pool", 2);
     }
 
     @Override
