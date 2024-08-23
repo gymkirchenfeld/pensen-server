@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ch.kinet</groupId>
     <artifactId>pensen-server</artifactId>
-    <version>3.6.0</version>
+    <version>3.6.1</version>
     <packaging>jar</packaging>
     <build>
         <plugins>
