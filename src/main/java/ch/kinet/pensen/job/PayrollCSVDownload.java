@@ -78,6 +78,7 @@ public final class PayrollCSVDownload extends JobImplementation {
             csv.append(teacher.getBirthday());
             csv.append(workload.ageReliefFactor(semester));
             csv.append(roundPercent(workload.payroll().percent().get(semester)));
+            csv.append(roundPercent(workload.getClosingBalance()));
             pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
                 Payroll.Item item = payroll.getItem(payrollType);
                 if (payrollType.isLessonBased()) {
@@ -111,6 +112,7 @@ public final class PayrollCSVDownload extends JobImplementation {
         result.add("Geburtsdatum");
         result.add("Altersentlastung");
         result.add("Auszahlung");
+        result.add("IPB-Saldo Ende SJ");
         pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
             if (payrollType.isLessonBased()) {
                 result.add(payrollType.getCode() + " L");
