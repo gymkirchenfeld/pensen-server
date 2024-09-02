@@ -78,10 +78,10 @@ public final class CalculationLessonsAgeReliefIncluded extends Calculation {
                 lessons = lessons.map((s, l) -> Math.round(l * 100) / 100.0);
                 // Gerundete Lektionen wider in Prozent umrechnen
                 percent = lessons.map((s, l) -> employment.withAgeRelief(s, lessonsToPercent(type, l)));
-                // Runde Prozente auf zwei Dezimalstellen
-                percent = percent.map((s, l) -> Math.round(l * 100) / 100.0);
             }
 
+            // Runde Prozente auf zwei Dezimalstellen
+            percent = percent.map((s, l) -> Math.round(l * 100) / 100.0);
             payroll.add(type, lessons, percent);
         });
 
