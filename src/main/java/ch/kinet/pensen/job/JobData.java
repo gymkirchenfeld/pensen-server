@@ -48,6 +48,7 @@ public final class JobData extends BaseData {
         createGlobalJob(new CheckDatabase());
         createGlobalJob(new InitializeSchoolYear());
         registerLocalJob(CourseTableCSVDownload.class);
+        registerLocalJob(GroupingCSVDownload.class);
         registerLocalJob(EmploymentCSVDownload.class);
         registerLocalJob(OpenWorkloadDownload.class);
         registerLocalJob(PayrollCSVDownload.class);
