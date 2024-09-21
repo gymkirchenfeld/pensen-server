@@ -4,7 +4,7 @@
 BASE_DIR=$(cd $(dirname "$0"); pwd)
 
 TEMP_DIR="pensen-server"
-HOST="web2.kinet.ch"
+HOST="web4-test.kinet.ch"
 
 STAGE2_FILE="install-stage2.sh"
 
