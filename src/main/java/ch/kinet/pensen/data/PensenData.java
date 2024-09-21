@@ -415,7 +415,7 @@ public final class PensenData extends BaseData implements Context {
     }
 
     public LessonType emptyLessonType() {
-        return getLessonTypeByEnum(LessonType.Enum.NoLessons);
+        return lessonTypes.byEnum(LessonType.Enum.noLessons);
     }
 
     public Authorisation getAuthorisationById(int id) {
@@ -449,10 +449,6 @@ public final class PensenData extends BaseData implements Context {
     @Override
     public Grade getGradeById(int id) {
         return grades.byId(id);
-    }
-
-    public LessonType getLessonTypeByEnum(LessonType.Enum lessonTypeEnum) {
-        return lessonTypes.byCode(lessonTypeEnum.getCode());
     }
 
     public LessonType getLessonTypeById(int id) {
@@ -559,16 +555,14 @@ public final class PensenData extends BaseData implements Context {
     }
 
     public LessonTable loadLessonTable(Curriculum curriculum, Division division) {
-        LessonType emptyType = emptyLessonType();
         return LessonTable.create(
-            curriculum, division, emptyType, streamSubjects(), loadLessonTableEntriesRaw(curriculum, division)
+            curriculum, division, emptyLessonType(), streamSubjects(), loadLessonTableEntriesRaw(curriculum, division)
         );
     }
 
     public Stream<LessonTable.Entry> loadLessonTableEntries(Curriculum curriculum, Division division, Subject subject) {
-        LessonType emptyType = emptyLessonType();
         Map<Grade, LessonTable.Entry> map = curriculum.grades().collect(
-            Collectors.toMap(grade -> grade, grade -> LessonTable.createEntry(grade, emptyType))
+            Collectors.toMap(grade -> grade, grade -> LessonTable.createEntry(grade, emptyLessonType()))
         );
         Condition where = Condition.and(
             Condition.equals(LessonTableEntry.DB_CURRICULUM, curriculum),
@@ -808,7 +802,7 @@ public final class PensenData extends BaseData implements Context {
                 division == null ? Condition.isNull(LessonTableEntry.DB_DIVISION) :
                     Condition.equals(LessonTableEntry.DB_DIVISION, division));
             getConnection().delete(schema, LessonTableEntry.class, where);
-            entries.filter(entry -> entry.typeEnum() != LessonType.Enum.NoLessons).forEachOrdered(entry -> {
+            entries.filter(entry -> entry.typeEnum() != LessonType.Enum.noLessons).forEachOrdered(entry -> {
                 PropertyMap properties = PropertyMap.create();
                 properties.put(LessonTableEntry.DB_CURRICULUM, curriculum);
                 properties.put(LessonTableEntry.DB_DIVISION, division);

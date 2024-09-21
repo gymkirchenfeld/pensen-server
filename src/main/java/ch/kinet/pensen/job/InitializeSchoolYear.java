@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Stefan Rothe
+ * Copyright (C) 2022 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -194,14 +194,14 @@ public final class InitializeSchoolYear extends JobImplementation {
         double lessons1 = entry.getLessons1();
         double lessons2 = entry.getLessons2();
         switch (entry.typeEnum()) {
-            case Start:
+            case start:
                 callback.info("Erstelle Kurs {0} {1}.", subject.getCode(), schoolClass.getCode());
                 course = pensenData.createCourse("", curriculum, grade, lessons1, lessons2, schoolYear, subject);
                 course.setSchoolClasses(Stream.of(schoolClass));
                 pensenData.updateCourse(course, Util.createSet(Course.DB_SCHOOL_CLASS_IDS));
                 courses.get(schoolYear).add(course);
                 break;
-            case Continuation:
+            case continuation:
                 Course previousCourse = findCourse(previousSchoolYear, schoolClass, subject);
                 if (previousCourse != null && !previousCourse.isCancelled()) {
                     callback.info("Kopiere Kurs {0}.", previousCourse);
@@ -241,7 +241,7 @@ public final class InitializeSchoolYear extends JobImplementation {
         double lessons1 = entry.getLessons1();
         double lessons2 = entry.getLessons2();
         switch (entry.typeEnum()) {
-            case Start:
+            case start:
                 // create same amount of courses as last year
                 int count = findSpecialCourses(previousSchoolYear, curriculum, grade, subject).size();
                 for (int i = 0; i < count; ++i) {
@@ -249,7 +249,7 @@ public final class InitializeSchoolYear extends JobImplementation {
                     pensenData.createCourse("", curriculum, grade, lessons1, lessons2, schoolYear, subject);
                 }
                 break;
-            case Continuation:
+            case continuation:
                 findSpecialCourses(previousSchoolYear, curriculum, curriculum.previousGrade(grade), subject).
                     forEach(previousCourse -> {
                         callback.info("Kopiere Kurs {0}.", previousCourse);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,13 +32,13 @@ public abstract class Calculation {
 
     public static Calculation create(Employment employment, Stream<PayrollType> payrollTypes) {
         switch (employment.getSchoolYear().calculationModeEnum()) {
-            case Lessons:
+            case lessons:
                 return new CalculationLessons(employment, payrollTypes);
-            case LessonsAgeReliefIncluded:
+            case lessonsAgeReliefIncluded:
                 return new CalculationLessonsAgeReliefIncluded(employment, payrollTypes);
-            case PercentAgeReliefIncluded:
+            case percentAgeReliefIncluded:
                 return new CalculationPercentAgeReliefIncluded(employment, payrollTypes);
-            case Percent:
+            case percent:
                 return new CalculationPercent(employment, payrollTypes);
             default:
                 throw new IllegalArgumentException();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2014 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 
 public final class Lookup<T extends LookupValue> {
 
+    private static final String NONE_ENUM_NAME = "none";
     private final Map<String, T> byCode;
     private final Map<Integer, T> byId;
     private final List<T> list;
@@ -61,6 +62,14 @@ public final class Lookup<T extends LookupValue> {
         }
 
         return byCode.get(code.toLowerCase());
+    }
+
+    public T byEnum(Enum value) {
+        if (value == null || NONE_ENUM_NAME.equals(value.name())) {
+            return null;
+        }
+
+        return byCode.get(value.name().toLowerCase());
     }
 
     public T byId(int id) {

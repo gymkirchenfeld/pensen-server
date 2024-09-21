@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2023 - 2024 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,46 +20,16 @@ import ch.kinet.reflect.PropertyInitializer;
 
 public final class CalculationMode extends LookupValue {
 
-    private static final String LESSONS = "L";
-    private static final String LESSONS_AGE_RELIEF_INCLUDED = "LAI";
-    private static final String PERCENT_AGE_RELIEF_INCLUDED = "PAI";
-    private static final String PERCENT = "P";
-
     public enum Enum {
-        None(null),
-        Lessons(LESSONS),
-        LessonsAgeReliefIncluded(LESSONS_AGE_RELIEF_INCLUDED),
-        PercentAgeReliefIncluded(PERCENT_AGE_RELIEF_INCLUDED),
-        Percent(PERCENT);
-
-        private final String code;
-
-        private Enum(String code) {
-            this.code = code;
-        }
-
-        String getCode() {
-            return code;
-        }
+        none,
+        lessons,
+        lessonsAgeReliefIncluded,
+        percentAgeReliefIncluded,
+        percent
     }
 
     public static Enum toEnum(CalculationMode object) {
-        if (object == null) {
-            return Enum.None;
-        }
-
-        switch (object.getCode()) {
-            case LESSONS:
-                return Enum.Lessons;
-            case LESSONS_AGE_RELIEF_INCLUDED:
-                return Enum.LessonsAgeReliefIncluded;
-            case PERCENT_AGE_RELIEF_INCLUDED:
-                return Enum.PercentAgeReliefIncluded;
-            case PERCENT:
-                return Enum.Percent;
-            default:
-                return Enum.None;
-        }
+        return object == null ? Enum.none : Enum.valueOf(object.getCode());
     }
 
     @PropertyInitializer({DB_CODE, DB_DESCRIPTION, DB_ID})
