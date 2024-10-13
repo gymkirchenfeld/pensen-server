@@ -27,12 +27,16 @@ import ch.kinet.pensen.data.SchoolClass;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.Teacher;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class GroupingCSVDownload extends JobImplementation {
@@ -58,12 +62,13 @@ public final class GroupingCSVDownload extends JobImplementation {
         "SF PP",
         "SF WR"
     );
-    private final Map<SchoolClass, Set<Course>> schoolClassMap = new HashMap<>();
-    private final Map<Teacher, Set<Course>> teacherMap = new HashMap<>();
-    private final List<List<Course>> results = new ArrayList<>();
+    private final SortedMap<SchoolClass, SortedSet<Teacher>> teacherMap = new TreeMap<>();
+    private final Map<SchoolClass, Map<Teacher, Course>> courseMap = new HashMap<>();
+    private final List<Group> groups = new ArrayList<>();
     private PensenData pensenData;
     private SchoolYear schoolYear;
-    private int courseCount = 4;
+    private int mode = 0;
+    private int minTeacherCount = 4;
 
     public GroupingCSVDownload() {
         super("Gruppierung");
@@ -82,7 +87,16 @@ public final class GroupingCSVDownload extends JobImplementation {
     @Override
     public boolean parseData(JsonObject data) {
         schoolYear = pensenData.getSchoolYearById(data.getObjectId("schoolYear", -1));
-        return schoolYear != null;
+        mode = data.getInt("mode", -1);
+        switch (mode) {
+            case 1:
+                minTeacherCount = 2;
+                break;
+            case 2:
+                minTeacherCount = 4;
+                break;
+        }
+        return schoolYear != null && mode != -1;
     }
 
     @Override
@@ -92,87 +106,112 @@ public final class GroupingCSVDownload extends JobImplementation {
 
     @Override
     public void run(Authorisation creator, JobCallback callback) {
-        createMaps();
-        buildGroups();
-        exportGroups();
+        init();
+        createGroups();
+        Collections.sort(groups);
+        exportCourses();
+        //   exportGroups();
     }
 
-    private void createMaps() {
+    private void init() {
         pensenData.loadAllCourses(schoolYear)
             .filter(this::filterCourse)
-            .forEachOrdered(course -> {
-                course.schoolClasses().forEachOrdered(schoolClass -> {
-                    if (!schoolClassMap.containsKey(schoolClass)) {
-                        schoolClassMap.put(schoolClass, new HashSet<>());
-                    }
-
-                    schoolClassMap.get(schoolClass).add(course);
-                });
-                course.teachers().forEachOrdered(teacher -> {
-                    if (!teacherMap.containsKey(teacher)) {
-                        teacherMap.put(teacher, new HashSet<>());
-                    }
-
-                    teacherMap.get(teacher).add(course);
-                });
-            });
-
+            .forEachOrdered(this::processCourse);
     }
 
-    private void buildGroups() {
-        schoolClassMap.keySet().forEach(sc1 -> {
-            schoolClassMap.get(sc1).forEach(course1 -> {
-                Teacher t1 = course1.teachers().findFirst().get();
-                teacherMap.get(t1).forEach(course2 -> {
-                    SchoolClass sc2 = course2.schoolClasses().findFirst().get();
-                    if (sc1.getId() != sc2.getId()) {
-                        schoolClassMap.get(sc2).forEach(course3 -> {
-                            Teacher t2 = course3.teachers().findFirst().get();
-                            if (t2.getId() != t1.getId()) {
-                                teacherMap.get(t2).forEach(course4 -> {
-                                    SchoolClass sc4 = course4.schoolClasses().findFirst().get();
-                                    if (sc1.getId() == sc4.getId()) {
-                                        tryGrouping(course1, course2, course3, course4);
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-            });
-        });
+    private void processCourse(Course course) {
+        SchoolClass schoolClass = course.schoolClasses().findFirst().get();
+        Teacher teacher = course.teachers().findFirst().get();
+        if (!teacherMap.containsKey(schoolClass)) {
+            teacherMap.put(schoolClass, new TreeSet<>());
+        }
+
+        teacherMap.get(schoolClass).add(teacher);
+        if (!courseMap.containsKey(schoolClass)) {
+            courseMap.put(schoolClass, new HashMap<>());
+        }
+
+        courseMap.get(schoolClass).put(teacher, course);
     }
 
-    private void tryGrouping(Course... courses) {
-        List<Course> entry = Arrays.asList(courses);
-        Set<Course> s = new HashSet<>(entry);
-        if (s.size() == courseCount) {
-            results.add(entry);
+    private void createGroups() {
+        List<SchoolClass> schoolClasses = pensenData.streamSchoolClassesFor(schoolYear, null)
+            .sorted()
+            .collect(Collectors.toList());
+        for (int i = 0; i < schoolClasses.size(); ++i) {
+            SchoolClass schoolClassA = schoolClasses.get(i);
+            for (int j = i + 1; j < schoolClasses.size(); ++j) {
+                SchoolClass schoolClassB = schoolClasses.get(j);
+                checkGroup(schoolClassA, schoolClassB);
+            }
         }
     }
 
-    private void exportGroups() {
-        CsvWriter csv = CsvWriter.create(createHeaders());
-        results.forEach(result -> {
-            result.forEach(course -> {
-                csv.append(course.getSubject().getCode());
-                csv.append(course.schoolClasses().findFirst().get().getCode());
-                csv.append(course.teachers().findFirst().get().getCode());
-            });
-        });
+    private void checkGroup(SchoolClass schoolClassA, SchoolClass schoolClassB) {
+        if (!(teacherMap.containsKey(schoolClassA) && teacherMap.containsKey(schoolClassB))) {
+            return;
+        }
 
+        SortedSet<Teacher> intersection = new TreeSet<>(teacherMap.get(schoolClassA));
+        intersection.retainAll(teacherMap.get(schoolClassB));
+        if (intersection.size() > 1) {
+            groups.add(new Group(intersection, schoolClassA, schoolClassB));
+        }
+    }
+
+    private void exportCourses() {
+        CsvWriter csv = CsvWriter.create(createCourseHeaders());
+        groups.stream().filter(group -> group.getTeacherCount() >= minTeacherCount).forEachOrdered(
+            group -> exportCoursesForGroup(csv, group)
+        );
         setProduct(csv.toData(fileName()));
     }
 
-    private Stream<String> createHeaders() {
+    private Stream<String> createCourseHeaders() {
         Stream.Builder<String> builder = Stream.builder();
-        for (int i = 1; i <= courseCount; ++i) {
+        for (int i = 1; i <= 2 * minTeacherCount; ++i) {
             builder.add("Fach " + String.valueOf(i));
             builder.add("Klasse " + String.valueOf(i));
             builder.add("Lehrperson " + String.valueOf(i));
         }
         return builder.build();
+    }
 
+    private void exportCoursesForGroup(CsvWriter csv, Group group) {
+        group.streamTeacherSets(minTeacherCount).forEachOrdered(set -> exportLine(csv, group, set));
+    }
+
+    private void exportLine(CsvWriter csv, Group group, Set<Teacher> teachers) {
+        teachers.forEach(teacher -> {
+            exportCourse(csv, group.schoolClassA, teacher);
+            exportCourse(csv, group.schoolClassB, teacher);
+        });
+    }
+
+    private void exportCourse(CsvWriter csv, SchoolClass schoolClass, Teacher teacher) {
+        Course course = courseMap.get(schoolClass).get(teacher);
+        csv.append(course.getSubject().getCode());
+        csv.append(schoolClass.getCode());
+        csv.append(teacher.getCode());
+    }
+
+    private void exportGroups() {
+        CsvWriter csv = CsvWriter.create(createGroupHeaders());
+        groups.forEach(result -> result.write(csv));
+        setProduct(csv.toData(fileName()));
+    }
+
+    private Stream<String> createGroupHeaders() {
+        Stream.Builder<String> builder = Stream.builder();
+        builder.add("Klasse 1");
+        builder.add("Klasse 2");
+        builder.add("Lehrperson 1");
+        builder.add("Lehrperson 2");
+        builder.add("Lehrperson 3");
+        builder.add("Lehrperson 4");
+        builder.add("Lehrperson 5");
+        builder.add("Lehrperson 6");
+        return builder.build();
     }
 
     private String fileName() {
@@ -187,5 +226,73 @@ public final class GroupingCSVDownload extends JobImplementation {
         return course.schoolClasses().count() == 1 &&
             course.teachers().count() == 1 &&
             SUBJECTS.contains(course.getSubject().getCode());
+    }
+
+    private static final class Group implements Comparable<Group> {
+
+        private final SchoolClass schoolClassA;
+        private final SchoolClass schoolClassB;
+        private final SortedSet<Teacher> teachers;
+
+        private Group(SortedSet<Teacher> teachers, SchoolClass schoolClassA, SchoolClass schoolClassB) {
+            this.teachers = teachers;
+            this.schoolClassA = schoolClassA;
+            this.schoolClassB = schoolClassB;
+        }
+
+        private int getTeacherCount() {
+            return teachers.size();
+        }
+
+        private Stream<SortedSet<Teacher>> streamTeacherSets(int size) {
+            return getSubsets(teachers, size);
+        }
+
+        private void write(CsvWriter csv) {
+            csv.append(schoolClassA.getCode());
+            csv.append(schoolClassB.getCode());
+
+            for (Teacher teacher : teachers) {
+                csv.append(teacher.getCode());
+            }
+
+            int fill = 6 - teachers.size();
+            for (int i = 0; i < fill; ++i) {
+                csv.append();
+            }
+        }
+
+        @Override
+        public int compareTo(Group other) {
+            int result = other.teachers.size() - teachers.size();
+            if (result == 0) {
+                result = schoolClassA.compareTo(other.schoolClassA);
+            }
+
+            if (result == 0) {
+                result = schoolClassB.compareTo(other.schoolClassB);
+            }
+
+            return result;
+        }
+    }
+
+    private static Stream<SortedSet<Teacher>> getSubsets(SortedSet<Teacher> set, int size) {
+        int currentSize = set.size();
+        Stream<SortedSet<Teacher>> result = Stream.of(set);
+        while (currentSize > size) {
+            result = result.flatMap(s -> getSubsets(s));
+            currentSize -= 1;
+        }
+
+        return result;
+    }
+
+    private static Stream<SortedSet<Teacher>> getSubsets(SortedSet<Teacher> set) {
+        return set.stream().map(item -> {
+            SortedSet<Teacher> clone = new TreeSet<>(set);
+            clone.remove(item);
+            return clone;
+        });
     }
 }
