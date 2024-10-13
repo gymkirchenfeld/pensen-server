@@ -30,4 +30,4 @@ done
 ssh ${HOST} "chmod u+x ${TEMP_DIR}/${STAGE2_FILE}"
 
 # execute the stage2 script
-ssh -t ${HOST} "${TEMP_DIR}/${STAGE2_FILE} ${INSTANCE}"
+ssh -t ${HOST} "${TEMP_DIR}/${STAGE2_FILE}"
