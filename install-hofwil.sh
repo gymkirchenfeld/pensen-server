@@ -15,6 +15,9 @@ STAGE2_LOCAL_FILE="${BASE_DIR}/hofwil/${STAGE2_FILE}"
 
 FILES="${JAR_LOCAL_FILE} ${SERVICE_LOCAL_FILE} ${STAGE2_LOCAL_FILE}"
 
+# build
+./build.sh
+
 # copy jar file
 cp ${ORIG_JAR_LOCAL_FILE} ${JAR_LOCAL_FILE}
 # remove old directory
