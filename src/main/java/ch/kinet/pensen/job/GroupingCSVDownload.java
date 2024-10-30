@@ -54,6 +54,7 @@ public final class GroupingCSVDownload extends JobImplementation {
         "G",
         "Ge",
         "GG",
+        "IN",
         "M",
         "Me",
         "MU",
