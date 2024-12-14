@@ -495,6 +495,10 @@ public final class PensenData extends BaseData implements Context {
         return subjectTypes.byId(id);
     }
 
+    public Teacher getTeacherByCode(String code) {
+        return teachers.stream().filter(teacher -> Util.iequal(code, teacher.getCode())).findFirst().orElse(null);
+    }
+
     @Override
     public Teacher getTeacherById(int id) {
         return teachers.byId(id);

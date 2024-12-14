@@ -102,6 +102,10 @@ public final class TeacherResource extends EntityResource<Teacher> {
 
         LocalDate birthday = data.getDate(Teacher.JSON_BIRTHDAY);
         String code = data.getString(Teacher.JSON_CODE);
+        if (pensenData.getTeacherByCode(code) != null) {
+            return Response.badRequest("Das Kürzel " + code + " wird bereits verwendet.");
+        }
+
         String email = data.getString(Teacher.JSON_EMAIL);
         String employeeNumber = data.getString(Teacher.JSON_EMPLOYEE_NUMBER);
         String firstName = data.getString(Teacher.JSON_FIRST_NAME);
@@ -149,6 +153,10 @@ public final class TeacherResource extends EntityResource<Teacher> {
         }
 
         if (!Util.equal(object.getCode(), code)) {
+            if (pensenData.getTeacherByCode(code) != null) {
+                return Response.badRequest("Das Kürzel " + code + " wird bereits verwendet.");
+            }
+
             object.setCode(code);
             changed.add(Teacher.DB_CODE);
         }

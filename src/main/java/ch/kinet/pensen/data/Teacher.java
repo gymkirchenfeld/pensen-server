@@ -172,6 +172,11 @@ public final class Teacher extends Entity {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return code;
+    }
+
     @Persistence(ignore = true)
     SortedSet<SubjectCategory> getDepartments() {
         return departments;
