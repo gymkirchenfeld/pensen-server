@@ -757,7 +757,7 @@ public final class PensenData extends BaseData implements Context {
         return result;
     }
 
-    public Set<Teacher> parseTeachers(JsonArray json) {
+    public Set<Teacher> parseEmployedTeachers(SchoolYear schoolYear, JsonArray json) {
         Set<Teacher> result = new HashSet<>();
         if (json == null) {
             return result;
@@ -765,7 +765,7 @@ public final class PensenData extends BaseData implements Context {
 
         for (int i = 0; i < json.length(); ++i) {
             Teacher teacher = getTeacherById(json.getObjectId(i, -1));
-            if (teacher != null) {
+            if (teacher != null && loadEmployment(schoolYear, teacher) != null) {
                 result.add(teacher);
             }
         }

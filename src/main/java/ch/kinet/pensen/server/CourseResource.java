@@ -168,8 +168,8 @@ public final class CourseResource extends EntityResource<Course> {
         }
 
         String comments = data.getString(Course.JSON_COMMENTS);
-        Set<Teacher> teachers1 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_1));
-        Set<Teacher> teachers2 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_2));
+        Set<Teacher> teachers1 = pensenData.parseEmployedTeachers(schoolYear, data.getArray(Course.JSON_TEACHERS_1));
+        Set<Teacher> teachers2 = pensenData.parseEmployedTeachers(schoolYear, data.getArray(Course.JSON_TEACHERS_2));
 
         Course result = pensenData.createCourse(comments, curriculum, grade, lessons1, lessons2, schoolYear, subject);
         result.setSchoolClasses(schoolClasses.stream());
@@ -203,8 +203,8 @@ public final class CourseResource extends EntityResource<Course> {
             return Response.badRequest("Negative Lektionenzahlen sind nicht erlaubt.");
         }
 
-        Set<Teacher> teachers1 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_1));
-        Set<Teacher> teachers2 = pensenData.parseTeachers(data.getArray(Course.JSON_TEACHERS_2));
+        Set<Teacher> teachers1 = pensenData.parseEmployedTeachers(object.getSchoolYear(), data.getArray(Course.JSON_TEACHERS_1));
+        Set<Teacher> teachers2 = pensenData.parseEmployedTeachers(object.getSchoolYear(), data.getArray(Course.JSON_TEACHERS_2));
 
         Set<String> changed = new HashSet<>();
         Set<Teacher> affectedTeachers = new HashSet<>(object.teachers().collect(Collectors.toSet()));
@@ -271,6 +271,21 @@ public final class CourseResource extends EntityResource<Course> {
     protected Course loadObject(int id
     ) {
         return pensenData.loadCourse(id);
+    }
+
+    private void cloneCourse(Course original, SchoolClass schoolClass) {
+        Course course = pensenData.createCourse(
+            original.getComments(),
+            original.getCurriculum(),
+            original.getGrade(),
+            original.getLessons1(),
+            original.getLessons2(),
+            original.getSchoolYear(),
+            original.getSubject());
+        course.setTeachers1(original.teachers(SemesterEnum.First));
+        course.setTeachers2(original.teachers(SemesterEnum.Second));
+        course.setSchoolClasses(Stream.of(schoolClass));
+        pensenData.updateCourse(course, Util.createSet(Course.DB_SCHOOL_CLASS_IDS, Course.DB_TEACHER_IDS_1, Course.DB_TEACHER_IDS_2));
     }
 
     private Response merge(JsonArray ids) {
@@ -340,18 +355,4 @@ public final class CourseResource extends EntityResource<Course> {
         return Response.noContent();
     }
 
-    private void cloneCourse(Course original, SchoolClass schoolClass) {
-        Course course = pensenData.createCourse(
-            original.getComments(),
-            original.getCurriculum(),
-            original.getGrade(),
-            original.getLessons1(),
-            original.getLessons2(),
-            original.getSchoolYear(),
-            original.getSubject());
-        course.setTeachers1(original.teachers(SemesterEnum.First));
-        course.setTeachers2(original.teachers(SemesterEnum.Second));
-        course.setSchoolClasses(Stream.of(schoolClass));
-        pensenData.updateCourse(course, Util.createSet(Course.DB_SCHOOL_CLASS_IDS, Course.DB_TEACHER_IDS_1, Course.DB_TEACHER_IDS_2));
-    }
 }
