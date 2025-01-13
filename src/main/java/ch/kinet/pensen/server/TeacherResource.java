@@ -112,7 +112,7 @@ public final class TeacherResource extends EntityResource<Teacher> {
         String lastName = data.getString(Teacher.JSON_LAST_NAME);
         String title = data.getString(Teacher.JSON_TITLE);
 
-        Teacher result = pensenData.createTeacher(birthday, code, email, employeeNumber, firstName, lastName, title);
+        Teacher result = pensenData.createTeacher(birthday, code, email, employeeNumber, firstName, gender, lastName, title);
         Set<SubjectCategory> departments = parseSubjectCategories(data.getArray(Teacher.JSON_DEPARTMENTS));
         pensenData.updateTeacherDepartments(result, departments);
         return Response.created();

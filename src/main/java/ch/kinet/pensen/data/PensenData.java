@@ -314,7 +314,7 @@ public final class PensenData extends BaseData implements Context {
     }
 
     public Teacher createTeacher(LocalDate birthday, String code, String email, String employeeNumber, String firstName,
-                                 String lastName, String title) {
+                                 Gender gender, String lastName, String title) {
         PropertyMap properties = PropertyMap.create();
         properties.put(Teacher.DB_ARCHIVED, false);
         properties.put(Teacher.DB_BIRTHDAY, birthday);
@@ -322,6 +322,7 @@ public final class PensenData extends BaseData implements Context {
         properties.put(Teacher.DB_EMAIL, email);
         properties.put(Teacher.DB_EMPLOYEE_NUMBER, employeeNumber);
         properties.put(Teacher.DB_FIRST_NAME, firstName);
+        properties.put(Teacher.DB_GENDER, gender);
         properties.put(Teacher.DB_LAST_NAME, lastName);
         properties.put(Teacher.DB_TITLE, title);
         Teacher result = getConnection().insert(schema, Teacher.class, properties);
