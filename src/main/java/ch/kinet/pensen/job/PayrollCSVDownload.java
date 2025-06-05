@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024 by Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,10 +22,11 @@ import ch.kinet.csv.CsvWriter;
 import ch.kinet.pensen.calculation.Payroll;
 import ch.kinet.pensen.calculation.Workload;
 import ch.kinet.pensen.calculation.Workloads;
-import ch.kinet.pensen.data.Authorisation;
+import ch.kinet.pensen.data.Account;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.SemesterEnum;
+import ch.kinet.pensen.server.Authorisation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -47,7 +48,7 @@ public final class PayrollCSVDownload extends JobImplementation {
 
     @Override
     public boolean isAllowed(Authorisation authorisation) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
@@ -63,7 +64,7 @@ public final class PayrollCSVDownload extends JobImplementation {
     }
 
     @Override
-    public void run(Authorisation creator, JobCallback callback) {
+    public void run(Account creator, JobCallback callback) {
         CsvWriter csv = CsvWriter.create(createHeaders());
         csv.setHideZero(true);
         callback.step();

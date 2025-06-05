@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024 by Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,7 +20,6 @@ import ch.kinet.JsonObject;
 import ch.kinet.Util;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.job.Job;
 import ch.kinet.pensen.job.JobData;
 
@@ -36,7 +35,7 @@ public final class JobResource extends ObjectResource {
 
     @Override
     protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
@@ -60,7 +59,7 @@ public final class JobResource extends ObjectResource {
 
     @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
@@ -74,7 +73,7 @@ public final class JobResource extends ObjectResource {
             return Response.badRequest("Job is already running.");
         }
 
-        if (job.start(authorisation, data)) {
+        if (job.start(authorisation.getAccount(), data)) {
             return Response.jsonVerbose(job);
         }
         else {
@@ -84,12 +83,12 @@ public final class JobResource extends ObjectResource {
 
     @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isEditAllowed();
+        return authorisation.isEditAllowed();
     }
 
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
-        if (job.start(authorisation, data)) {
+        if (job.start(authorisation.getAccount(), data)) {
             return Response.noContent();
         }
         else {

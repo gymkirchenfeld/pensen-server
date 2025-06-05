@@ -21,7 +21,7 @@ import ch.kinet.Util;
 import ch.kinet.http.Request;
 import ch.kinet.http.RequestHandler;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
+import ch.kinet.pensen.data.Account;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.sql.StatementPreparationException;
 import ch.kinet.webtoken.JJWT;
@@ -43,6 +43,10 @@ public final class Server implements RequestHandler {
     @Override
     public Response handleRequest(Request request) {
         Authorisation authorisation = authenticate(request.getAuthorisation());
+        if (authorisation == null) {
+            return Response.unauthorized();
+        }
+
         String[] pathParts = request.getPath().split("/");
         // part 0 is empty, since the path starts with an /
         if (pathParts.length < 2) {
@@ -55,7 +59,6 @@ public final class Server implements RequestHandler {
             resourceId = pathParts[2];
         }
 
-        String error = null;
         Class<? extends AbstractRequestHandler> resourceClass = Routes.getResource(resourceName);
         if (resourceClass == null) {
             return Response.badRequest("Invalid resource name.");
@@ -76,7 +79,6 @@ public final class Server implements RequestHandler {
         catch (Exception ex) {
             StringWriter sw = new StringWriter();
             ex.printStackTrace(new PrintWriter(sw));
-            error = sw.toString();
             response = Response.internalServerError();
             System.err.println("REQUEST: " + request.getPath());
             ex.printStackTrace(System.err);
@@ -94,7 +96,7 @@ public final class Server implements RequestHandler {
 
     private Authorisation authenticate(String authorisation) {
         if (!Util.startsWith(authorisation, "Bearer ")) {
-            return null;
+            return new Authorisation(null);
         }
 
         Token token = JJWT.parseToken(authorisation.substring(7), keys);
@@ -112,7 +114,8 @@ public final class Server implements RequestHandler {
                 System.out.println("Token is not supported.");
                 return null;
             case Valid:
-                return DB.getDataManager().getData(PensenData.class).getAuthorisationByName(token.getAccountName());
+                Account account = DB.getDataManager().getData(PensenData.class).getAccountByName(token.getAccountName());
+                return account == null ? null : new Authorisation(account);
             default:
                 System.out.println("Unknown token status.");
                 return null;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,6 @@ package ch.kinet.pensen.server;
 
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.PensenData;
 
@@ -34,11 +33,11 @@ public final class PayrollTypeResource extends EntityResource<PayrollType> {
 
     @Override
     protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
-    protected Response list(Authorisation auth, Query query) {
+    protected Response list(Authorisation authorisation, Query query) {
         if (query.hasKey(QUERY_LESSON_BASED)) {
             boolean lessonBased = query.getBoolean(QUERY_LESSON_BASED, false);
             return Response.jsonArrayTerse(pensenData.streamPayrollTypes()

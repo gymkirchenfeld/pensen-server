@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024 by Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,7 +20,6 @@ import ch.kinet.JsonObject;
 import ch.kinet.Util;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.Settings;
 import java.util.HashSet;
@@ -37,22 +36,22 @@ public final class SettingsResource extends GlobalResource {
 
     @Override
     protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
     protected Response get(Authorisation authorisation, Query query) {
-        return Response.jsonVerbose(pensenData.loadSettings(authorisation));
+        return Response.jsonVerbose(pensenData.loadSettings(authorisation.getAccount()));
     }
 
     @Override
     protected boolean isPostAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
     protected Response post(Authorisation authorisation, JsonObject data) {
-        Settings settings = pensenData.loadSettings(authorisation);
+        Settings settings = pensenData.loadSettings(authorisation.getAccount());
         Set<String> changed = new HashSet<>();
         String mailBody = data.getString(Settings.JSON_MAIL_BODY);
         if (!Util.equal(settings.getMailBody(), mailBody)) {

@@ -19,7 +19,6 @@ package ch.kinet.pensen.server;
 import ch.kinet.JsonObject;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.Note;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.Teacher;
@@ -36,7 +35,7 @@ public final class NoteResource extends EntityResource<Note> {
 
     @Override
     protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
@@ -51,7 +50,7 @@ public final class NoteResource extends EntityResource<Note> {
 
     @Override
     protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
@@ -61,7 +60,7 @@ public final class NoteResource extends EntityResource<Note> {
 
     @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isEditAllowed();
+        return authorisation.isEditAllowed();
     }
 
     @Override
@@ -72,13 +71,13 @@ public final class NoteResource extends EntityResource<Note> {
         }
 
         String text = data.getString(Note.JSON_TEXT);
-        pensenData.createNote(teacher, text, authorisation.getAccountName());
+        pensenData.createNote(teacher, text, authorisation.getAccount().getName());
         return Response.created();
     }
 
     @Override
     protected boolean isDeleteAllowed(Authorisation authorisation) {
-        return authorisation != null && authorisation.isEditAllowed();
+        return authorisation.isEditAllowed();
     }
 
     @Override

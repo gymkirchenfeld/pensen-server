@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,6 @@ import ch.kinet.JsonObject;
 import ch.kinet.Util;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
 
 public final class ProfileResource extends GlobalResource {
 
@@ -35,12 +34,12 @@ public final class ProfileResource extends GlobalResource {
     }
 
     @Override
-    protected boolean isGetAllowed(Authorisation auth, Query query) {
-        return auth != null;
+    protected boolean isGetAllowed(Authorisation authorisation, Query query) {
+        return authorisation.isAuthenticated();
     }
 
     @Override
-    protected Response get(Authorisation auth, Query query) {
+    protected Response get(Authorisation authorisation, Query query) {
         JsonArray features = JsonArray.create();
         for (String feature : clientFeatures) {
             if (!Util.isEmpty(feature)) {
@@ -48,7 +47,7 @@ public final class ProfileResource extends GlobalResource {
             }
         }
 
-        JsonObject result = auth.toJsonTerse();
+        JsonObject result = authorisation.getAccount().toJsonTerse();
         result.put(JSON_FEATURES, features);
         return Response.jsonVerbose(result);
     }

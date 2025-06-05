@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,7 +22,6 @@ import ch.kinet.SetComparison;
 import ch.kinet.Util;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.Course;
 import ch.kinet.pensen.data.Curriculum;
 import ch.kinet.pensen.data.Division;
@@ -54,7 +53,7 @@ public final class CourseResource extends EntityResource<Course> {
 
     @Override
     protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
@@ -79,7 +78,7 @@ public final class CourseResource extends EntityResource<Course> {
 
     @Override
     protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
@@ -89,7 +88,7 @@ public final class CourseResource extends EntityResource<Course> {
 
     @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isEditAllowed();
+        return authorisation.isEditAllowed();
     }
 
     @Override
@@ -185,7 +184,7 @@ public final class CourseResource extends EntityResource<Course> {
     @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data
     ) {
-        return authorisation != null && authorisation.isEditAllowed();
+        return authorisation.isEditAllowed();
     }
 
     @Override
@@ -251,14 +250,12 @@ public final class CourseResource extends EntityResource<Course> {
     }
 
     @Override
-    protected boolean isDeleteAllowed(Authorisation authorisation
-    ) {
-        return authorisation != null && authorisation.isEditAllowed();
+    protected boolean isDeleteAllowed(Authorisation authorisation) {
+        return authorisation.isEditAllowed();
     }
 
     @Override
-    protected Response delete(Authorisation authorisation
-    ) {
+    protected Response delete(Authorisation authorisation) {
         if (object.getSchoolYear().isArchived()) {
             return Response.forbidden();
         }
@@ -268,8 +265,7 @@ public final class CourseResource extends EntityResource<Course> {
     }
 
     @Override
-    protected Course loadObject(int id
-    ) {
+    protected Course loadObject(int id) {
         return pensenData.loadCourse(id);
     }
 

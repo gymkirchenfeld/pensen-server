@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,7 +19,8 @@ package ch.kinet.pensen.job;
 import ch.kinet.Data;
 import ch.kinet.DataManager;
 import ch.kinet.JsonObject;
-import ch.kinet.pensen.data.Authorisation;
+import ch.kinet.pensen.data.Account;
+import ch.kinet.pensen.server.Authorisation;
 
 public abstract class JobImplementation {
 
@@ -59,7 +60,7 @@ public abstract class JobImplementation {
 
     public abstract long getStepCount();
 
-    public abstract void run(Authorisation creator, JobCallback callback);
+    public abstract void run(Account creator, JobCallback callback);
 
     protected final void setProduct(Data product) {
         this.product = product;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,6 @@ package ch.kinet.pensen.server;
 
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.Division;
 import ch.kinet.pensen.data.Grade;
 import ch.kinet.pensen.data.PensenData;
@@ -36,11 +35,11 @@ public final class CourseTableResource extends GlobalResource {
 
     @Override
     protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
-    protected Response get(Authorisation auth, Query query) {
+    protected Response get(Authorisation authorisation, Query query) {
         SchoolYear schoolYear = pensenData.getSchoolYearById(query.getInt("schoolYear", -1));
         if (schoolYear == null) {
             return Response.notFound();

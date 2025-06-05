@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Stefan Rothe
+ * Copyright (C) 2024 - 2025 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,12 +19,12 @@ package ch.kinet.pensen.server;
 import ch.kinet.JsonObject;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
+import ch.kinet.pensen.data.Account;
 import ch.kinet.pensen.data.PensenData;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class AuthorisationResource extends EntityResource<Authorisation> {
+public final class AuthorisationResource extends EntityResource<Account> {
 
     private PensenData pensenData;
 
@@ -35,12 +35,12 @@ public final class AuthorisationResource extends EntityResource<Authorisation> {
 
     @Override
     protected boolean isAllowed(Authorisation authorisation) {
-        return authorisation != null && authorisation.isGrantAllowed();
+        return authorisation.isGrantAllowed();
     }
 
     @Override
-    protected Response list(Authorisation auth, Query query) {
-        return Response.jsonArrayTerse(pensenData.streamAuthorisations().sorted());
+    protected Response list(Authorisation authorisation, Query query) {
+        return Response.jsonArrayTerse(pensenData.streamAccounts().sorted());
     }
 
     @Override
@@ -50,36 +50,36 @@ public final class AuthorisationResource extends EntityResource<Authorisation> {
 
     @Override
     protected Response create(Authorisation authorisation, JsonObject data) {
-        String accountName = data.getString(Authorisation.JSON_ACCOUNT_NAME);
-        boolean grantAllowed = data.getBoolean(Authorisation.JSON_GRANT_ALLOWED, false);
-        boolean editAllowed = data.getBoolean(Authorisation.JSON_EDIT_ALLOWED, false);
+        String accountName = data.getString(Account.JSON_NAME);
+        boolean grantAllowed = data.getBoolean(Account.JSON_GRANT_ALLOWED, false);
+        boolean editAllowed = data.getBoolean(Account.JSON_EDIT_ALLOWED, false);
 
-        if (pensenData.getAuthorisationByName(accountName) != null) {
+        if (pensenData.getAccountByName(accountName) != null) {
             return Response.badRequest("Ein Benutzer mit diesem Namen existiert bereits.");
         }
 
-        pensenData.createAuthorisation(accountName, editAllowed, grantAllowed);
+        pensenData.createAccount(accountName, editAllowed, grantAllowed);
         return Response.created();
     }
 
     @Override
     protected Response update(Authorisation authorisation, JsonObject data) {
-        boolean editAllowed = data.getBoolean(Authorisation.JSON_EDIT_ALLOWED, false);
-        boolean grantAllowed = data.getBoolean(Authorisation.JSON_GRANT_ALLOWED, false);
+        boolean editAllowed = data.getBoolean(Account.JSON_EDIT_ALLOWED, false);
+        boolean grantAllowed = data.getBoolean(Account.JSON_GRANT_ALLOWED, false);
 
-        if (authorisation.equals(object) && !grantAllowed) {
+        if (authorisation.isAccount(object) && !grantAllowed) {
             return Response.badRequest("Die eigene Berechtigung kann nicht entzogen werden.");
         }
 
         Set<String> changed = new HashSet<>();
         if (object.isEditAllowed() != editAllowed) {
             object.setEditAllowed(editAllowed);
-            changed.add(Authorisation.DB_EDIT_ALLOWED);
+            changed.add(Account.DB_EDIT_ALLOWED);
         }
 
         if (object.isGrantAllowed() != grantAllowed) {
             object.setGrantAllowed(grantAllowed);
-            changed.add(Authorisation.DB_GRANT_ALLOWED);
+            changed.add(Account.DB_GRANT_ALLOWED);
         }
 
         if (!changed.isEmpty()) {
@@ -91,16 +91,16 @@ public final class AuthorisationResource extends EntityResource<Authorisation> {
 
     @Override
     protected Response delete(Authorisation authorisation) {
-        if (authorisation.equals(object)) {
+        if (authorisation.isAccount(object)) {
             return Response.badRequest("Das eigene Benutzerkonto kann nicht gelöscht werden.");
         }
 
-        pensenData.deleteAuthorisation(object);
+        pensenData.deleteAccount(object);
         return Response.noContent();
     }
 
     @Override
-    protected Authorisation loadObject(int id) {
-        return pensenData.getAuthorisationById(id);
+    protected Account loadObject(int id) {
+        return pensenData.getAccountById(id);
     }
 }

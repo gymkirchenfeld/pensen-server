@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,8 +21,8 @@ import ch.kinet.Json;
 import ch.kinet.JsonArray;
 import ch.kinet.JsonObject;
 import ch.kinet.Log;
-import ch.kinet.Util;
-import ch.kinet.pensen.data.Authorisation;
+import ch.kinet.pensen.data.Account;
+import ch.kinet.pensen.server.Authorisation;
 import ch.kinet.pensen.server.DB;
 
 public final class Job implements Json, JobCallback {
@@ -35,7 +35,7 @@ public final class Job implements Json, JobCallback {
     public static final String JSON_PROGRESS = "progress";
     public static final String JSON_RUNNING = "running";
     public static final String JSON_TITLE = "title";
-    private Authorisation creator;
+    private Account creator;
     private final boolean global;
     private final int id;
     private final Log log = Log.create();
@@ -55,7 +55,7 @@ public final class Job implements Json, JobCallback {
         this.totalCount = 1;
     }
 
-    public Authorisation getCreator() {
+    public Account getCreator() {
         return creator;
     }
 
@@ -77,10 +77,10 @@ public final class Job implements Json, JobCallback {
 
     public boolean isAllowed(Authorisation authorisation) {
         if (global) {
-            return authorisation != null;
+            return authorisation.isAuthenticated();
         }
         else {
-            return Util.equal(authorisation, creator);
+            return authorisation.isAccount(creator);
         }
     }
 
@@ -94,7 +94,7 @@ public final class Job implements Json, JobCallback {
         return global;
     }
 
-    public boolean start(Authorisation creator, JsonObject data) {
+    public boolean start(Account creator, JsonObject data) {
         if (!isFinished()) {
             return false;
         }

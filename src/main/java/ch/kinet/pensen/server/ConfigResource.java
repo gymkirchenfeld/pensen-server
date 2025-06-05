@@ -19,7 +19,6 @@ package ch.kinet.pensen.server;
 import ch.kinet.JsonObject;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
 
 public final class ConfigResource extends GlobalResource {
 
@@ -47,7 +46,7 @@ public final class ConfigResource extends GlobalResource {
     }
 
     @Override
-    protected Response get(Authorisation auth, Query query) {
+    protected Response get(Authorisation authorisation, Query query) {
         JsonObject msal = JsonObject.create();
         msal.put(JSON_CLIENT_ID, clientId);
         msal.put(JSON_TENANT_ID, tenantId);

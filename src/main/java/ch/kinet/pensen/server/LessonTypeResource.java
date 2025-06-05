@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 - 2024 by Stefan Rothe
+ * Copyright (C) 2023 - 2025 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,6 @@ package ch.kinet.pensen.server;
 
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.LessonType;
 import ch.kinet.pensen.data.PensenData;
 
@@ -33,11 +32,11 @@ public final class LessonTypeResource extends EntityResource<LessonType> {
 
     @Override
     protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
-    protected Response list(Authorisation auth, Query query) {
+    protected Response list(Authorisation authorisation, Query query) {
         return Response.jsonArrayTerse(pensenData.streamLessonTypes());
     }
 

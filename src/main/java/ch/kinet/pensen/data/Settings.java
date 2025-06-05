@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,18 +29,18 @@ public final class Settings extends Entity {
     public static final String JSON_MAIL_BODY = "mailBody";
     public static final String JSON_MAIL_FROM = "mailFrom";
     public static final String JSON_MAIL_SUBJECT = "mailSubject";
-    private final Authorisation account;
+    private final Account account;
     private String mailBody;
     private String mailFrom;
     private String mailSubject;
 
     @PropertyInitializer({DB_ACCOUNT, DB_ID})
-    public Settings(Authorisation account, int id) {
+    public Settings(Account account, int id) {
         super(id);
         this.account = account;
     }
 
-    public Authorisation getAccount() {
+    public Account getAccount() {
         return account;
     }
 

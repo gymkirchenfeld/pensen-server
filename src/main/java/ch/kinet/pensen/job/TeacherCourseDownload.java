@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 by Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,10 +19,11 @@ package ch.kinet.pensen.job;
 import ch.kinet.DataManager;
 import ch.kinet.JsonObject;
 import ch.kinet.pdf.Document;
-import ch.kinet.pensen.data.Authorisation;
+import ch.kinet.pensen.calculation.Workloads;
+import ch.kinet.pensen.data.Account;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolYear;
-import ch.kinet.pensen.calculation.Workloads;
+import ch.kinet.pensen.server.Authorisation;
 
 public final class TeacherCourseDownload extends JobImplementation {
 
@@ -41,7 +42,7 @@ public final class TeacherCourseDownload extends JobImplementation {
 
     @Override
     public boolean isAllowed(Authorisation authorisation) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
@@ -60,7 +61,7 @@ public final class TeacherCourseDownload extends JobImplementation {
     }
 
     @Override
-    public void run(Authorisation creator, JobCallback callback) {
+    public void run(Account creator, JobCallback callback) {
         Document pdf = Document.createPortrait(fileName());
         workloads.teachers().forEachOrdered(teacher -> {
             TeacherCoursePDFGenerator.writePDF(pdf, workloads.getWorkload(teacher));

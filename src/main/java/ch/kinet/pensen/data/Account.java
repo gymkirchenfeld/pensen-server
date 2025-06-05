@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,36 +21,36 @@ import ch.kinet.JsonObject;
 import ch.kinet.Util;
 import ch.kinet.reflect.PropertyInitializer;
 
-public final class Authorisation extends Entity {
+public final class Account extends Entity {
 
-    public static final String DB_ACCOUNT_NAME = "AccountName";
     public static final String DB_EDIT_ALLOWED = "EditAllowed";
     public static final String DB_GRANT_ALLOWED = "GrantAllowed";
-    public static final String JSON_ACCOUNT_NAME = "accountName";
+    public static final String DB_NAME = "Name";
     public static final String JSON_EDIT_ALLOWED = "editAllowed";
     public static final String JSON_GRANT_ALLOWED = "grantAllowed";
-    private final String accountName;
+    public static final String JSON_NAME = "accountName";
+    private final String name;
     private boolean editAllowed;
     private boolean grantAllowed;
 
-    @PropertyInitializer({DB_ACCOUNT_NAME, DB_ID})
-    public Authorisation(String accountName, int id) {
+    @PropertyInitializer({DB_ID, DB_NAME})
+    public Account(int id, String name) {
         super(id);
-        this.accountName = accountName;
+        this.name = name;
     }
 
     @Override
     public int compareTo(Entity entity) {
-        if (entity instanceof Authorisation) {
-            Authorisation other = (Authorisation) entity;
-            return Util.compare(accountName, other.accountName);
+        if (entity instanceof Account) {
+            Account other = (Account) entity;
+            return Util.compare(name, other.name);
         }
 
         return super.compareTo(entity);
     }
 
-    public String getAccountName() {
-        return accountName;
+    public String getName() {
+        return name;
     }
 
     public boolean isEditAllowed() {
@@ -72,7 +72,7 @@ public final class Authorisation extends Entity {
     @Override
     public JsonObject toJsonTerse() {
         JsonObject result = super.toJsonTerse();
-        result.put(JSON_ACCOUNT_NAME, accountName);
+        result.put(JSON_NAME, name);
         result.put(JSON_GRANT_ALLOWED, grantAllowed);
         result.put(JSON_EDIT_ALLOWED, editAllowed);
         return result;

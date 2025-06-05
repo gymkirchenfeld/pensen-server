@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 - 2025 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2025 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,23 +16,33 @@
  */
 package ch.kinet.pensen.server;
 
-import ch.kinet.Data;
-import ch.kinet.http.Request;
-import ch.kinet.http.Response;
+import ch.kinet.pensen.data.Account;
 
-public class FileResource extends AbstractRequestHandler {
+public final class Authorisation {
 
-    @Override
-    public void initialize() {
+    private final Account account;
+
+    public Authorisation(Account account) {
+        this.account = account;
     }
 
-    @Override
-    public Response handleRequest(Request request, Authorisation authorisation, String resourceId) {
-        if (!authorisation.isAuthenticated()) {
-            return Response.forbidden();
-        }
+    public Account getAccount() {
+        return account;
+    }
 
-        Data data = DB.getFileStorage().getFile(resourceId);
-        return data == null ? Response.notFound() : Response.file(data);
+    public boolean isAccount(Account targetAccount) {
+        return account != null && account.equals(targetAccount);
+    }
+
+    public boolean isAuthenticated() {
+        return account != null;
+    }
+
+    public boolean isEditAllowed() {
+        return account != null && account.isEditAllowed();
+    }
+
+    public boolean isGrantAllowed() {
+        return account != null && account.isGrantAllowed();
     }
 }

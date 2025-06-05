@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,6 @@ import ch.kinet.Util;
 import ch.kinet.http.Query;
 import ch.kinet.http.Request;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
 
 /**
  * Base class for object resources. An object resource usually represents an entity, i.e. a collection of objects

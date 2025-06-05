@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Stefan Rothe
+ * Copyright (C) 2024 - 2025 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,12 +20,13 @@ import ch.kinet.DataManager;
 import ch.kinet.JsonObject;
 import ch.kinet.Util;
 import ch.kinet.csv.CsvWriter;
-import ch.kinet.pensen.data.Authorisation;
+import ch.kinet.pensen.data.Account;
 import ch.kinet.pensen.data.Course;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.pensen.data.SchoolClass;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.Teacher;
+import ch.kinet.pensen.server.Authorisation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -82,7 +83,7 @@ public final class GroupingCSVDownload extends JobImplementation {
 
     @Override
     public boolean isAllowed(Authorisation authorisation) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
@@ -106,7 +107,7 @@ public final class GroupingCSVDownload extends JobImplementation {
     }
 
     @Override
-    public void run(Authorisation creator, JobCallback callback) {
+    public void run(Account creator, JobCallback callback) {
         init();
         createGroups();
         Collections.sort(groups);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -42,7 +42,7 @@ import java.util.stream.Stream;
 
 public final class PensenData extends BaseData implements Context {
 
-    private final Entities<Authorisation> authorisations = Entities.create();
+    private final Entities<Account> accounts = Entities.create();
     private final Entities<CalculationMode> calculationModes = Entities.create();
     private final Entities<Curriculum> curriculums = Entities.create();
     private final Entities<Division> divisions = Entities.create();
@@ -61,7 +61,7 @@ public final class PensenData extends BaseData implements Context {
     private final Entities<Teacher> teachers = Entities.create();
     private final Entities<ThesisType> thesisTypes = Entities.create();
     private final String schema;
-    private Map<String, Authorisation> authorisationMap = new HashMap<>();
+    private Map<String, Account> accountMap = new HashMap<>();
 
     public PensenData() {
         schema = Configuration.getInstance().getDbSchema();
@@ -73,7 +73,7 @@ public final class PensenData extends BaseData implements Context {
 
     @Override
     protected void doInitLookups(Connection connection) {
-        connection.addLookup(Authorisation.class);
+        connection.addLookup(Account.class);
         connection.addLookup(Course.class);
         connection.addLookup(Curriculum.class);
         connection.addLookup(Division.class);
@@ -117,9 +117,9 @@ public final class PensenData extends BaseData implements Context {
             previous = current;
         }
 
-        authorisations.addAll(getConnection().selectAll(schema, Authorisation.class));
-        authorisationMap = authorisations.stream().collect(Collectors.toMap(
-            item -> item.getAccountName(), item -> item
+        accounts.addAll(getConnection().selectAll(schema, Account.class));
+        accountMap = accounts.stream().collect(Collectors.toMap(
+            item -> item.getName(), item -> item
         ));
         grades.addAll(getConnection().selectAll(schema, Grade.class));
         curriculums.addAll(getConnection().selectAll(schema, Curriculum.class));
@@ -161,18 +161,18 @@ public final class PensenData extends BaseData implements Context {
         return result;
     }
 
-    public Authorisation createAuthorisation(String accountName, boolean editAllowed, boolean grantAllowed) {
-        if (authorisationMap.containsKey(accountName)) {
-            throw new IllegalArgumentException("Duplicate account name " + accountName);
+    public Account createAccount(String name, boolean editAllowed, boolean grantAllowed) {
+        if (accountMap.containsKey(name)) {
+            throw new IllegalArgumentException("Duplicate account name " + name);
         }
 
         PropertyMap properties = PropertyMap.create();
-        properties.put(Authorisation.DB_ACCOUNT_NAME, accountName);
-        properties.put(Authorisation.DB_EDIT_ALLOWED, editAllowed);
-        properties.put(Authorisation.DB_GRANT_ALLOWED, grantAllowed);
-        Authorisation result = getConnection().insert(schema, Authorisation.class, properties);
-        authorisations.add(result);
-        authorisationMap.put(accountName, result);
+        properties.put(Account.DB_EDIT_ALLOWED, editAllowed);
+        properties.put(Account.DB_GRANT_ALLOWED, grantAllowed);
+        properties.put(Account.DB_NAME, name);
+        Account result = getConnection().insert(schema, Account.class, properties);
+        accounts.add(result);
+        accountMap.put(name, result);
         return result;
     }
 
@@ -330,10 +330,10 @@ public final class PensenData extends BaseData implements Context {
         return result;
     }
 
-    public void deleteAuthorisation(Authorisation authorisaton) {
-        getConnection().delete(schema, authorisaton);
-        authorisations.remove(authorisaton);
-        authorisationMap.remove(authorisaton.getAccountName());
+    public void deleteAccount(Account account) {
+        getConnection().delete(schema, account);
+        accounts.remove(account);
+        accountMap.remove(account.getName());
     }
 
     public void deleteCourse(Course course) {
@@ -419,16 +419,16 @@ public final class PensenData extends BaseData implements Context {
         return lessonTypes.byEnum(LessonType.Enum.noLessons);
     }
 
-    public Authorisation getAuthorisationById(int id) {
-        return authorisations.byId(id);
+    public Account getAccountById(int id) {
+        return accounts.byId(id);
     }
 
-    public Authorisation getAuthorisationByName(String name) {
-        if (!authorisationMap.containsKey(name)) {
+    public Account getAccountByName(String name) {
+        if (!accountMap.containsKey(name)) {
             return null;
         }
 
-        return authorisationMap.get(name);
+        return accountMap.get(name);
     }
 
     public CalculationMode getCalculationModeById(int id) {
@@ -669,7 +669,7 @@ public final class PensenData extends BaseData implements Context {
         return getConnection().selectOne(schema, Posting.class, where);
     }
 
-    public Settings loadSettings(Authorisation authorisation) {
+    public Settings loadSettings(Account authorisation) {
         Condition where = Condition.equals(Settings.DB_ACCOUNT, authorisation);
         synchronized (lock) {
             Settings result = getConnection().selectOne(schema, Settings.class, where);
@@ -871,8 +871,8 @@ public final class PensenData extends BaseData implements Context {
         }
     }
 
-    public Stream<Authorisation> streamAuthorisations() {
-        return authorisations.stream();
+    public Stream<Account> streamAccounts() {
+        return accounts.stream();
     }
 
     public Stream<CalculationMode> streamCalculationModes() {
@@ -946,7 +946,7 @@ public final class PensenData extends BaseData implements Context {
         return thesisTypes.stream();
     }
 
-    public void updateAuthorisation(Authorisation authorisation, Set<String> properties) {
+    public void updateAuthorisation(Account authorisation, Set<String> properties) {
         getConnection().update(schema, authorisation, properties);
     }
 

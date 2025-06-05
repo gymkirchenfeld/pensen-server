@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,7 +20,6 @@ import ch.kinet.JsonObject;
 import ch.kinet.Util;
 import ch.kinet.http.Query;
 import ch.kinet.http.Response;
-import ch.kinet.pensen.data.Authorisation;
 import ch.kinet.pensen.data.Division;
 import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.PensenData;
@@ -42,7 +41,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
 
     @Override
     protected boolean isListAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
@@ -70,7 +69,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
 
     @Override
     protected boolean isGetAllowed(Authorisation authorisation, Query query) {
-        return authorisation != null;
+        return authorisation.isAuthenticated();
     }
 
     @Override
@@ -80,7 +79,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
 
     @Override
     protected boolean isCreateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isEditAllowed();
+        return authorisation.isEditAllowed();
     }
 
     @Override
@@ -126,7 +125,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
 
     @Override
     protected boolean isUpdateAllowed(Authorisation authorisation, JsonObject data) {
-        return authorisation != null && authorisation.isEditAllowed();
+        return authorisation.isEditAllowed();
     }
 
     @Override
@@ -204,7 +203,7 @@ public final class EmploymentResource extends EntityResource<Employment> {
 
     @Override
     protected boolean isDeleteAllowed(Authorisation authorisation) {
-        return authorisation != null && authorisation.isEditAllowed();
+        return authorisation.isEditAllowed();
     }
 
     @Override
