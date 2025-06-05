@@ -20,6 +20,7 @@ import ch.kinet.BaseData;
 import ch.kinet.DataManager;
 import ch.kinet.Util;
 import ch.kinet.pensen.data.PensenData;
+import ch.kinet.pensen.server.Authorisation;
 import ch.kinet.pensen.server.DB;
 import ch.kinet.sql.Connection;
 import java.util.HashMap;
@@ -62,7 +63,7 @@ public final class JobData extends BaseData {
         registerLocalJob(WorkloadMail.class);
     }
 
-    public Job createJob(String name) {
+    public Job createJob(Authorisation authorisation, String name) {
         if (Util.isEmpty(name)) {
             return null;
         }
@@ -74,6 +75,10 @@ public final class JobData extends BaseData {
             }
 
             JobImplementation implementation = (JobImplementation) jobClass.getDeclaredConstructor().newInstance();
+            if (!implementation.isAllowed(authorisation)) {
+                return null;
+            }
+
             implementation.initialize(DB.getDataManager());
             return doCreateJob(implementation, false);
         }
