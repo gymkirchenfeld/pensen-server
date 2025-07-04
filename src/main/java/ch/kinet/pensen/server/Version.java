@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,5 +18,5 @@ package ch.kinet.pensen.server;
 
 public final class Version {
 
-    static final String VERSION = "3.6.6";
+    static final String VERSION = "3.7.0";
 }
