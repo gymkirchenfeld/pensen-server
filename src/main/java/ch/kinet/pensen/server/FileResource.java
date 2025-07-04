@@ -27,7 +27,8 @@ public class FileResource extends AbstractRequestHandler {
     }
 
     @Override
-    public Response handleRequest(Request request, Authorisation authorisation, String resourceId) {
+    public Response handleRequest(Request<Authorisation> request, String resourceId) {
+        Authorisation authorisation = request.getAuthorisation();
         if (!authorisation.isAuthenticated()) {
             return Response.forbidden();
         }

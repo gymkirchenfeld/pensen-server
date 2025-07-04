@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2024 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,21 +17,20 @@
 package ch.kinet.pensen.server;
 
 import ch.kinet.Mail;
-import ch.kinet.Util;
 import ch.kinet.http.Request;
-import ch.kinet.http.RequestHandler;
 import ch.kinet.http.Response;
+import ch.kinet.http.ServerImplementation;
 import ch.kinet.pensen.data.Account;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.sql.StatementPreparationException;
-import ch.kinet.webtoken.JJWT;
-import ch.kinet.webtoken.MicrosoftKeys;
-import ch.kinet.webtoken.Token;
+import ch.kinet.http.MicrosoftKeys;
+import io.jsonwebtoken.Claims;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.security.PublicKey;
 
-public final class Server implements RequestHandler {
+public final class Server implements ServerImplementation<Authorisation> {
 
     private final MicrosoftKeys keys = MicrosoftKeys.create(Configuration.getInstance().getMicrosoftTenant());
 
@@ -41,12 +40,29 @@ public final class Server implements RequestHandler {
     }
 
     @Override
-    public Response handleRequest(Request request) {
-        Authorisation authorisation = authenticate(request.getAuthorisation());
-        if (authorisation == null) {
-            return Response.unauthorized();
+    public Authorisation checkAuthorisation(Claims claims) {
+        String applicationId = claims.get("aud").toString();
+        if (!Configuration.getInstance().getMicrosoftClient().equals(applicationId)) {
+            return null;
         }
 
+        String accountName = claims.get("unique_name").toString();
+        Account account = DB.getDataManager().getData(PensenData.class).getAccountByName(accountName);
+        return account == null ? null : new Authorisation(account);
+    }
+
+    @Override
+    public PublicKey getSigningKey(String keyId) {
+        return keys.getSigningKey(keyId);
+    }
+
+    @Override
+    public Authorisation publicAuthorisation() {
+        return new Authorisation(null);
+    }
+
+    @Override
+    public Response handleRequest(Request request) {
         String[] pathParts = request.getPath().split("/");
         // part 0 is empty, since the path starts with an /
         if (pathParts.length < 2) {
@@ -68,7 +84,7 @@ public final class Server implements RequestHandler {
         try {
             AbstractRequestHandler requestHandler = resourceClass.getDeclaredConstructor().newInstance();
             requestHandler.initialize();
-            response = requestHandler.handleRequest(request, authorisation, resourceId);
+            response = requestHandler.handleRequest(request, resourceId);
         }
         catch (StatementPreparationException ex) {
             System.err.println("DB connection probably lost, shutting down.");
@@ -92,34 +108,6 @@ public final class Server implements RequestHandler {
         logException(exception);
         sendExceptionMail(exception);
 
-    }
-
-    private Authorisation authenticate(String authorisation) {
-        if (!Util.startsWith(authorisation, "Bearer ")) {
-            return new Authorisation(null);
-        }
-
-        Token token = JJWT.parseToken(authorisation.substring(7), keys);
-        switch (token.getStatus()) {
-            case Expired:
-                System.out.println("Token is expired.");
-                return null;
-            case InvalidSignature:
-                System.out.println("Token has an invalid signature.");
-                return null;
-            case Malformed:
-                System.out.println("Token is malformed.");
-                return null;
-            case Unsupported:
-                System.out.println("Token is not supported.");
-                return null;
-            case Valid:
-                Account account = DB.getDataManager().getData(PensenData.class).getAccountByName(token.getAccountName());
-                return account == null ? null : new Authorisation(account);
-            default:
-                System.out.println("Unknown token status.");
-                return null;
-        }
     }
 
     private void logException(Throwable exception) {

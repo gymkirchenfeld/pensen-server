@@ -29,12 +29,13 @@ import ch.kinet.http.Response;
 public abstract class GlobalResource extends AbstractRequestHandler {
 
     @Override
-    public final Response handleRequest(Request request, Authorisation authorisation, String resourceId) {
+    public final Response handleRequest(Request<Authorisation> request, String resourceId) {
         if (!Util.isEmpty(resourceId)) {
             return Response.badRequest();
         }
 
         Query query = request.getQuery();
+        Authorisation authorisation = request.getAuthorisation();
         switch (request.getMethod()) {
             case Get:
                 return handleGet(authorisation, query);

@@ -24,7 +24,7 @@ public abstract class AbstractRequestHandler {
 
     public abstract void initialize();
 
-    public abstract Response handleRequest(Request request, Authorisation authorisation, String resourceId);
+    public abstract Response handleRequest(Request<Authorisation> request, String resourceId);
 
     protected final <T extends BaseData> T getData(Class<T> clazz) {
         return DB.getDataManager().getData(clazz);

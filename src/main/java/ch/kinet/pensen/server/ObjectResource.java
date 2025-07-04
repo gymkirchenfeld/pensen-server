@@ -29,8 +29,9 @@ import ch.kinet.http.Response;
 public abstract class ObjectResource extends AbstractRequestHandler {
 
     @Override
-    public final Response handleRequest(Request request, Authorisation authorisation, String resourceId) {
+    public final Response handleRequest(Request<Authorisation> request, String resourceId) {
         Query query = request.getQuery();
+        Authorisation authorisation = request.getAuthorisation();
         switch (request.getMethod()) {
             case Post:
                 return handleCreate(authorisation, request.getBody().toJsonTerse());
