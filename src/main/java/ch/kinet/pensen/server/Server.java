@@ -17,13 +17,13 @@
 package ch.kinet.pensen.server;
 
 import ch.kinet.Mail;
+import ch.kinet.http.MicrosoftKeys;
 import ch.kinet.http.Request;
 import ch.kinet.http.Response;
 import ch.kinet.http.ServerImplementation;
 import ch.kinet.pensen.data.Account;
 import ch.kinet.pensen.data.PensenData;
 import ch.kinet.sql.StatementPreparationException;
-import ch.kinet.http.MicrosoftKeys;
 import io.jsonwebtoken.Claims;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -36,7 +36,9 @@ public final class Server implements ServerImplementation<Authorisation> {
 
     public static void main(final String[] args) {
         int port = Configuration.getInstance().getHttpPort();
-        ch.kinet.http.Server.start(port, new Server());
+        int ioThreads = Configuration.getInstance().getServerIoThreads();
+        int workerThreads = Configuration.getInstance().getServerWorkerThreads();
+        ch.kinet.http.Server.start(port, ioThreads, workerThreads, new Server());
     }
 
     @Override

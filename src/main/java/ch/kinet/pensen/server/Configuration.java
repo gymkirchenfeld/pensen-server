@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2025 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -43,6 +43,8 @@ public final class Configuration {
     private static final String PERCENT_DECIMALS = "percentDecimals";
     private static final String PROXY_SERVER = "proxy.server";
     private static final String PROXY_USER = "proxy.user";
+    private static final String SERVER_WORKER_THREADS = "server.workerthreads";
+    private static final String SERVER_IO_THREADS = "server.iothreads";
     private static final String SMTP_FROM = "smtp.from";
     private static final String SMTP_PORT = "smtp.port";
     private static final String SMTP_SERVER = "smtp.server";
@@ -129,6 +131,14 @@ public final class Configuration {
 
     public int getPercentDecimals() {
         return getInt(PERCENT_DECIMALS, 3);
+    }
+
+    public int getServerIoThreads() {
+        return getInt(SERVER_IO_THREADS, 2);
+    }
+
+    public int getServerWorkerThreads() {
+        return getInt(SERVER_WORKER_THREADS, 10);
     }
 
     public String getSupportMail() {
