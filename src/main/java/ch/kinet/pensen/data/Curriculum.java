@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 - 2023 by Sebastian Forster, Stefan Rothe
+ * Copyright (C) 2022 - 2026 by Sebastian Forster, Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,7 +30,6 @@ public final class Curriculum extends Entity {
     public static final String DB_ARCHIVED = "Archived";
     public static final String DB_CODE = "Code";
     public static final String DB_DESCRIPTION = "Description";
-    public static final String DB_GRADES = "Grades";
     public static final String JSON_ARCHIVED = "archived";
     public static final String JSON_CODE = "code";
     public static final String JSON_DESCRIPTION = "description";

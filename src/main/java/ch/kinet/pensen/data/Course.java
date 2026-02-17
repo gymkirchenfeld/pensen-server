@@ -235,7 +235,6 @@ public final class Course extends Entity {
         this.comments = comments;
     }
 
-    @Deprecated
     public void setCurriculum(Curriculum curriculum) {
         this.curriculum = curriculum;
     }
