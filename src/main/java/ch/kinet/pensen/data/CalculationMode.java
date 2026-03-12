@@ -24,6 +24,7 @@ public final class CalculationMode extends LookupValue {
         none,
         lessons,
         lessonsAgeReliefIncluded,
+        lessons2,
         percentAgeReliefIncluded,
         percent
     }
