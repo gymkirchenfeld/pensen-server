@@ -11,21 +11,10 @@ import java.util.stream.Stream;
 
 public class CalculationLessons2 extends CalculationLessons {
     // Das Excel ePM_Berechnung_Korrektur_IPB_MASA.xlsx definiert, wie die in SAP einzutragenden Zahlen aus dem Pensum berechnet werden
-    // Hier wird diese Berechnungslogik implementert
-
-    private final int maxPayrollTypeId;
-    private final int maxSaldoResolvingOrder;
+    // In dieser Klasse wird diese Berechnungslogik implementiert
 
     CalculationLessons2(Employment employment, Stream<PayrollType> payrollTypes) {
         super(employment, payrollTypes);
-        maxPayrollTypeId = payrollMap.types()
-                .mapToInt(PayrollType::getId)
-                .max()
-                .orElse(0);
-        maxSaldoResolvingOrder = payrollMap.types()
-                .mapToInt(PayrollType::getSaldoResolvingOrder)
-                .max()
-                .orElse(0);
     }
 
     double calculateLessonDifference(double diffPercent, PayrollType type) {
@@ -51,8 +40,8 @@ public class CalculationLessons2 extends CalculationLessons {
     PayrollType createIPBCorrectionPayrollType(PayrollType type) {
         return new PayrollType("IPBKorr_" + type.getCode(),
                 "IPB Korrektur " + type.getDescription(),
-                maxPayrollTypeId + type.getId() + 1, type.isLessonBased(),
-                maxSaldoResolvingOrder + type.getSaldoResolvingOrder() + 1);
+                100000 + type.getId() + 1, type.isLessonBased(),
+                100000 + type.getSaldoResolvingOrder() + 1);
     }
 
     @Override
