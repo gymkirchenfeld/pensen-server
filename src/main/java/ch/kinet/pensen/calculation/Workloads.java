@@ -16,8 +16,10 @@
  */
 package ch.kinet.pensen.calculation;
 
+import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.Teacher;
+
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -49,5 +51,13 @@ public final class Workloads {
 
     public Stream<Teacher> teachers() {
         return map.keySet().stream().sorted();
+    }
+
+    public Stream<PayrollType> payrollTypes() {
+        return map.values().stream()
+                .flatMap(w -> w.payroll().items())
+                .map(Payroll.Item::type)
+                .distinct()
+                .sorted(PayrollMap.SALDO_RESOLVING_ORDER);
     }
 }
