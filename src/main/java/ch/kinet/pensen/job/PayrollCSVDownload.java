@@ -22,13 +22,12 @@ import ch.kinet.csv.CsvWriter;
 import ch.kinet.pensen.calculation.Payroll;
 import ch.kinet.pensen.calculation.Workload;
 import ch.kinet.pensen.calculation.Workloads;
-import ch.kinet.pensen.data.Account;
-import ch.kinet.pensen.data.PensenData;
-import ch.kinet.pensen.data.SchoolYear;
-import ch.kinet.pensen.data.SemesterEnum;
+import ch.kinet.pensen.data.*;
 import ch.kinet.pensen.server.Authorisation;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class PayrollCSVDownload extends JobImplementation {
@@ -65,10 +64,12 @@ public final class PayrollCSVDownload extends JobImplementation {
 
     @Override
     public void run(Account creator, JobCallback callback) {
-        CsvWriter csv = CsvWriter.create(createHeaders());
+        Workloads workloads = pensenData.loadWorkloads(schoolYear, null);
+        List<PayrollType> payloadTypes = workloads.payrollTypes().collect(Collectors.toList());
+        CsvWriter csv = CsvWriter.create(createHeaders(payloadTypes));
         csv.setHideZero(true);
         callback.step();
-        Workloads workloads = pensenData.loadWorkloads(schoolYear, null);
+
         workloads.teachers().forEachOrdered(teacher -> {
             Workload workload = workloads.getWorkload(teacher);
             Payroll payroll = workload.payroll();
@@ -80,7 +81,7 @@ public final class PayrollCSVDownload extends JobImplementation {
             csv.append(workload.ageReliefFactor(semester));
             csv.append(roundPercent(workload.payroll().percent().get(semester)));
             csv.append(roundPercent(workload.getClosingBalance()));
-            pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
+            payloadTypes.forEach(payrollType -> {
                 Payroll.Item item = payroll.getItem(payrollType);
                 if (payrollType.isLessonBased()) {
                     if (item == null) {
@@ -104,7 +105,7 @@ public final class PayrollCSVDownload extends JobImplementation {
         setProduct(csv.toData(fileName()));
     }
 
-    private Stream<String> createHeaders() {
+    private Stream<String> createHeaders(List<PayrollType> payrollTypes) {
         List<String> result = new ArrayList<>();
         result.add("Nr.");
         result.add("Kürzel");
@@ -114,7 +115,7 @@ public final class PayrollCSVDownload extends JobImplementation {
         result.add("Altersentlastung");
         result.add("Auszahlung");
         result.add("IPB-Saldo Ende SJ");
-        pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
+        payrollTypes.forEach(payrollType -> {
             if (payrollType.isLessonBased()) {
                 result.add(payrollType.getCode() + " L");
             }
