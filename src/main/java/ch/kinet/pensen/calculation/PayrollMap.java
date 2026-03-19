@@ -39,13 +39,19 @@ final class PayrollMap {
 
     private final Map<PayrollType, SemesterValue> payrollMap = new HashMap<>();
     private final SortedSet<PayrollType> payrollTypes = new TreeSet<>();
+    private final PayrollType defaultType;
 
     private PayrollMap(Stream<PayrollType> payrollTypes) {
         Optional<PayrollType> defaultType = payrollTypes.sorted(SALDO_RESOLVING_ORDER).findFirst();
+        this.defaultType = defaultType.orElse(null);
         if (defaultType.isPresent()) {
             // Die Teilanstellung GYM2-4 muss zwingend vorhanden sein, um die Differenz buchen zu können.
             ensureType(defaultType.get());
         }
+    }
+
+    PayrollType defaultType() {
+        return defaultType;
     }
 
     void add(PayrollType type, SemesterEnum semester, double value) {
