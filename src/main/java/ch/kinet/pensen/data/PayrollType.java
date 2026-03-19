@@ -23,16 +23,21 @@ public final class PayrollType extends LookupValue {
 
     public static final String DB_SALDO_RESOLVING_ORDER = "SaldoResolvingOrder";
     public static final String DB_LESSON_BASED = "LessonBased";
+    public static final String DB_IPB_CORRECTION_ALLOWED = "IpbCorrectionAllowed";
     public static final String JSON_SALDO_RESOLVING_ORDER = "saldoResolvingOrder";
     public static final String JSON_LESSON_BASED = "lessonBased";
+    public static final String JSON_IPB_CORRECTION_ALLOWED = "ipbCorrectionAllowed";
+
     private final boolean lessonBased;
     private final int saldoResolvingOrder;
+    private final boolean ipbCorrectionAllowed;
 
-    @PropertyInitializer({DB_CODE, DB_DESCRIPTION, DB_ID, DB_LESSON_BASED, DB_SALDO_RESOLVING_ORDER})
-    public PayrollType(String code, String description, int id, boolean lessonBased, int saldoResolvingOrder) {
+    @PropertyInitializer({DB_CODE, DB_DESCRIPTION, DB_ID, DB_LESSON_BASED, DB_SALDO_RESOLVING_ORDER, DB_IPB_CORRECTION_ALLOWED})
+    public PayrollType(String code, String description, int id, boolean lessonBased, int saldoResolvingOrder, boolean ipbCorrectionAllowed) {
         super(code, description, id);
         this.lessonBased = lessonBased;
         this.saldoResolvingOrder = saldoResolvingOrder;
+        this.ipbCorrectionAllowed = ipbCorrectionAllowed;
     }
 
     public int getSaldoResolvingOrder() {
@@ -48,6 +53,7 @@ public final class PayrollType extends LookupValue {
         JsonObject result = super.toJsonTerse();
         result.put(JSON_LESSON_BASED, lessonBased);
         result.put(JSON_SALDO_RESOLVING_ORDER, saldoResolvingOrder);
+        result.put(JSON_IPB_CORRECTION_ALLOWED, ipbCorrectionAllowed);
         return result;
     }
 }
