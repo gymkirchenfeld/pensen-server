@@ -35,6 +35,10 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
     private static final String JSON_PERCENT1 = "percent1";
     private static final String JSON_PERCENT2 = "percent2";
     private static final String JSON_PERCENT_DECIMALS = "percentDecimals";
+    private static final String JSON_IPB_CORRECTION_LESSONS1 = "ipbCorrectionLessons1";
+    private static final String JSON_IPB_CORRECTION_LESSONS2 = "ipbCorrectionLessons2";
+    private static final String JSON_IPB_CORRECTION_PERCENT1 = "ipbCorrectionPercent1";
+    private static final String JSON_IPB_CORRECTION_PERCENT2 = "ipbCorrectionPercent2";
     private static final String JSON_TOTAL = "total";
 
     private final Map<PayrollType, Item> itemMap = new HashMap<>();
@@ -69,6 +73,10 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
     }
 
     void add(PayrollType type, SemesterValue lessons, SemesterValue percent) {
+        add(type, lessons, percent, SemesterValue.create(), SemesterValue.create());
+    }
+
+    void add(PayrollType type, SemesterValue lessons, SemesterValue percent, SemesterValue ipbCorrectionLessons, SemesterValue ipbCorrectionPercent) {
         Item item = itemMap.get(type);
         if (item == null) {
             item = new Item(type);
@@ -78,6 +86,8 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
 
         item.lessons.add(lessons);
         item.percent.add(percent);
+        item.ipbCorrectionLessons.add(ipbCorrectionLessons);
+        item.ipbCorrectionPercent.add(ipbCorrectionPercent);
         this.totalPercent.add(percent);
     }
 
@@ -86,6 +96,8 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
         private final PayrollType type;
         private final SemesterValue lessons = SemesterValue.create();
         private final SemesterValue percent = SemesterValue.create();
+        private final SemesterValue ipbCorrectionLessons = SemesterValue.create();
+        private final SemesterValue ipbCorrectionPercent = SemesterValue.create();
 
         public Item(PayrollType type) {
             this.type = type;
@@ -108,6 +120,10 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
             return SemesterValue.copy(percent);
         }
 
+        public SemesterValue ipbCorrectionLessons() {return SemesterValue.copy(ipbCorrectionLessons);}
+
+        public SemesterValue ipbCorrectionPercent() {return SemesterValue.copy(ipbCorrectionPercent);}
+
         @Override
         public JsonObject toJsonTerse() {
             JsonObject result = JsonObject.create();
@@ -116,6 +132,10 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
             result.put(JSON_PERCENT1, percent.semester1());
             result.put(JSON_LESSONS2, lessons.semester2());
             result.put(JSON_PERCENT2, percent.semester2());
+            result.put(JSON_IPB_CORRECTION_LESSONS1, ipbCorrectionLessons.semester1());
+            result.put(JSON_IPB_CORRECTION_PERCENT1, ipbCorrectionPercent.semester1());
+            result.put(JSON_IPB_CORRECTION_LESSONS2, ipbCorrectionLessons.semester2());
+            result.put(JSON_IPB_CORRECTION_PERCENT2, ipbCorrectionPercent.semester2());
             return result;
         }
 
