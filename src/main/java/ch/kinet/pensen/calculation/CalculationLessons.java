@@ -23,9 +23,9 @@ import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.SemesterValue;
 import java.util.stream.Stream;
 
-public final class CalculationLessons extends Calculation {
+public class CalculationLessons extends Calculation {
 
-    private final SemesterValue totalPercent = SemesterValue.create();
+    protected final SemesterValue totalPercent = SemesterValue.create();
 
     CalculationLessons(Employment employment, Stream<PayrollType> payrollTypes) {
         super(employment, payrollTypes, "Pensum: Pool", 2);
