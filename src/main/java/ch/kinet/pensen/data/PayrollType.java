@@ -44,6 +44,10 @@ public final class PayrollType extends LookupValue {
         return saldoResolvingOrder;
     }
 
+    public boolean isIpbCorrectionAllowed() {
+        return ipbCorrectionAllowed;
+    }
+
     public boolean isLessonBased() {
         return lessonBased;
     }
