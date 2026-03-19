@@ -1,0 +1,1 @@
+ALTER TABLE pensen.payroll_type ADD COLUMN ipb_correction_allowed BOOLEAN DEFAULT FALSE;
