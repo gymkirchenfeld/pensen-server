@@ -19,7 +19,9 @@ package ch.kinet.pensen.calculation;
 import ch.kinet.Json;
 import ch.kinet.JsonObject;
 import ch.kinet.pensen.data.PayrollType;
+import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.SemesterValue;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,13 +37,12 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
     private static final String JSON_PERCENT1 = "percent1";
     private static final String JSON_PERCENT2 = "percent2";
     private static final String JSON_PERCENT_DECIMALS = "percentDecimals";
-    private static final String JSON_IPB_CORRECTION_LESSONS1 = "ipbCorrectionLessons1";
-    private static final String JSON_IPB_CORRECTION_LESSONS2 = "ipbCorrectionLessons2";
-    private static final String JSON_IPB_CORRECTION_PERCENT1 = "ipbCorrectionPercent1";
-    private static final String JSON_IPB_CORRECTION_PERCENT2 = "ipbCorrectionPercent2";
+    private static final String JSON_IPB_CORRECTION1 = "ipbCorrection1";
+    private static final String JSON_IPB_CORRECTION2 = "ipbCorrection2";
     private static final String JSON_TOTAL = "total";
 
     private final Map<PayrollType, Item> itemMap = new HashMap<>();
+    private Map<SemesterEnum, IpbCorrectionData> ipbCorrectionDataPerSemester = new HashMap<>();
     private final SemesterValue totalPercent = SemesterValue.create();
     private final int percentDecimals;
 
@@ -69,14 +70,18 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
         JsonObject result = super.toJsonTerse();
         result.put(JSON_PERCENT_DECIMALS, percentDecimals);
         result.put(JSON_TOTAL, total);
+        IpbCorrectionData correction1 = ipbCorrectionDataPerSemester.get(SemesterEnum.First);
+        IpbCorrectionData correction2 = ipbCorrectionDataPerSemester.get(SemesterEnum.Second);
+        if (correction1 != null) {
+            result.put(JSON_IPB_CORRECTION1, correction1.toJsonTerse());
+        }
+        if (correction2 != null) {
+            result.put(JSON_IPB_CORRECTION2, correction2.toJsonTerse());
+        }
         return result;
     }
 
     void add(PayrollType type, SemesterValue lessons, SemesterValue percent) {
-        add(type, lessons, percent, SemesterValue.create(), SemesterValue.create());
-    }
-
-    void add(PayrollType type, SemesterValue lessons, SemesterValue percent, SemesterValue ipbCorrectionLessons, SemesterValue ipbCorrectionPercent) {
         Item item = itemMap.get(type);
         if (item == null) {
             item = new Item(type);
@@ -86,9 +91,11 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
 
         item.lessons.add(lessons);
         item.percent.add(percent);
-        item.ipbCorrectionLessons.add(ipbCorrectionLessons);
-        item.ipbCorrectionPercent.add(ipbCorrectionPercent);
         this.totalPercent.add(percent);
+    }
+
+    void setIpbCorrectionDataPerSemester(Map<SemesterEnum, IpbCorrectionData> ipbCorrectionDataPerSemester) {
+        this.ipbCorrectionDataPerSemester = ipbCorrectionDataPerSemester;
     }
 
     public static final class Item implements Comparable<Item>, Json {
@@ -96,8 +103,6 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
         private final PayrollType type;
         private final SemesterValue lessons = SemesterValue.create();
         private final SemesterValue percent = SemesterValue.create();
-        private final SemesterValue ipbCorrectionLessons = SemesterValue.create();
-        private final SemesterValue ipbCorrectionPercent = SemesterValue.create();
 
         public Item(PayrollType type) {
             this.type = type;
@@ -120,9 +125,6 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
             return SemesterValue.copy(percent);
         }
 
-        public SemesterValue ipbCorrectionLessons() {return SemesterValue.copy(ipbCorrectionLessons);}
-
-        public SemesterValue ipbCorrectionPercent() {return SemesterValue.copy(ipbCorrectionPercent);}
 
         @Override
         public JsonObject toJsonTerse() {
@@ -132,10 +134,6 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
             result.put(JSON_PERCENT1, percent.semester1());
             result.put(JSON_LESSONS2, lessons.semester2());
             result.put(JSON_PERCENT2, percent.semester2());
-            result.put(JSON_IPB_CORRECTION_LESSONS1, ipbCorrectionLessons.semester1());
-            result.put(JSON_IPB_CORRECTION_PERCENT1, ipbCorrectionPercent.semester1());
-            result.put(JSON_IPB_CORRECTION_LESSONS2, ipbCorrectionLessons.semester2());
-            result.put(JSON_IPB_CORRECTION_PERCENT2, ipbCorrectionPercent.semester2());
             return result;
         }
 
@@ -146,6 +144,44 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
 
         public PayrollType type() {
             return type;
+        }
+    }
+
+    public final static class IpbCorrectionData {
+        private static final String JSON_IPB_CORRECTION_PAYROLL_TYPE = "ipbCorrectionPayrollType";
+        private static final String JSON_IPB_CORRECTION_LESSONS = "ipbCorrectionLessons";
+        private static final String JSON_IPB_CORRECTION_PERCENT = "ipbCorrectionPercent";
+        private static final String JSON_LESSONS_WITHOUT_CORRECTION = "lessonsWithoutCorrection";
+        private static final String JSON_PERCENT_WITHOUT_CORRECTION = "percentWithoutCorrection";
+
+        private final PayrollType payrollType;
+        private final double ipbCorrectionLessons;
+        private final double ipbCorrectionPercent;
+        private final double lessonsWithoutCorrection;
+        private final double percentWithoutCorrection;
+
+        public IpbCorrectionData(PayrollType payrollType,
+                                 double ipbCorrectionLessons, double ipbCorrectionPercent,
+                                 double lessonsWithoutCorrection, double percentWithoutCorrection) {
+            this.payrollType = payrollType;
+            this.ipbCorrectionLessons = ipbCorrectionLessons;
+            this.ipbCorrectionPercent = ipbCorrectionPercent;
+            this.lessonsWithoutCorrection = lessonsWithoutCorrection;
+            this.percentWithoutCorrection = percentWithoutCorrection;
+        }
+
+        public PayrollType type() {
+            return payrollType;
+        }
+
+        public JsonObject toJsonTerse() {
+            JsonObject result = JsonObject.create();
+            result.putTerse(JSON_IPB_CORRECTION_PAYROLL_TYPE, payrollType);
+            result.put(JSON_IPB_CORRECTION_LESSONS, ipbCorrectionLessons);
+            result.put(JSON_IPB_CORRECTION_PERCENT, ipbCorrectionPercent);
+            result.put(JSON_LESSONS_WITHOUT_CORRECTION, lessonsWithoutCorrection);
+            result.put(JSON_PERCENT_WITHOUT_CORRECTION, percentWithoutCorrection);
+            return result;
         }
     }
 }
