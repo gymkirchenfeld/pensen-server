@@ -29,6 +29,7 @@ import ch.kinet.pensen.calculation.Theses;
 import ch.kinet.pensen.calculation.Workload;
 import ch.kinet.pensen.data.Division;
 import ch.kinet.pensen.data.Employment;
+import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.Teacher;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
@@ -56,6 +57,7 @@ public final class WorkloadPDFGenerator {
         poolBlock();
         thesisBlock();
         summaryBlock();
+        ipbCorrectionBlock();
         payrollBlock();
 //        postingsBlock();
         balanceBlock();
@@ -283,6 +285,45 @@ public final class WorkloadPDFGenerator {
         pdf.addCell(Format.percent(total.ageRelief2(), false), Alignment.Right, Border.Top);
         pdf.addCell(Format.percent(total.percentWithAgeRelief(), false), Alignment.Right, Border.Top);
         pdf.setNormal();
+        pdf.endTable();
+    }
+
+    private void ipbCorrectionBlock() {
+        Payroll payroll = workload.payroll();
+        if (!payroll.hasIpbCorrection()) {
+            return;
+        }
+
+        Payroll.IpbCorrectionData c1 = payroll.getIpbCorrection(SemesterEnum.First);
+        Payroll.IpbCorrectionData c2 = payroll.getIpbCorrection(SemesterEnum.Second);
+        Payroll.IpbCorrectionData c = c1 != null ? c1 : c2;
+        String desc = c.type() != null ? c.type().getDescription() : "";
+
+        pdf.addParagraph("", Alignment.Left);
+        pdf.beginTable(60, 10, 10, 10, 10);
+        pdf.setBold();
+        pdf.setFontSize(10);
+        pdf.addCell("IPB-Korrektur", Alignment.Left, Border.Bottom);
+        pdf.setFontSize(8);
+        pdf.addCell("1. Sem.", Alignment.Right, Border.Bottom);
+        pdf.addCell("1. Sem.", Alignment.Right, Border.Bottom);
+        pdf.addCell("2. Sem.", Alignment.Right, Border.Bottom);
+        pdf.addCell("2. Sem.", Alignment.Right, Border.Bottom);
+        pdf.setNormal();
+
+        // Row 1: IPB-Korrektur (negated values)
+        pdf.addCell("IPB-Korrektur " + desc, Alignment.Left);
+        pdf.addCell(Format.lessons(-(c1 != null ? c1.ipbCorrectionLessons() : 0)), Alignment.Right);
+        pdf.addCell(Format.percent(-(c1 != null ? c1.ipbCorrectionPercent() : 0), false, payroll.percentDecimals()), Alignment.Right);
+        pdf.addCell(Format.lessons(-(c2 != null ? c2.ipbCorrectionLessons() : 0)), Alignment.Right);
+        pdf.addCell(Format.percent(-(c2 != null ? c2.ipbCorrectionPercent() : 0), false, payroll.percentDecimals()), Alignment.Right);
+
+        // Row 2: values without correction
+        pdf.addCell(desc + " ohne IPB-Korrektur", Alignment.Left);
+        pdf.addCell(Format.lessons(c1 != null ? c1.lessonsWithoutCorrection() : 0), Alignment.Right);
+        pdf.addCell(Format.percent(c1 != null ? c1.percentWithoutCorrection() : 0, false, payroll.percentDecimals()), Alignment.Right);
+        pdf.addCell(Format.lessons(c2 != null ? c2.lessonsWithoutCorrection() : 0), Alignment.Right);
+        pdf.addCell(Format.percent(c2 != null ? c2.percentWithoutCorrection() : 0, false, payroll.percentDecimals()), Alignment.Right);
         pdf.endTable();
     }
 
