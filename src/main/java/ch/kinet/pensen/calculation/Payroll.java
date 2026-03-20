@@ -94,6 +94,14 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
         this.totalPercent.add(percent);
     }
 
+    public IpbCorrectionData getIpbCorrection(SemesterEnum semester) {
+        return ipbCorrectionDataPerSemester.get(semester);
+    }
+
+    public boolean hasIpbCorrection() {
+        return !ipbCorrectionDataPerSemester.isEmpty();
+    }
+
     void setIpbCorrectionDataPerSemester(Map<SemesterEnum, IpbCorrectionData> ipbCorrectionDataPerSemester) {
         this.ipbCorrectionDataPerSemester = ipbCorrectionDataPerSemester;
     }
@@ -172,6 +180,22 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
 
         public PayrollType type() {
             return payrollType;
+        }
+
+        public double ipbCorrectionLessons() {
+            return ipbCorrectionLessons;
+        }
+
+        public double ipbCorrectionPercent() {
+            return ipbCorrectionPercent;
+        }
+
+        public double lessonsWithoutCorrection() {
+            return lessonsWithoutCorrection;
+        }
+
+        public double percentWithoutCorrection() {
+            return percentWithoutCorrection;
         }
 
         public JsonObject toJsonTerse() {
