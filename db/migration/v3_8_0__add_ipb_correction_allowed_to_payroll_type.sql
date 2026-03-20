@@ -1,1 +1,2 @@
 ALTER TABLE pensen.payroll_type ADD COLUMN ipb_correction_allowed BOOLEAN DEFAULT FALSE;
+ALTER TABLE pensen.payroll_type ADD CONSTRAINT ipb_correction_allowed_only_if_lesson_based CHECK (lesson_based = true or ipb_correction_allowed = false);
