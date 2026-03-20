@@ -4,7 +4,12 @@
 BASE_DIR=$(cd $(dirname "$0"); pwd)
 
 TEMP_DIR="pensen-server"
-HOST="pm.gymneufeld.site"
+# HOST als erstes Argument übernehmen
+if [ -z "$1" ]; then
+  echo "Verwendung: $0 <host>"
+  exit 1
+fi
+HOST="$1"
 
 STAGE2_FILE="install-stage2.sh"
 
@@ -15,8 +20,8 @@ STAGE2_LOCAL_FILE="${BASE_DIR}/neufeld/${STAGE2_FILE}"
 
 FILES="${JAR_LOCAL_FILE} ${SERVICE_LOCAL_FILE} ${STAGE2_LOCAL_FILE}"
 
-# build
-./build.sh
+# Build ist am Gym Neufeld vom Deployment getrennt
+# ./build.sh
 
 # copy jar file
 cp ${ORIG_JAR_LOCAL_FILE} ${JAR_LOCAL_FILE}
