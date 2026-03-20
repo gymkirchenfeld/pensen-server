@@ -48,6 +48,10 @@ public class CalculationLessons2 extends CalculationLessons {
                 .orElse(payrollMap.defaultType());
     }
 
+    double excelRound(double value, int places) {
+        return BigDecimal.valueOf(value).setScale(places, RoundingMode.HALF_UP).doubleValue();
+    }
+
 
     @Override
     void calculatePayroll() {
@@ -72,7 +76,7 @@ public class CalculationLessons2 extends CalculationLessons {
                             type,
                             cL,
                             lessonsToPercent(type, cL),
-                            percentToLessons(type, employment.withoutAgeRelief(s, percentWithoutCorrection.get(s))),
+                            excelRound(percentToLessons(type, employment.withoutAgeRelief(s, percentWithoutCorrection.get(s))), 2),
                             percentWithoutCorrection.get(s)
                             ));
                     return cL;
@@ -85,16 +89,30 @@ public class CalculationLessons2 extends CalculationLessons {
                     lessonsToPercent(type, corrL)
             );
 
-            final SemesterValue percent = payrollMap.get(type).map((s, p) -> p + correctionPercent.get(s));
+            SemesterValue percent = payrollMap.get(type).map((s, p) -> p + correctionPercent.get(s));
 
-            final SemesterValue lessons;
+            SemesterValue lessons;
             if (type.isLessonBased()) {
                 lessons = percent.map((s, p) -> percentToLessons(type, employment.withoutAgeRelief(s, p)));
             } else {
                 lessons = SemesterValue.create();
             }
 
-            payroll.add(type, lessons, percent);
+            // Runde nur, wenn die Zahl relevant für die Eingabe in SAP ist
+            if (type.isLessonBased()) {
+                lessons = lessons.map((s, l) -> {
+                    if (type.equals(typeForIpbCorrectionPerSemester.get(s))) {
+                        return l;
+                    } else {
+                        return excelRound(l, 2);
+                    }
+                });
+            } else {
+                percent = percent.map((s, p) -> excelRound(p, 2));
+            }
+
+            payroll.add(
+                    type, lessons, percent);
         });
 
         payroll.setIpbCorrectionDataPerSemester(ipbCorrectionDataPerSemester);
