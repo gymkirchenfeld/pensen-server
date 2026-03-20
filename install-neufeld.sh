@@ -6,7 +6,6 @@ BASE_DIR=$(cd $(dirname "$0"); pwd)
 TEMP_DIR="pensen-server"
 # HOST als erstes Argument übernehmen
 if [ -z "$1" ]; then
-  echo "Verwendung: $0 <host>"
   exit 1
 fi
 HOST="$1"
