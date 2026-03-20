@@ -71,7 +71,7 @@ public class CalculationLessons2 extends CalculationLessons {
             final SemesterValue correctionLessons = diff.map((s, d) -> {
                 if (typeForIpbCorrectionPerSemester.get(s).equals(type)) {
 
-                    double cL = -calculateLessonDifference(-d, type);
+                    double cL = calculateLessonDifference(-d, type);
                     ipbCorrectionDataPerSemester.put(s, new Payroll.IpbCorrectionData(
                             type,
                             cL,
@@ -89,7 +89,7 @@ public class CalculationLessons2 extends CalculationLessons {
                     lessonsToPercent(type, corrL)
             );
 
-            SemesterValue percent = payrollMap.get(type).map((s, p) -> p + correctionPercent.get(s));
+            SemesterValue percent = payrollMap.get(type).map((s, p) -> p - correctionPercent.get(s));
 
             SemesterValue lessons;
             if (type.isLessonBased()) {

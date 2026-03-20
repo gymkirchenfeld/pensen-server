@@ -313,10 +313,10 @@ public final class WorkloadPDFGenerator {
 
         // Row 1: IPB-Korrektur (negated values)
         pdf.addCell("IPB-Korrektur " + desc, Alignment.Left);
-        pdf.addCell(Format.lessons(-(c1 != null ? c1.ipbCorrectionLessons() : 0)), Alignment.Right);
-        pdf.addCell(Format.percent(-(c1 != null ? c1.ipbCorrectionPercent() : 0), false, payroll.percentDecimals()), Alignment.Right);
-        pdf.addCell(Format.lessons(-(c2 != null ? c2.ipbCorrectionLessons() : 0)), Alignment.Right);
-        pdf.addCell(Format.percent(-(c2 != null ? c2.ipbCorrectionPercent() : 0), false, payroll.percentDecimals()), Alignment.Right);
+        pdf.addCell(Format.lessons((c1 != null ? c1.ipbCorrectionLessons() : 0)), Alignment.Right);
+        pdf.addCell(Format.percent((c1 != null ? c1.ipbCorrectionPercent() : 0), false, payroll.percentDecimals()), Alignment.Right);
+        pdf.addCell(Format.lessons((c2 != null ? c2.ipbCorrectionLessons() : 0)), Alignment.Right);
+        pdf.addCell(Format.percent((c2 != null ? c2.ipbCorrectionPercent() : 0), false, payroll.percentDecimals()), Alignment.Right);
 
         // Row 2: values without correction
         pdf.addCell(desc + " ohne IPB-Korrektur", Alignment.Left);
