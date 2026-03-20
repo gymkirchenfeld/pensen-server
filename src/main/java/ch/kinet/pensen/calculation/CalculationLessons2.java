@@ -42,7 +42,6 @@ public class CalculationLessons2 extends CalculationLessons {
     private PayrollType typeWithMostLessons(SemesterEnum semester) {
         return payrollMap.types()
                 .filter(PayrollType::isIpbCorrectionAllowed)
-                .filter(PayrollType::isLessonBased)
                 .max(Comparator.comparingDouble(type ->
                         percentToLessons(type, employment.withoutAgeRelief(semester, payrollMap.get(semester, type)))
                 ))
