@@ -24,7 +24,7 @@ create table pensen.settings (
   mail_body text,
   mail_from text,
   mail_subject text,
-  foreign key (account_id) references pensen.authorisation (id) on update cascade on delete cascade
+  foreign key (account_id) references pensen.account (id) on update cascade on delete cascade
 );
 grant insert, select, update on table pensen.settings to "pensenmanager";
 
