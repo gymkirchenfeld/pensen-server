@@ -82,25 +82,6 @@ public final class PayrollCSVDownload extends JobImplementation {
                 csv.append(roundPercent(workload.payroll().percent().get(semester)));
             }
             csv.append(roundPercent(workload.getClosingBalance()));
-            pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
-                Payroll.Item item = payroll.getItem(payrollType);
-                if (payrollType.isLessonBased()) {
-                    if (item == null) {
-                        csv.append();
-                    }
-                    else {
-                        csv.append(item.lessons().get(semester));
-                    }
-                }
-
-                if (item == null) {
-                    csv.append();
-                }
-                else {
-
-                    csv.append(item.percent().get(semester));
-                }
-            });
             if (calculationModeIsLessons2) {
                 Payroll.IpbCorrectionData ipbCorrection = payroll.getIpbCorrection(semester);
                 pensenData.streamPayrollTypes().forEachOrdered( payrollType -> {
@@ -142,6 +123,27 @@ public final class PayrollCSVDownload extends JobImplementation {
                     }
                 });
             }
+            else {
+                pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
+                    Payroll.Item item = payroll.getItem(payrollType);
+                    if (payrollType.isLessonBased()) {
+                        if (item == null) {
+                            csv.append();
+                        }
+                        else {
+                            csv.append(item.lessons().get(semester));
+                        }
+                    }
+
+                    if (item == null) {
+                        csv.append();
+                    }
+                    else {
+
+                        csv.append(item.percent().get(semester));
+                    }
+                });
+            }
         });
         setProduct(csv.toData(fileName()));
     }
@@ -156,13 +158,6 @@ public final class PayrollCSVDownload extends JobImplementation {
         result.add("Altersentlastung");
         result.add("Auszahlung");
         result.add("IPB-Saldo Ende SJ");
-        pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
-            if (payrollType.isLessonBased()) {
-                result.add(payrollType.getCode() + " L");
-            }
-
-            result.add(payrollType.getCode() + " %");
-        });
         if (CalculationMode.toEnum(schoolYear.getCalculationMode()) == CalculationMode.Enum.lessons2) {
             pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
                 if (payrollType.isLessonBased()) {
@@ -179,6 +174,14 @@ public final class PayrollCSVDownload extends JobImplementation {
                 if (payrollType.isIpbCorrectionAllowed()) {
                     result.add("S IPBKorr " + payrollType.getCode() + " L");
                 }
+            });
+        }
+        else {
+            pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
+                if (payrollType.isLessonBased()) {
+                    result.add(payrollType.getCode() + " L");
+                }
+                result.add(payrollType.getCode() + " %");
             });
         }
         return result.stream();
