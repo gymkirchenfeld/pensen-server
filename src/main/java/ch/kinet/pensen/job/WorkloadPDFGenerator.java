@@ -57,7 +57,6 @@ public final class WorkloadPDFGenerator {
         poolBlock();
         thesisBlock();
         summaryBlock();
-        ipbCorrectionBlock();
         payrollBlock();
 //        postingsBlock();
         balanceBlock();
@@ -330,7 +329,7 @@ public final class WorkloadPDFGenerator {
     private void payrollBlock() {
         Payroll payroll = workload.payroll();
         payrollHeader();
-        payroll.items().forEachOrdered(item -> {
+        payroll.displayItems().forEachOrdered(item -> {
             pdf.addCell(item.description(), Alignment.Left);
             pdf.addCell(Format.lessons(item.lessons().semester1()), Alignment.Right);
             pdf.addCell(Format.percent(item.percent().semester1(), false, payroll.percentDecimals()), Alignment.Right);

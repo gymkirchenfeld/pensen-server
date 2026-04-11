@@ -17,13 +17,17 @@
 package ch.kinet.pensen.calculation;
 
 import ch.kinet.Json;
+import ch.kinet.JsonArray;
 import ch.kinet.JsonObject;
 import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.SemesterValue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public final class Payroll extends ItemList<Payroll.Item> implements Json {
 
@@ -31,14 +35,16 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
         return new Payroll(percentDecimals);
     }
 
+    private static final String JSON_CORRECTION = "correction";
+    private static final String JSON_DESCRIPTION = "description";
+    private static final String JSON_ITEMS = "items";
     private static final String JSON_LESSONS1 = "lessons1";
     private static final String JSON_LESSONS2 = "lessons2";
+    private static final String JSON_PARENT_PAYROLL_TYPE = "parentPayrollType";
     private static final String JSON_PAYROLL_TYPE = "payrollType";
     private static final String JSON_PERCENT1 = "percent1";
     private static final String JSON_PERCENT2 = "percent2";
     private static final String JSON_PERCENT_DECIMALS = "percentDecimals";
-    private static final String JSON_IPB_CORRECTION1 = "ipbCorrection1";
-    private static final String JSON_IPB_CORRECTION2 = "ipbCorrection2";
     private static final String JSON_TOTAL = "total";
 
     private final Map<PayrollType, Item> itemMap = new HashMap<>();
@@ -48,6 +54,57 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
 
     private Payroll(int percentDecimals) {
         this.percentDecimals = percentDecimals;
+    }
+
+    public Stream<DisplayItem> displayItems() {
+        IpbCorrectionData c1 = ipbCorrectionDataPerSemester.get(SemesterEnum.First);
+        IpbCorrectionData c2 = ipbCorrectionDataPerSemester.get(SemesterEnum.Second);
+
+        if (c1 == null && c2 == null) {
+            return items().map(item -> new RegularDisplayItem(item, item.lessons(), item.percent()));
+        }
+
+        PayrollType parentType1 = c1 != null ? c1.type() : null;
+        PayrollType parentType2 = c2 != null ? c2.type() : null;
+
+        List<DisplayItem> result = new ArrayList<>();
+
+        items().forEachOrdered(item -> {
+            PayrollType type = item.type();
+            boolean isParentType1 = type.equals(parentType1);
+            boolean isParentType2 = type.equals(parentType2);
+
+            double l1 = isParentType1 ? c1.lessonsWithoutCorrection() : item.lessons().semester1();
+            double l2 = isParentType2 ? c2.lessonsWithoutCorrection() : item.lessons().semester2();
+            double p1 = isParentType1 ? c1.percentWithoutCorrection() : item.percent().semester1();
+            double p2 = isParentType2 ? c2.percentWithoutCorrection() : item.percent().semester2();
+            result.add(new RegularDisplayItem(item, SemesterValue.create(l1, l2), SemesterValue.create(p1, p2)));
+
+            if (isParentType1 || isParentType2) {
+                String desc = "IPB-Korrektur " + type.getDescription();
+                if (isParentType1 && isParentType2) {
+                    result.add(new CorrectionDisplayItem(
+                        type, desc,
+                        SemesterValue.create(-c1.ipbCorrectionLessons(), -c2.ipbCorrectionLessons()),
+                        SemesterValue.create(-c1.ipbCorrectionPercent(), -c2.ipbCorrectionPercent())
+                    ));
+                } else if (isParentType1) {
+                    result.add(new CorrectionDisplayItem(
+                        type, desc,
+                        SemesterValue.create(-c1.ipbCorrectionLessons(), 0.0),
+                        SemesterValue.create(-c1.ipbCorrectionPercent(), 0.0)
+                    ));
+                } else {
+                    result.add(new CorrectionDisplayItem(
+                        type, desc,
+                        SemesterValue.create(0.0, -c2.ipbCorrectionLessons()),
+                        SemesterValue.create(0.0, -c2.ipbCorrectionPercent())
+                    ));
+                }
+            }
+        });
+
+        return result.stream();
     }
 
     public Item getItem(PayrollType type) {
@@ -67,17 +124,10 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
         JsonObject total = JsonObject.create();
         total.put(JSON_PERCENT1, totalPercent.semester1());
         total.put(JSON_PERCENT2, totalPercent.semester2());
-        JsonObject result = super.toJsonTerse();
+        JsonObject result = JsonObject.create();
+        result.put(JSON_ITEMS, JsonArray.createVerbose(displayItems()));
         result.put(JSON_PERCENT_DECIMALS, percentDecimals);
         result.put(JSON_TOTAL, total);
-        IpbCorrectionData correction1 = ipbCorrectionDataPerSemester.get(SemesterEnum.First);
-        IpbCorrectionData correction2 = ipbCorrectionDataPerSemester.get(SemesterEnum.Second);
-        if (correction1 != null) {
-            result.put(JSON_IPB_CORRECTION1, correction1.toJsonTerse());
-        }
-        if (correction2 != null) {
-            result.put(JSON_IPB_CORRECTION2, correction2.toJsonTerse());
-        }
         return result;
     }
 
@@ -104,6 +154,103 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
 
     void setIpbCorrectionDataPerSemester(Map<SemesterEnum, IpbCorrectionData> ipbCorrectionDataPerSemester) {
         this.ipbCorrectionDataPerSemester = ipbCorrectionDataPerSemester;
+    }
+
+    public abstract static class DisplayItem implements Json {
+
+        public abstract String description();
+        public abstract SemesterValue lessons();
+        public abstract SemesterValue percent();
+
+        @Override
+        public JsonObject toJsonVerbose() {
+            return toJsonTerse();
+        }
+    }
+
+    private static final class RegularDisplayItem extends DisplayItem {
+
+        private final Item item;
+        private final SemesterValue lessons;
+        private final SemesterValue percent;
+
+        RegularDisplayItem(Item item, SemesterValue lessons, SemesterValue percent) {
+            this.item = item;
+            this.lessons = lessons;
+            this.percent = percent;
+        }
+
+        @Override
+        public String description() {
+            return item.description();
+        }
+
+        @Override
+        public SemesterValue lessons() {
+            return lessons;
+        }
+
+        @Override
+        public SemesterValue percent() {
+            return percent;
+        }
+
+        @Override
+        public JsonObject toJsonTerse() {
+            JsonObject result = JsonObject.create();
+            result.putTerse(JSON_PAYROLL_TYPE, item.type());
+            result.put(JSON_DESCRIPTION, item.description());
+            result.put(JSON_LESSONS1, lessons.semester1());
+            result.put(JSON_PERCENT1, percent.semester1());
+            result.put(JSON_LESSONS2, lessons.semester2());
+            result.put(JSON_PERCENT2, percent.semester2());
+            result.put(JSON_CORRECTION, false);
+            return result;
+        }
+    }
+
+    private static final class CorrectionDisplayItem extends DisplayItem {
+
+        private final PayrollType parentPayrollType;
+        private final String description;
+        private final SemesterValue lessons;
+        private final SemesterValue percent;
+
+        CorrectionDisplayItem(PayrollType parentPayrollType, String description,
+                              SemesterValue lessons, SemesterValue percent) {
+            this.parentPayrollType = parentPayrollType;
+            this.description = description;
+            this.lessons = lessons;
+            this.percent = percent;
+        }
+
+        @Override
+        public String description() {
+            return description;
+        }
+
+        @Override
+        public SemesterValue lessons() {
+            return lessons;
+        }
+
+        @Override
+        public SemesterValue percent() {
+            return percent;
+        }
+
+        @Override
+        public JsonObject toJsonTerse() {
+            JsonObject result = JsonObject.create();
+            result.putTerse(JSON_PARENT_PAYROLL_TYPE, parentPayrollType);
+            result.put(JSON_DESCRIPTION, description);
+            result.put(JSON_LESSONS1, lessons.semester1());
+            result.put(JSON_PERCENT1, percent.semester1());
+            result.put(JSON_LESSONS2, lessons.semester2());
+            result.put(JSON_PERCENT2, percent.semester2());
+            result.put(JSON_CORRECTION, true);
+            return result;
+        }
     }
 
     public static final class Item implements Comparable<Item>, Json {
@@ -133,7 +280,6 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
             return SemesterValue.copy(percent);
         }
 
-
         @Override
         public JsonObject toJsonTerse() {
             JsonObject result = JsonObject.create();
@@ -155,7 +301,7 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
         }
     }
 
-    public final static class IpbCorrectionData {
+    public static final class IpbCorrectionData {
         private static final String JSON_IPB_CORRECTION_PAYROLL_TYPE = "ipbCorrectionPayrollType";
         private static final String JSON_IPB_CORRECTION_LESSONS = "ipbCorrectionLessons";
         private static final String JSON_IPB_CORRECTION_PERCENT = "ipbCorrectionPercent";
