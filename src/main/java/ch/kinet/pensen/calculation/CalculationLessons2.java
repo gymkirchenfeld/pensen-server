@@ -48,7 +48,7 @@ public class CalculationLessons2 extends CalculationLessons {
                 .orElse(payrollMap.defaultType());
     }
 
-    double excelRound(double value, int places) {
+    private double excelRound(double value, int places) {
         return BigDecimal.valueOf(value).setScale(places, RoundingMode.HALF_UP).doubleValue();
     }
 
@@ -78,7 +78,7 @@ public class CalculationLessons2 extends CalculationLessons {
                             lessonsToPercent(type, cL),
                             excelRound(percentToLessons(type, employment.withoutAgeRelief(s, percentWithoutCorrection.get(s))), 2),
                             percentWithoutCorrection.get(s)
-                            ));
+                    ));
                     return cL;
                 } else {
                     return 0.0;

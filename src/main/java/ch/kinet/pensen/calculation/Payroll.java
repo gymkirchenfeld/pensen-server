@@ -84,21 +84,21 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
                 String desc = "IPB-Korrektur " + type.getDescription();
                 if (isParentType1 && isParentType2) {
                     result.add(new CorrectionDisplayItem(
-                        type, desc,
-                        SemesterValue.create(-c1.ipbCorrectionLessons(), -c2.ipbCorrectionLessons()),
-                        SemesterValue.create(-c1.ipbCorrectionPercent(), -c2.ipbCorrectionPercent())
+                            type, desc,
+                            SemesterValue.create(-c1.ipbCorrectionLessons(), -c2.ipbCorrectionLessons()),
+                            SemesterValue.create(-c1.ipbCorrectionPercent(), -c2.ipbCorrectionPercent())
                     ));
                 } else if (isParentType1) {
                     result.add(new CorrectionDisplayItem(
-                        type, desc,
-                        SemesterValue.create(-c1.ipbCorrectionLessons(), 0.0),
-                        SemesterValue.create(-c1.ipbCorrectionPercent(), 0.0)
+                            type, desc,
+                            SemesterValue.create(-c1.ipbCorrectionLessons(), 0.0),
+                            SemesterValue.create(-c1.ipbCorrectionPercent(), 0.0)
                     ));
                 } else {
                     result.add(new CorrectionDisplayItem(
-                        type, desc,
-                        SemesterValue.create(0.0, -c2.ipbCorrectionLessons()),
-                        SemesterValue.create(0.0, -c2.ipbCorrectionPercent())
+                            type, desc,
+                            SemesterValue.create(0.0, -c2.ipbCorrectionLessons()),
+                            SemesterValue.create(0.0, -c2.ipbCorrectionPercent())
                     ));
                 }
             }
@@ -159,7 +159,9 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
     public abstract static class DisplayItem implements Json {
 
         public abstract String description();
+
         public abstract SemesterValue lessons();
+
         public abstract SemesterValue percent();
 
         @Override
@@ -342,16 +344,6 @@ public final class Payroll extends ItemList<Payroll.Item> implements Json {
 
         public double percentWithoutCorrection() {
             return percentWithoutCorrection;
-        }
-
-        public JsonObject toJsonTerse() {
-            JsonObject result = JsonObject.create();
-            result.putTerse(JSON_IPB_CORRECTION_PAYROLL_TYPE, payrollType);
-            result.put(JSON_IPB_CORRECTION_LESSONS, ipbCorrectionLessons);
-            result.put(JSON_IPB_CORRECTION_PERCENT, ipbCorrectionPercent);
-            result.put(JSON_LESSONS_WITHOUT_CORRECTION, lessonsWithoutCorrection);
-            result.put(JSON_PERCENT_WITHOUT_CORRECTION, percentWithoutCorrection);
-            return result;
         }
     }
 }

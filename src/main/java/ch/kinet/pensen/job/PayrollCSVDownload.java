@@ -24,6 +24,7 @@ import ch.kinet.pensen.calculation.Workload;
 import ch.kinet.pensen.calculation.Workloads;
 import ch.kinet.pensen.data.*;
 import ch.kinet.pensen.server.Authorisation;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -84,7 +85,7 @@ public final class PayrollCSVDownload extends JobImplementation {
             csv.append(roundPercent(workload.getClosingBalance()));
             if (calculationModeIsLessons2) {
                 Payroll.IpbCorrectionData ipbCorrection = payroll.getIpbCorrection(semester);
-                pensenData.streamPayrollTypes().forEachOrdered( payrollType -> {
+                pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
                     if (payrollType.isLessonBased()) {
                         if (ipbCorrection != null && payrollType.equals(ipbCorrection.type())) {
                             csv.append(ipbCorrection.lessonsWithoutCorrection());
@@ -94,8 +95,7 @@ public final class PayrollCSVDownload extends JobImplementation {
                             if (item == null) {
                                 csv.append();
                                 csv.append();
-                            }
-                            else {
+                            } else {
                                 csv.append(item.lessons().get(semester));
                                 csv.append(workload.getEmployment().withoutAgeRelief(semester, item.percent().get(semester)));
                             }
@@ -107,8 +107,7 @@ public final class PayrollCSVDownload extends JobImplementation {
                         Payroll.Item item = payroll.getItem(payrollType);
                         if (item == null) {
                             csv.append();
-                        }
-                        else {
+                        } else {
                             csv.append(workload.getEmployment().withoutAgeRelief(semester, item.percent().get(semester)));
                         }
                     }
@@ -122,23 +121,20 @@ public final class PayrollCSVDownload extends JobImplementation {
                         }
                     }
                 });
-            }
-            else {
+            } else {
                 pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
                     Payroll.Item item = payroll.getItem(payrollType);
                     if (payrollType.isLessonBased()) {
                         if (item == null) {
                             csv.append();
-                        }
-                        else {
+                        } else {
                             csv.append(item.lessons().get(semester));
                         }
                     }
 
                     if (item == null) {
                         csv.append();
-                    }
-                    else {
+                    } else {
 
                         csv.append(item.percent().get(semester));
                     }
@@ -175,8 +171,7 @@ public final class PayrollCSVDownload extends JobImplementation {
                     result.add("S IPBKorr " + payrollType.getCode() + " L");
                 }
             });
-        }
-        else {
+        } else {
             pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
                 if (payrollType.isLessonBased()) {
                     result.add(payrollType.getCode() + " L");
