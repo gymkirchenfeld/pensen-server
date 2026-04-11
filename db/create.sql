@@ -70,7 +70,9 @@ create table pensen.payroll_type (
   code text not null,
   description text not null,
   lesson_based boolean not null default true,
-  saldo_resolving_order integer not null
+  saldo_resolving_order integer not null,
+  ipb_correction_allowed boolean not null default false,
+  constraint ipb_correction_allowed_only_if_lesson_based check (lesson_based = true or ipb_correction_allowed = false)
 );
 grant select on table pensen.payroll_type to "pensenmanager";
 
