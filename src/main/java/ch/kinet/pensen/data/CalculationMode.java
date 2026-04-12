@@ -23,6 +23,7 @@ public final class CalculationMode extends LookupValue {
     public enum Enum {
         none,
         lessons,
+        lessons2,
         lessonsAgeReliefIncluded,
         percentAgeReliefIncluded,
         percent

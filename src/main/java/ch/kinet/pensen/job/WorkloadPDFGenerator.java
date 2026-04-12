@@ -21,15 +21,11 @@ import ch.kinet.pdf.Alignment;
 import ch.kinet.pdf.Border;
 import ch.kinet.pdf.Document;
 import ch.kinet.pdf.VerticalAlignment;
-import ch.kinet.pensen.calculation.Courses;
-import ch.kinet.pensen.calculation.Payroll;
-import ch.kinet.pensen.calculation.Pool;
-import ch.kinet.pensen.calculation.Summary;
-import ch.kinet.pensen.calculation.Theses;
-import ch.kinet.pensen.calculation.Workload;
+import ch.kinet.pensen.calculation.*;
 import ch.kinet.pensen.data.Division;
 import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.Teacher;
+
 import java.time.LocalDate;
 import java.util.stream.Collectors;
 
@@ -286,10 +282,11 @@ public final class WorkloadPDFGenerator {
         pdf.endTable();
     }
 
+
     private void payrollBlock() {
         Payroll payroll = workload.payroll();
         payrollHeader();
-        payroll.items().forEachOrdered(item -> {
+        payroll.displayItems().forEachOrdered(item -> {
             pdf.addCell(item.description(), Alignment.Left);
             pdf.addCell(Format.lessons(item.lessons().semester1()), Alignment.Right);
             pdf.addCell(Format.percent(item.percent().semester1(), false, payroll.percentDecimals()), Alignment.Right);

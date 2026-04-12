@@ -34,6 +34,8 @@ public abstract class Calculation {
         switch (employment.getSchoolYear().calculationModeEnum()) {
             case lessons:
                 return new CalculationLessons(employment, payrollTypes);
+            case lessons2:
+                return new CalculationLessons2(employment, payrollTypes);
             case lessonsAgeReliefIncluded:
                 return new CalculationLessonsAgeReliefIncluded(employment, payrollTypes);
             case percentAgeReliefIncluded:
