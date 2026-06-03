@@ -197,7 +197,7 @@ public final class InitializeSchoolYear extends JobImplementation {
         switch (entry.typeEnum()) {
             case start:
                 callback.info("Erstelle Kurs {0} {1}.", subject.getCode(), schoolClass.getCode());
-                course = pensenData.createCourse("", curriculum, grade, lessons1, lessons2, schoolYear, subject);
+                course = pensenData.createCourse("", curriculum, grade, lessons1, lessons2, false, false, schoolYear, subject);
                 course.setSchoolClasses(Stream.of(schoolClass));
                 pensenData.updateCourse(course, Util.createSet(Course.DB_SCHOOL_CLASS_IDS));
                 courses.get(schoolYear).add(course);
@@ -247,7 +247,7 @@ public final class InitializeSchoolYear extends JobImplementation {
                 int count = findSpecialCourses(previousSchoolYear, curriculum, grade, subject).size();
                 for (int i = 0; i < count; ++i) {
                     callback.info("Erstelle Kurs {0} {1}.", subject.getCode(), grade.getCode());
-                    pensenData.createCourse("", curriculum, grade, lessons1, lessons2, schoolYear, subject);
+                    pensenData.createCourse("", curriculum, grade, lessons1, lessons2, false, false, schoolYear, subject);
                 }
                 break;
             case continuation:

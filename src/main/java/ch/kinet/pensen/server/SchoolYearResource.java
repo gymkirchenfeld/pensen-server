@@ -81,7 +81,15 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
             return Response.badRequest();
         }
 
-        object = pensenData.createSchoolYear(calculationMode, code, description, graduationYear, weeks);
+        SchoolYear previousForSurcharge = pensenData.streamSchoolYears()
+            .reduce((a, b) -> b).orElse(null);
+        double smallGroupSurcharge = data.getDouble(SchoolYear.JSON_SMALL_GROUP_SURCHARGE,
+            previousForSurcharge != null ? previousForSurcharge.getSmallGroupSurcharge() : 2.0);
+        if (smallGroupSurcharge < 0) {
+            return Response.badRequest();
+        }
+
+        object = pensenData.createSchoolYear(calculationMode, code, description, graduationYear, smallGroupSurcharge, weeks);
         ValueMap<PayrollType> weeklyLessons;
         if (data.hasKey(SchoolYear.JSON_WEEKLY_LESSONS)) {
             weeklyLessons = ValueMap.parseJson(data, SchoolYear.JSON_WEEKLY_LESSONS, pensenData.streamPayrollTypes(), 0);
@@ -110,6 +118,7 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
         String code = data.getString(SchoolYear.JSON_CODE);
         String description = data.getString(SchoolYear.JSON_DESCRIPTION);
         boolean finalised = data.getBoolean(SchoolYear.JSON_FINALISED, false);
+        double smallGroupSurcharge = data.getDouble(SchoolYear.JSON_SMALL_GROUP_SURCHARGE, object.getSmallGroupSurcharge());
         CalculationMode calculationMode = pensenData.getCalculationModeById(data.getObjectId(SchoolYear.JSON_CALCULATION_MODE, -1));
         if (calculationMode == null) {
             return Response.badRequest();
@@ -117,6 +126,10 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
 
         int weeks = data.getInt(SchoolYear.JSON_WEEKS);
         if (weeks <= 0) {
+            return Response.badRequest();
+        }
+
+        if (smallGroupSurcharge < 0) {
             return Response.badRequest();
         }
 
@@ -151,6 +164,12 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
         if (!Util.equal(object.getWeeks(), weeks)) {
             object.setWeeks(weeks);
             changed.add(SchoolYear.DB_WEEKS);
+            recalculate = true;
+        }
+
+        if (!Util.equal(object.getSmallGroupSurcharge(), smallGroupSurcharge)) {
+            object.setSmallGroupSurcharge(smallGroupSurcharge);
+            changed.add(SchoolYear.DB_SMALL_GROUP_SURCHARGE);
             recalculate = true;
         }
 

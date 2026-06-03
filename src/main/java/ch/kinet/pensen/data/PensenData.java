@@ -141,7 +141,8 @@ public final class PensenData extends BaseData implements Context {
 
     public Course copyCourse(Course original, double lessons1, double lessons2, SchoolYear schoolYear, Grade grade) {
         Course result = createCourse(
-            original.getComments(), original.getCurriculum(), grade, lessons1, lessons2, schoolYear, original.getSubject()
+            original.getComments(), original.getCurriculum(), grade, lessons1, lessons2,
+            original.isSmallGroup1(), original.isSmallGroup2(), schoolYear, original.getSubject()
         );
 
         Set<Teacher> origTeachers1 = original.teachers(SemesterEnum.First).collect(Collectors.toSet());
@@ -177,7 +178,7 @@ public final class PensenData extends BaseData implements Context {
     }
 
     public Course createCourse(String comments, Curriculum curriculum, Grade grade, double lessons1, double lessons2,
-                               SchoolYear schoolYear, Subject subject) {
+                               boolean smallGroup1, boolean smallGroup2, SchoolYear schoolYear, Subject subject) {
         PropertyMap properties = PropertyMap.create();
         properties.put(Course.DB_CANCELLED, false);
         properties.put(Course.DB_COMMENTS, comments);
@@ -188,6 +189,8 @@ public final class PensenData extends BaseData implements Context {
         properties.put(Course.DB_SCHOOL_YEAR, schoolYear);
         properties.put(Course.DB_SUBJECT, subject);
         properties.put(Course.DB_CROSS_CLASS, subject.isCrossClass());
+        properties.put(Course.DB_SMALL_GROUP_1, smallGroup1);
+        properties.put(Course.DB_SMALL_GROUP_2, smallGroup2);
         return getConnection().insert(schema, Course.class, properties);
     }
 
@@ -277,7 +280,7 @@ public final class PensenData extends BaseData implements Context {
     }
 
     public SchoolYear createSchoolYear(CalculationMode calculationMode, String code, String description,
-                                       int graduationYear, int weeks) {
+                                       int graduationYear, double smallGroupSurcharge, int weeks) {
         PropertyMap properties = PropertyMap.create();
         properties.put(SchoolYear.DB_ARCHIVED, false);
         properties.put(SchoolYear.DB_CALCULATION_MODE, calculationMode);
@@ -285,6 +288,7 @@ public final class PensenData extends BaseData implements Context {
         properties.put(SchoolYear.DB_DESCRIPTION, description);
         properties.put(SchoolYear.DB_FINALISED, false);
         properties.put(SchoolYear.DB_GRADUATION_YEAR, graduationYear);
+        properties.put(SchoolYear.DB_SMALL_GROUP_SURCHARGE, smallGroupSurcharge);
         properties.put(SchoolYear.DB_WEEKS, weeks);
         SchoolYear result = getConnection().insert(schema, SchoolYear.class, properties);
         result.setPrevious(schoolYears.last());

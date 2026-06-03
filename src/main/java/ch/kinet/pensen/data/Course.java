@@ -40,6 +40,8 @@ public final class Course extends Entity {
     public static final String DB_LESSONS_2 = "Lessons2";
     public static final String DB_SCHOOL_CLASS_IDS = "SchoolClassIds";
     public static final String DB_SCHOOL_YEAR = "SchoolYear";
+    public static final String DB_SMALL_GROUP_1 = "SmallGroup1";
+    public static final String DB_SMALL_GROUP_2 = "SmallGroup2";
     public static final String DB_SUBJECT = "Subject";
     public static final String DB_TEACHER_IDS_1 = "TeacherIds1";
     public static final String DB_TEACHER_IDS_2 = "TeacherIds2";
@@ -52,6 +54,8 @@ public final class Course extends Entity {
     public static final String JSON_LESSONS_2 = "lessons2";
     public static final String JSON_SCHOOL_CLASSES = "schoolClasses";
     public static final String JSON_SCHOOL_YEAR = "schoolYear";
+    public static final String JSON_SMALL_GROUP_1 = "smallGroup1";
+    public static final String JSON_SMALL_GROUP_2 = "smallGroup2";
     public static final String JSON_SUBJECT = "subject";
     public static final String JSON_TEACHERS_1 = "teachers1";
     public static final String JSON_TEACHERS_2 = "teachers2";
@@ -65,6 +69,8 @@ public final class Course extends Entity {
     private Grade grade;
     private double lessons1;
     private double lessons2;
+    private boolean smallGroup1;
+    private boolean smallGroup2;
     private List<SchoolClass> schoolClasses = new ArrayList<>();
     private List<Integer> schoolClassIds = new ArrayList<>();
     private List<Teacher> teachers1 = new ArrayList<>();
@@ -176,6 +182,22 @@ public final class Course extends Entity {
         return crossClass;
     }
 
+    public boolean isSmallGroup1() {
+        return smallGroup1;
+    }
+
+    public boolean isSmallGroup2() {
+        return smallGroup2;
+    }
+
+    public boolean isSmallGroup(SemesterEnum semester) {
+        switch (semester) {
+            case First: return smallGroup1;
+            case Second: return smallGroup2;
+            default: throw new IllegalArgumentException();
+        }
+    }
+
     public boolean isCancelled() {
         return cancelled;
     }
@@ -216,11 +238,13 @@ public final class Course extends Entity {
     }
 
     public double percent(SemesterEnum semester) {
-        return schoolYear.lessonsToPercent(payrollType(), lessons(semester));
+        double surcharge = isSmallGroup(semester) ? schoolYear.getSmallGroupSurcharge() : 0;
+        return schoolYear.lessonsToPercent(payrollType(), lessons(semester), surcharge);
     }
 
     public double percentFor(Teacher teacher, SemesterEnum semester) {
-        return schoolYear.lessonsToPercent(payrollType(), lessonsFor(teacher, semester));
+        double surcharge = isSmallGroup(semester) ? schoolYear.getSmallGroupSurcharge() : 0;
+        return schoolYear.lessonsToPercent(payrollType(), lessonsFor(teacher, semester), surcharge);
     }
 
     public Stream<SchoolClass> schoolClasses() {
@@ -250,6 +274,14 @@ public final class Course extends Entity {
 
     public void setLessons2(double lessons2) {
         this.lessons2 = lessons2;
+    }
+
+    public void setSmallGroup1(boolean smallGroup1) {
+        this.smallGroup1 = smallGroup1;
+    }
+
+    public void setSmallGroup2(boolean smallGroup2) {
+        this.smallGroup2 = smallGroup2;
     }
 
     @Persistence(ignore = true)
@@ -305,6 +337,8 @@ public final class Course extends Entity {
         result.putTerse(JSON_GRADE, grade);
         result.put(JSON_LESSONS_1, lessons1);
         result.put(JSON_LESSONS_2, lessons2);
+        result.put(JSON_SMALL_GROUP_1, smallGroup1);
+        result.put(JSON_SMALL_GROUP_2, smallGroup2);
         result.putTerse(JSON_SCHOOL_YEAR, schoolYear);
         result.put("open1", open1);
         result.put("open2", open2);

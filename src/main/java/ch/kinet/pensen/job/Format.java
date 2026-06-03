@@ -26,6 +26,19 @@ public final class Format {
         return employment.isTemporary() ? "befristet" : "unbefristet";
     }
 
+    public static String subjectDescriptionWithSmallGroupFlag(String description, boolean smallGroup1, boolean smallGroup2) {
+        if (smallGroup1 && smallGroup2) {
+            return description + " (KG)";
+        }
+        if (smallGroup1) {
+            return description + " (KG 1)";
+        }
+        if (smallGroup2) {
+            return description + " (KG 2)";
+        }
+        return description;
+    }
+
     public static String lessons(double value) {
         if (value == 0) {
             return "—";

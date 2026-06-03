@@ -30,6 +30,7 @@ public final class SchoolYear extends Entity {
     public static final String DB_DESCRIPTION = "Description";
     public static final String DB_FINALISED = "Finalised";
     public static final String DB_GRADUATION_YEAR = "GraduationYear";
+    public static final String DB_SMALL_GROUP_SURCHARGE = "SmallGroupSurcharge";
     public static final String DB_WEEKS = "Weeks";
     public static final String JSON_ARCHIVED = "archived";
     public static final String JSON_CALCULATION_MODE = "calculationMode";
@@ -39,6 +40,7 @@ public final class SchoolYear extends Entity {
     public static final String JSON_GRADUATION_YEAR = "graduationYear";
     public static final String JSON_LESSONS = "lessons";
     public static final String JSON_PAYROLL_TYPE = "payrollType";
+    public static final String JSON_SMALL_GROUP_SURCHARGE = "smallGroupSurcharge";
     public static final String JSON_WEEKLY_LESSONS = "weeklyLessons";
     public static final String JSON_WEEKS = "weeks";
     private final int graduationYear;
@@ -50,6 +52,7 @@ public final class SchoolYear extends Entity {
     private boolean finalised;
     private SchoolYear next;
     private SchoolYear previous;
+    private double smallGroupSurcharge;
     private int weeks;
 
     @PropertyInitializer({DB_GRADUATION_YEAR, DB_ID})
@@ -96,12 +99,16 @@ public final class SchoolYear extends Entity {
     }
 
     public double lessonsToPercent(PayrollType payrollType, double lessons) {
+        return lessonsToPercent(payrollType, lessons, 0);
+    }
+
+    public double lessonsToPercent(PayrollType payrollType, double lessons, double surcharge) {
         Optional<Double> wl = weeklyLessons.get(payrollType);
         if (wl.isEmpty()) {
             return 0;
         }
 
-        return lessons * 100 / wl.get();
+        return lessons * 100 / (wl.get() + surcharge);
     }
 
     public SchoolYear next() {
@@ -127,6 +134,14 @@ public final class SchoolYear extends Entity {
 
     public void setCalculationMode(CalculationMode calculationMode) {
         this.calculationMode = calculationMode;
+    }
+
+    public double getSmallGroupSurcharge() {
+        return smallGroupSurcharge;
+    }
+
+    public void setSmallGroupSurcharge(double smallGroupSurcharge) {
+        this.smallGroupSurcharge = smallGroupSurcharge;
     }
 
     public void setCode(String code) {
@@ -178,6 +193,7 @@ public final class SchoolYear extends Entity {
         result.putTerse(JSON_CALCULATION_MODE, calculationMode);
         result.put(JSON_FINALISED, finalised);
         result.put(JSON_GRADUATION_YEAR, graduationYear);
+        result.put(JSON_SMALL_GROUP_SURCHARGE, smallGroupSurcharge);
         result.put(JSON_WEEKS, weeks);
         result.putTerse(JSON_WEEKLY_LESSONS, weeklyLessons);
         return result;
