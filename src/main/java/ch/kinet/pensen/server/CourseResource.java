@@ -167,10 +167,12 @@ public final class CourseResource extends EntityResource<Course> {
         }
 
         String comments = data.getString(Course.JSON_COMMENTS);
+        boolean smallGroup1 = data.getBoolean(Course.JSON_SMALL_GROUP_1, false);
+        boolean smallGroup2 = data.getBoolean(Course.JSON_SMALL_GROUP_2, false);
         Set<Teacher> teachers1 = pensenData.parseEmployedTeachers(schoolYear, data.getArray(Course.JSON_TEACHERS_1));
         Set<Teacher> teachers2 = pensenData.parseEmployedTeachers(schoolYear, data.getArray(Course.JSON_TEACHERS_2));
 
-        Course result = pensenData.createCourse(comments, curriculum, grade, lessons1, lessons2, schoolYear, subject);
+        Course result = pensenData.createCourse(comments, curriculum, grade, lessons1, lessons2, smallGroup1, smallGroup2, schoolYear, subject);
         result.setSchoolClasses(schoolClasses.stream());
         result.setTeachers1(teachers1.stream());
         result.setTeachers2(teachers2.stream());
@@ -202,6 +204,9 @@ public final class CourseResource extends EntityResource<Course> {
             return Response.badRequest("Negative Lektionenzahlen sind nicht erlaubt.");
         }
 
+        boolean smallGroup1 = data.getBoolean(Course.JSON_SMALL_GROUP_1, false);
+        boolean smallGroup2 = data.getBoolean(Course.JSON_SMALL_GROUP_2, false);
+
         Set<Teacher> teachers1 = pensenData.parseEmployedTeachers(object.getSchoolYear(), data.getArray(Course.JSON_TEACHERS_1));
         Set<Teacher> teachers2 = pensenData.parseEmployedTeachers(object.getSchoolYear(), data.getArray(Course.JSON_TEACHERS_2));
 
@@ -227,6 +232,18 @@ public final class CourseResource extends EntityResource<Course> {
         if (!Util.equal(object.getLessons2(), lessons2)) {
             object.setLessons2(lessons2);
             changed.add(Course.DB_LESSONS_2);
+            object.teachers(SemesterEnum.Second).forEachOrdered(affectedTeachers::add);
+        }
+
+        if (!Util.equal(object.isSmallGroup(SemesterEnum.First), smallGroup1)) {
+            object.setSmallGroup1(smallGroup1);
+            changed.add(Course.DB_SMALL_GROUP_1);
+            object.teachers(SemesterEnum.First).forEachOrdered(affectedTeachers::add);
+        }
+
+        if (!Util.equal(object.isSmallGroup(SemesterEnum.Second), smallGroup2)) {
+            object.setSmallGroup2(smallGroup2);
+            changed.add(Course.DB_SMALL_GROUP_2);
             object.teachers(SemesterEnum.Second).forEachOrdered(affectedTeachers::add);
         }
 
@@ -276,6 +293,8 @@ public final class CourseResource extends EntityResource<Course> {
             original.getGrade(),
             original.getLessons1(),
             original.getLessons2(),
+            original.isSmallGroup(SemesterEnum.First),
+            original.isSmallGroup(SemesterEnum.Second),
             original.getSchoolYear(),
             original.getSubject());
         course.setTeachers1(original.teachers(SemesterEnum.First));

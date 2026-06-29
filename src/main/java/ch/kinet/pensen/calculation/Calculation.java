@@ -74,8 +74,8 @@ public abstract class Calculation {
         PayrollType payrollType = entry.payrollType();
 
         courses.addItem(entry, lessons1, percent1, lessons2, percent2);
-        sumPayrollLessons(payrollType, SemesterEnum.First, lessons1);
-        sumPayrollLessons(payrollType, SemesterEnum.Second, lessons2);
+        sumPayrollLessons(payrollType, SemesterEnum.First, lessons1, entry.isSmallGroup(SemesterEnum.First) ? entry.getSchoolYear().getSmallGroupSurcharge() : 0);
+        sumPayrollLessons(payrollType, SemesterEnum.Second, lessons2, entry.isSmallGroup(SemesterEnum.Second) ? entry.getSchoolYear().getSmallGroupSurcharge() : 0);
     }
 
     public void addPoolEntry(PoolEntry entry) {
@@ -85,7 +85,7 @@ public abstract class Calculation {
         pool.addItem(entry.getDescription(), entry.getType(), percent);
 
         // calculate percent without age relief for Kirchenfeld historic
-        percent = percent.map((s, p) -> poolPercent(s, p));
+        percent = percent.map(this::poolPercent);
         sumPayrollPercent(payrollType, SemesterEnum.First, percent.semester1());
         sumPayrollPercent(payrollType, SemesterEnum.Second, percent.semester2());
     }
@@ -134,16 +134,20 @@ public abstract class Calculation {
         return employment.getSchoolYear().lessonsToPercent(type, lessons);
     }
 
+    final double lessonsToPercent(PayrollType type, double lessons, double surcharge) {
+        return employment.getSchoolYear().lessonsToPercent(type, lessons, surcharge);
+    }
+
     final double percentToLessons(PayrollType type, double lessons) {
         return employment.getSchoolYear().percentToLessons(type, lessons);
     }
 
-    final void sumPayrollLessons(PayrollType type, SemesterEnum semester, double lessons) {
+    final void sumPayrollLessons(PayrollType type, SemesterEnum semester, double lessons, double surcharge) {
         if (!type.isLessonBased()) {
             throw new IllegalArgumentException("Cannot add lessons to percent-based payroll.");
         }
 
-        addToPayroll(type, semester, lessonsToPercent(type, lessons));
+        addToPayroll(type, semester, lessonsToPercent(type, lessons, surcharge));
     }
 
     final void sumPayrollPercent(PayrollType type, SemesterEnum semester, double percent) {

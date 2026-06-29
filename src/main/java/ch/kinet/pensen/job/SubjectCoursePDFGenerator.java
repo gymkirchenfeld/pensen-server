@@ -59,7 +59,7 @@ public class SubjectCoursePDFGenerator {
             double p2 = entry.percent(SemesterEnum.Second);
 
             pdf.addCell(entry.getSubject().getCode(), Alignment.Left);
-            pdf.addCell(entry.getSubject().getDescription(), Alignment.Left);
+            pdf.addCell(Format.subjectDescriptionWithSmallGroupFlag(entry.getSubject().getDescription(), entry.isSmallGroup1(), entry.isSmallGroup2()), Alignment.Left);
             pdf.addCell(entry.getGrade().getDescription(), Alignment.Left);
             pdf.addCell(entry.schoolClasses().map(sc -> sc.getCode()).collect(Collectors.joining(", ")), Alignment.Left);
             pdf.addCell(Format.lessons(entry.getLessons1()), Alignment.Right);

@@ -37,6 +37,8 @@ public final class Courses extends ItemList<Courses.Item> {
     private static final String JSON_PERCENT1 = "percent1";
     private static final String JSON_PERCENT2 = "percent2";
     private static final String JSON_SCHOOL_CLASSES = "schoolClasses";
+    private static final String JSON_SMALL_GROUP1 = "smallGroup1";
+    private static final String JSON_SMALL_GROUP2 = "smallGroup2";
     private static final String JSON_SUBJECT = "subject";
     private static final String JSON_TOTAL = "total";
 
@@ -130,6 +132,14 @@ public final class Courses extends ItemList<Courses.Item> {
             return course.schoolClasses();
         }
 
+        public boolean isSmallGroup1() {
+            return course.isSmallGroup1();
+        }
+
+        public boolean isSmallGroup2() {
+            return course.isSmallGroup2();
+        }
+
         public Subject subject() {
             return course.getSubject();
         }
@@ -141,6 +151,8 @@ public final class Courses extends ItemList<Courses.Item> {
             result.put(JSON_LESSONS2, lessons2);
             result.put(JSON_PERCENT1, percent1);
             result.put(JSON_PERCENT2, percent2);
+            result.put(JSON_SMALL_GROUP1, course.isSmallGroup1());
+            result.put(JSON_SMALL_GROUP2, course.isSmallGroup2());
             result.putTerse(JSON_SUBJECT, course.getSubject());
             result.put(JSON_SCHOOL_CLASSES, JsonArray.createTerse(course.schoolClasses()));
             result.putTerse(JSON_GRADE, course.getGrade());

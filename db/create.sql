@@ -134,8 +134,10 @@ create table pensen.school_year (
   graduation_year integer not null,
   description text,
   weeks integer not null,
+  small_group_surcharge double precision not null default 2,
   calculation_mode_id integer not null,
-  foreign key (calculation_mode_id) references pensen.calculation_mode (id) on update cascade on delete cascade
+  foreign key (calculation_mode_id) references pensen.calculation_mode (id) on update cascade on delete cascade,
+  constraint small_group_surcharge_non_negative check (small_group_surcharge >= 0)
 );
 grant delete, insert, select, update on table pensen.school_year to "pensenmanager";
 
@@ -321,6 +323,8 @@ create table pensen.course (
   school_class_ids integer[],
   school_year_id integer not null,
   cross_class boolean not null,
+  small_group1 boolean not null default false,
+  small_group2 boolean not null default false,
   subject_id integer not null,
   teacher_ids1 integer[],
   teacher_ids2 integer[],

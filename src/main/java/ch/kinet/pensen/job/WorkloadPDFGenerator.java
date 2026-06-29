@@ -104,7 +104,7 @@ public final class WorkloadPDFGenerator {
     private void courseBlock() {
         courseHeader();
         workload.courses().items().forEachOrdered(item -> {
-            pdf.addCell(item.subject().getDescription(), Alignment.Left);
+            pdf.addCell(Format.subjectDescriptionWithSmallGroupFlag(item.subject().getDescription(), item.isSmallGroup1(), item.isSmallGroup2()), Alignment.Left);
             pdf.addCell(item.schoolClasses().map(sc -> sc.getCode()).collect(Collectors.joining(", ")), Alignment.Left);
             pdf.addCell(item.grade().getDescription(), Alignment.Left);
             pdf.addCell(Format.lessons(item.lessons1()), Alignment.Right);

@@ -1,0 +1,2 @@
+ALTER TABLE pensen.school_year ADD COLUMN small_group_surcharge double precision NOT NULL DEFAULT 2;
+ALTER TABLE pensen.school_year ADD CONSTRAINT small_group_surcharge_non_negative CHECK (small_group_surcharge >= 0);
