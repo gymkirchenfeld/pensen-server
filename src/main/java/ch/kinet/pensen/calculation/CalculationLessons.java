@@ -28,7 +28,11 @@ public class CalculationLessons extends Calculation {
     protected final SemesterValue totalPercent = SemesterValue.create();
 
     CalculationLessons(Employment employment, Stream<PayrollType> payrollTypes) {
-        super(employment, payrollTypes, "Pensum: Pool", 2);
+        this(employment, payrollTypes, "Pensum: Pool");
+    }
+
+    CalculationLessons(Employment employment, Stream<PayrollType> payrollTypes, String poolTitle) {
+        super(employment, payrollTypes, poolTitle, 2);
     }
 
     @Override
@@ -106,9 +110,14 @@ public class CalculationLessons extends Calculation {
             return;
         }
 
+        percent = postingDetailInputPercent(posting.semester(), percent);
         double ageReliefFactor = employment.ageReliefFactor(posting.semester());
         double ageRelief = percent * ageReliefFactor / 100.0;
         postings.addDetail(posting, payrollType, 0, percent, ageRelief, 0);
+    }
+
+    double postingDetailInputPercent(SemesterEnum semester, double percent) {
+        return percent;
     }
 
     @Override

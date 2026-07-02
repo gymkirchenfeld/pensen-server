@@ -38,6 +38,8 @@ public abstract class Calculation {
                 return new CalculationLessons2(employment, payrollTypes);
             case lessonsAgeReliefIncluded:
                 return new CalculationLessonsAgeReliefIncluded(employment, payrollTypes);
+            case lessonsAgeReliefIncluded2:
+                return new CalculationLessonsAgeReliefIncluded2(employment, payrollTypes);
             case percentAgeReliefIncluded:
                 return new CalculationPercentAgeReliefIncluded(employment, payrollTypes);
             case percent:

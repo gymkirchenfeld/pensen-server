@@ -19,6 +19,10 @@ public class CalculationLessons2 extends CalculationLessons {
         super(employment, payrollTypes);
     }
 
+    CalculationLessons2(Employment employment, Stream<PayrollType> payrollTypes, String poolTitle) {
+        super(employment, payrollTypes, poolTitle);
+    }
+
     double calculateLessonDifference(double diffPercent, PayrollType type) {
         // Die Formel im Excel ist: =WENN(H19=WAHR;WENN($F$29 - $E$14 <= 0; AUFRUNDEN(($F$29 - $E$14) * C19; 2);ABRUNDEN(($F$29 - $E$14) * C19; 2));"")
         // Um Rundungsartefakte möglichst zu vermeiden, wird zuerst auf 8 Kommastellen gerundet.

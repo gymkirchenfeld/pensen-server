@@ -18,30 +18,14 @@ package ch.kinet.pensen.calculation;
 
 import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.PayrollType;
-import ch.kinet.pensen.data.Posting;
 import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.SemesterValue;
 import java.util.stream.Stream;
 
-public final class CalculationLessonsAgeReliefIncluded extends Calculation {
-
-    private final SemesterValue totalPercent = SemesterValue.create();
+public final class CalculationLessonsAgeReliefIncluded extends CalculationLessons {
 
     CalculationLessonsAgeReliefIncluded(Employment employment, Stream<PayrollType> payrollTypes) {
-        super(employment, payrollTypes, poolTitle(employment), 2);
-    }
-
-    @Override
-    void addToPayroll(PayrollType type, SemesterEnum semester, double percent) {
-        // Intern werden alle Berechnungen inklusive Altersentlastung durchgeführt
-        percent = employment.withAgeRelief(semester, percent);
-        totalPercent.add(semester, percent);
-        payrollMap.add(type, semester, percent);
-    }
-
-    @Override
-    double calculatePayment() {
-        return payroll.percent().mean();
+        super(employment, payrollTypes, AgeReliefIncludedSupport.poolTitle(employment));
     }
 
     @Override
@@ -88,38 +72,12 @@ public final class CalculationLessonsAgeReliefIncluded extends Calculation {
     }
 
     @Override
-    void handlePostingDetailLessons(Posting posting, PayrollType payrollType, double lessons) {
-        if (lessons == 0) {
-            return;
-        }
-
-        double ageReliefFactor = employment.ageReliefFactor(posting.semester());
-        double percentWithoutAgeRelief = lessonsToPercent(payrollType, lessons) / employment.getSchoolYear().getWeeks();
-        double ageRelief = percentWithoutAgeRelief * ageReliefFactor / 100.0;
-        double weeklyLessons = employment.getSchoolYear().weeklyLessons(payrollType);
-        postings.addDetail(posting, payrollType, lessons, percentWithoutAgeRelief, ageRelief, weeklyLessons);
-    }
-
-    @Override
-    void handlePostingDetailPercent(Posting posting, PayrollType payrollType, double percent) {
-        if (percent == 0) {
-            return;
-        }
-
-        double ageReliefFactor = employment.ageReliefFactor(posting.semester());
-        // Am Kirchenfeld werden Einzelbuchungen in Prozent inkl. AE erfasst
-        percent = employment.withoutAgeRelief(posting.semester(), percent);
-        double ageRelief = percent * ageReliefFactor / 100.0;
-        postings.addDetail(posting, payrollType, 0, percent, ageRelief, 0);
+    double postingDetailInputPercent(SemesterEnum semester, double percent) {
+        return AgeReliefIncludedSupport.postingDetailPercent(employment, semester, percent);
     }
 
     @Override
     double poolPercent(SemesterEnum semester, double percent) {
-        // Am Kirchenfeld werden Pooleinträge inkl. AE erfasst
-        return percent / (1.0 + employment.ageReliefFactor(semester) / 100);
-    }
-
-    private static String poolTitle(Employment employment) {
-        return employment.ageReliefFactor(SemesterEnum.First) > 0 ? "Pensum: Pool (inkl. AE)" : "Pensum: Pool";
+        return AgeReliefIncludedSupport.poolPercent(employment, semester, percent);
     }
 }
