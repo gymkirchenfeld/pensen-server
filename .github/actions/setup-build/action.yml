@@ -18,18 +18,20 @@ runs:
         java-version: ${{ inputs.java-version }}
         cache: maven
 
-    # Die Tags entsprechen den in pom.xml verlangten Versionen. Beim Anheben einer
-    # Bibliotheksversion müssen pom.xml und diese Datei gemeinsam geändert werden.
+    # Beide Bibliotheken tragen dauerhaft die Version 1.0.0, ihre Entwicklung läuft
+    # aber auf main weiter. Der Tag v1.0.0 bildet darum einen deutlich älteren
+    # Stand ab, als pensen-server erwartet. Gebaut wird der Stand von main —
+    # genau das, was build.sh mit den lokalen Nachbarordnern tut.
     - uses: actions/checkout@v4
       with:
         repository: gymkirchenfeld/ch.kinet.datalib
-        ref: v1.0.0
+        ref: main
         path: .libs/datalib
 
     - uses: actions/checkout@v4
       with:
         repository: gymkirchenfeld/ch.kinet.pdflib
-        ref: v1.0.0
+        ref: main
         path: .libs/pdflib
 
     - name: Bibliotheken installieren
