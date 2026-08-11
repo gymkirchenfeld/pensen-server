@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Bewusst vor setup-build: der Check braucht nur das auf dem Runner
+      # vorinstallierte Maven und schlägt so nach Sekunden statt nach Minuten fehl.
+      - name: Versionen prüfen
+        run: bash .github/scripts/check-version.sh
+
+      - uses: ./.github/actions/setup-build
+
+      - run: mvn --batch-mode --no-transfer-progress verify
