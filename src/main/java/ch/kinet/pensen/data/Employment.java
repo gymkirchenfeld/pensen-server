@@ -171,13 +171,16 @@ public final class Employment extends Entity {
     @Override
     public JsonObject toJsonTerse() {
         JsonObject result = super.toJsonTerse();
-        result.put(JSON_CHANGE, closingBalance - openingBalance);
-        result.put(JSON_CLOSING_BALANCE, closingBalance);
+        if (schoolYear.isShowIpbBalances()) {
+            result.put(JSON_CHANGE, closingBalance - openingBalance);
+            result.put(JSON_CLOSING_BALANCE, closingBalance);
+            result.put(JSON_OPENING_BALANCE, openingBalance);
+        }
+
         result.put(JSON_COMMENTS, comments);
         result.putTerse(JSON_DIVISION, division);
         result.put(JSON_EMPLOYMENT_MAX, employmentMax);
         result.put(JSON_EMPLOYMENT_MIN, employmentMin);
-        result.put(JSON_OPENING_BALANCE, openingBalance);
         result.put(JSON_PAYMENT1, payment1);
         result.put(JSON_PAYMENT2, payment2);
         result.putTerse(JSON_SCHOOL_YEAR, schoolYear);

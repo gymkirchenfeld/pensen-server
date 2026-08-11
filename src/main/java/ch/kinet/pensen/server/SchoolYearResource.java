@@ -81,15 +81,19 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
             return Response.badRequest();
         }
 
-        SchoolYear previousForSurcharge = pensenData.streamSchoolYears()
+        SchoolYear lastSchoolYear = pensenData.streamSchoolYears()
             .reduce((a, b) -> b).orElse(null);
         double smallGroupSurcharge = data.getDouble(SchoolYear.JSON_SMALL_GROUP_SURCHARGE,
-            previousForSurcharge != null ? previousForSurcharge.getSmallGroupSurcharge() : 2.0);
+            lastSchoolYear != null ? lastSchoolYear.getSmallGroupSurcharge() : 2.0);
         if (smallGroupSurcharge < 0) {
             return Response.badRequest();
         }
 
-        object = pensenData.createSchoolYear(calculationMode, code, description, graduationYear, smallGroupSurcharge, weeks);
+        boolean showIpbBalances = data.getBoolean(SchoolYear.JSON_SHOW_IPB_BALANCES,
+            lastSchoolYear == null || lastSchoolYear.isShowIpbBalances());
+
+        object = pensenData.createSchoolYear(calculationMode, code, description, graduationYear, showIpbBalances,
+            smallGroupSurcharge, weeks);
         ValueMap<PayrollType> weeklyLessons;
         if (data.hasKey(SchoolYear.JSON_WEEKLY_LESSONS)) {
             weeklyLessons = ValueMap.parseJson(data, SchoolYear.JSON_WEEKLY_LESSONS, pensenData.streamPayrollTypes(), 0);
@@ -118,6 +122,7 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
         String code = data.getString(SchoolYear.JSON_CODE);
         String description = data.getString(SchoolYear.JSON_DESCRIPTION);
         boolean finalised = data.getBoolean(SchoolYear.JSON_FINALISED, false);
+        boolean showIpbBalances = data.getBoolean(SchoolYear.JSON_SHOW_IPB_BALANCES, object.isShowIpbBalances());
         double smallGroupSurcharge = data.getDouble(SchoolYear.JSON_SMALL_GROUP_SURCHARGE, object.getSmallGroupSurcharge());
         CalculationMode calculationMode = pensenData.getCalculationModeById(data.getObjectId(SchoolYear.JSON_CALCULATION_MODE, -1));
         if (calculationMode == null) {
@@ -153,6 +158,11 @@ public final class SchoolYearResource extends EntityResource<SchoolYear> {
         if (!Util.equal(object.isFinalised(), finalised)) {
             object.setFinalised(finalised);
             changed.add(SchoolYear.DB_FINALISED);
+        }
+
+        if (!Util.equal(object.isShowIpbBalances(), showIpbBalances)) {
+            object.setShowIpbBalances(showIpbBalances);
+            changed.add(SchoolYear.DB_SHOW_IPB_BALANCES);
         }
 
         if (!Util.equal(object.getCalculationMode(), calculationMode)) {

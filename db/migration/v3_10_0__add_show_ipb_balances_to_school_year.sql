@@ -1,0 +1,1 @@
+ALTER TABLE pensen.school_year ADD COLUMN show_ipb_balances boolean NOT NULL DEFAULT true;

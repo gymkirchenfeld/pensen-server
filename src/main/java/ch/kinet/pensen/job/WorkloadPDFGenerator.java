@@ -54,7 +54,10 @@ public final class WorkloadPDFGenerator {
         summaryBlock();
         payrollBlock();
 //        postingsBlock();
-        balanceBlock();
+        if (workload.getSchoolYear().isShowIpbBalances()) {
+            balanceBlock();
+        }
+
         signatureBlock();
     }
 
