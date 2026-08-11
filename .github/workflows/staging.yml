@@ -1,0 +1,80 @@
+name: Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      hinweis:
+        description: 'Notiz für den Auftraggeber (optional)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Bewusst vor setup-build: der Check braucht nur das auf dem Runner
+      # vorinstallierte Maven und schlägt so nach Sekunden statt nach Minuten fehl.
+      - name: Versionen prüfen
+        run: bash .github/scripts/check-version.sh
+
+      - uses: ./.github/actions/setup-build
+
+      - run: mvn --batch-mode --no-transfer-progress clean package
+
+      - name: Namen bestimmen
+        run: |
+          BRANCH=$(echo "$GITHUB_REF_NAME" | tr '/' '-')
+          SHA="${GITHUB_SHA::7}"
+          # Runner laufen in UTC; fuer die Anzeige auf Schweizer Zeit umstellen.
+          ZEIT=$(TZ=Europe/Zurich date '+%d.%m.%Y %H:%M')
+          echo "TAG=staging-${BRANCH}-${SHA}" >> "$GITHUB_ENV"
+          echo "NAME=pensen-server-${BRANCH}-${SHA}" >> "$GITHUB_ENV"
+          echo "TITEL=Staging: ${GITHUB_REF_NAME} - ${ZEIT}" >> "$GITHUB_ENV"
+
+      # Das jar behaelt im Archiv seinen Buildnamen, damit es beim Deployment
+      # nicht umbenannt werden muss. Die Version steckt im Archivnamen.
+      - name: Artefakte packen
+        run: |
+          JAR=pensen-server-jar-with-dependencies.jar
+          zip -j "${NAME}.zip" "target/$JAR"
+          tar -czf "${NAME}.tar.gz" -C target "$JAR"
+
+      - name: Prerelease veröffentlichen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Bewusst ueber env statt per ${{ }} direkt in den Shell-Block:
+          # sonst koennte der Eingabetext als Shell-Code ausgefuehrt werden.
+          HINWEIS: ${{ inputs.hinweis }}
+        run: |
+          {
+            echo "Testbuild fuer die Staging-Umgebung."
+            echo ""
+            echo "- Branch: \`$GITHUB_REF_NAME\`"
+            echo "- Commit: \`$GITHUB_SHA\`"
+            if [ -n "$HINWEIS" ]; then
+              echo ""
+              echo "$HINWEIS"
+            fi
+          } > notes.md
+
+          # Bei einem erneuten Lauf auf demselben Commit existiert der Tag
+          # bereits: dann nur die Assets ersetzen, statt mit einem Fehler
+          # abzubrechen.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" \
+              "${NAME}.zip" "${NAME}.tar.gz" --clobber
+            # Titel nachfuehren, damit der Zeitstempel den letzten Lauf zeigt.
+            gh release edit "$TAG" --title "$TITEL"
+          else
+            gh release create "$TAG" \
+              --prerelease \
+              --target "$GITHUB_SHA" \
+              --title "$TITEL" \
+              --notes-file notes.md \
+              "${NAME}.zip" "${NAME}.tar.gz"
+          fi

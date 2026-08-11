@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Prüft pom.xml gegen Version.java und zusätzlich beide gegen den Tag.
+      - name: Versionen prüfen
+        run: bash .github/scripts/check-version.sh "${GITHUB_REF_NAME#v}"
+
+      - uses: ./.github/actions/setup-build
+
+      - run: mvn --batch-mode --no-transfer-progress clean package
+
+      # Das jar behaelt im Archiv seinen Buildnamen, damit es beim Deployment
+      # nicht umbenannt werden muss. Die Version steckt im Archivnamen.
+      - name: Artefakte packen
+        run: |
+          JAR=pensen-server-jar-with-dependencies.jar
+          zip -j "pensen-server-${GITHUB_REF_NAME}.zip" "target/$JAR"
+          tar -czf "pensen-server-${GITHUB_REF_NAME}.tar.gz" -C target "$JAR"
+
+      - name: Release erstellen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --draft \
+            --generate-notes \
+            "pensen-server-${GITHUB_REF_NAME}.zip" \
+            "pensen-server-${GITHUB_REF_NAME}.tar.gz"
