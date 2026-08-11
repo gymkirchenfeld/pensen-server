@@ -1,0 +1,39 @@
+name: Setup build
+description: >
+  Richtet das JDK ein und installiert die ch.kinet-Bibliotheken in das lokale Maven-Repository.
+  Die Bibliotheken liegen auf keinem Maven-Repository und müssen darum aus ihren öffentlichen
+  GitHub-Repos gebaut werden. Entspricht dem, was build.sh lokal tut.
+
+inputs:
+  java-version:
+    description: JDK-Version für den Build
+    default: '21'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.java-version }}
+        cache: maven
+
+    # Die Tags entsprechen den in pom.xml verlangten Versionen. Beim Anheben einer
+    # Bibliotheksversion müssen pom.xml und diese Datei gemeinsam geändert werden.
+    - uses: actions/checkout@v4
+      with:
+        repository: gymkirchenfeld/ch.kinet.datalib
+        ref: v1.0.0
+        path: .libs/datalib
+
+    - uses: actions/checkout@v4
+      with:
+        repository: gymkirchenfeld/ch.kinet.pdflib
+        ref: v1.0.0
+        path: .libs/pdflib
+
+    - name: Bibliotheken installieren
+      shell: bash
+      run: |
+        mvn --batch-mode --no-transfer-progress -f .libs/datalib/pom.xml install -DskipTests
+        mvn --batch-mode --no-transfer-progress -f .libs/pdflib/pom.xml install -DskipTests
