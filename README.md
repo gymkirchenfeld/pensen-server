@@ -80,11 +80,19 @@ bash .github/scripts/check-version.sh 3.10.0   # zusätzlich gegen eine erwartet
 Weil die beiden `ch.kinet`-Bibliotheken auf keinem Maven-Repository liegen, kann
 ein Runner sie nicht herunterladen. Die Composite Action
 `.github/actions/setup-build` richtet darum das JDK ein, checkt beide
-Repositories beim Tag `v1.0.0` aus und installiert sie mit `mvn install` in das
-lokale Maven-Repository des Runners — sie tut also dasselbe wie `build.sh`.
+Repositories aus und installiert sie mit `mvn install` in das lokale
+Maven-Repository des Runners — sie tut also dasselbe wie `build.sh`.
 
-Wird eine Bibliotheksversion angehoben, müssen `pom.xml` **und** die Tags in
-`.github/actions/setup-build/action.yml` gemeinsam geändert werden.
+Gebaut wird jeweils der Stand von `main`. Beide Bibliotheken tragen dauerhaft
+die Version `1.0.0`, entwickeln sich darunter aber weiter; ihre `v1.0.0`-Tags
+bilden einen deutlich älteren Stand ab als den, gegen den `pensen-server`
+kompiliert. `main` entspricht dem, was lokal in den Nachbarordnern liegt.
+
+Das bedeutet zugleich: Ein Build ist nicht vollständig reproduzierbar, weil eine
+Änderung an einer Bibliothek einen späteren Build desselben Commits verändern
+kann. Wer das ausschliessen will, ersetzt `ref: main` in
+`.github/actions/setup-build/action.yml` durch einen festen Commit-SHA — dann
+muss er dort bei jeder Bibliotheksänderung nachgeführt werden.
 
 ### CI (`ci.yml`)
 
