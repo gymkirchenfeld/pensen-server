@@ -16,7 +16,6 @@
  */
 package ch.kinet.pensen.data;
 
-import java.util.stream.Stream;
 
 public final class PoolTypeFixture {
 
@@ -26,9 +25,6 @@ public final class PoolTypeFixture {
     public static final PoolType I = new PoolType(true, "I", "IT-Betreuung", 4, PayrollTypeFixture.PS);
     public static final PoolType Z = new PoolType(false, "Z", "Spezialfinanzierung", 5, PayrollTypeFixture.PX);
 
-    public static Stream<PoolType> stream() {
-        return Stream.of(S, L, U, I, Z);
-    }
 
     private PoolTypeFixture() {
     }

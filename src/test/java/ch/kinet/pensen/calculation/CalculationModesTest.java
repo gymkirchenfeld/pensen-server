@@ -6,7 +6,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-public class CalculationModes2Test {
+public class CalculationModesTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getTestCases")

@@ -16,7 +16,6 @@
  */
 package ch.kinet.pensen.data;
 
-import java.util.stream.Stream;
 
 public final class GradeFixture {
 
@@ -34,11 +33,6 @@ public final class GradeFixture {
     public static final Grade BME4 = grade(12, "BME4", "BME4", PayrollTypeFixture.BM, false, PayrollTypeFixture.BM);
     public static final Grade BMEP = grade(13, "BMEP", "BMEP", PayrollTypeFixture.BP, false, PayrollTypeFixture.BP);
     public static final Grade FMSP = grade(14, "FMSP", "FMSP", PayrollTypeFixture.F, false, PayrollTypeFixture.FK);
-
-
-    public static Stream<Grade> stream() {
-        return Stream.of(GYM1, GYM2, GYM3, GYM4, GYM5, FMS1, FMS2, FMS3, BME1, BME2, BME3, BME4, BMEP, FMSP);
-    }
 
 
     private static Grade grade(int id, String code, String description, PayrollType payrollType,

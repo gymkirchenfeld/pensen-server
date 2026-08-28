@@ -27,10 +27,8 @@ import java.util.stream.Stream;
 
 final class CalculationScenario {
 
-    // Payroll.displayItems() setzt diesen Text vor die Bezeichnung der Korrekturzeile.
     static final String IPB_CORRECTION_PREFIX = "IPB-Korrektur ";
 
-    /** Damit sind die Stichtage der Altersentlastung der 31.07.2026 und der 31.01.2027. */
     private static final int DEFAULT_GRADUATION_YEAR = 2027;
     private static final int DEFAULT_WEEKS = 38;
 
@@ -113,17 +111,11 @@ final class CalculationScenario {
             this.name = name;
         }
 
-        /**
-         * Abschlussjahr des Schuljahres. Es bestimmt zusammen mit dem Geburtstag die
-         * Altersentlastung: Stichtage sind der 31.07. des Vorjahres und der 31.01. dieses Jahres.
-         * Ohne Angabe gilt {@link #DEFAULT_GRADUATION_YEAR}.
-         */
         Builder graduationYear(int graduationYear) {
             this.graduationYear = graduationYear;
             return this;
         }
 
-        /** Schulwochen des Schuljahres. Ohne Angabe gilt {@link #DEFAULT_WEEKS}. */
         Builder weeks(int weeks) {
             this.weeks = weeks;
             return this;
@@ -150,10 +142,6 @@ final class CalculationScenario {
             return this;
         }
 
-        /**
-         * Abschlussarbeiten eines Typs. Calculation.addThesisEntry() bucht count mal den
-         * Prozentwert des Typs in beiden Semestern auf dessen Teilanstellung.
-         */
         Builder thesis(ThesisType thesisType, double count) {
             thesisEntries.add(new ThesisSpec(thesisType, count));
             return this;

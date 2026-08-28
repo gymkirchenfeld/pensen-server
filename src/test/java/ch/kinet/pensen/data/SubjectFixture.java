@@ -16,7 +16,6 @@
  */
 package ch.kinet.pensen.data;
 
-import java.util.stream.Stream;
 
 public final class SubjectFixture {
 
@@ -30,9 +29,6 @@ public final class SubjectFixture {
     public static final Subject BFSAPY = subject(137, "BFSA PY", "Berufsfeld SA Psychologie", 137);
     public static final Subject BFSAPE = subject(143, "BFSA PE", "Berufsfeld SA PE", 143);
 
-    public static Stream<Subject> stream() {
-        return Stream.of(B, BG, M, KS);
-    }
 
     private static Subject subject(int id, String code, String description, int sortOrder) {
         Subject result = new Subject(id);

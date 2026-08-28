@@ -16,22 +16,13 @@
  */
 package ch.kinet.pensen.data;
 
-import java.util.stream.Stream;
 
-/**
- * Abschlussarbeiten. Der Prozentwert gilt pro Arbeit, die Teilanstellung bestimmt, auf welcher
- * Zeile der Pensenmeldung die Arbeiten landen.
- */
 public final class ThesisTypeFixture {
 
     public static final ThesisType MA = new ThesisType("MA", "GYM/BME Maturaarbeit", 1, PayrollTypeFixture.G2, 1);
     public static final ThesisType MZ = new ThesisType("MZ", "GYM/BME Maturaarbeit Zweitbeurteilung", 2, PayrollTypeFixture.G2, 0.5);
     public static final ThesisType SA = new ThesisType("SA", "FMS Abschlussarbeit", 3, PayrollTypeFixture.F, 1);
     public static final ThesisType FMA = new ThesisType("FM", "FMS Fachmaturaarbeit", 4, PayrollTypeFixture.F, 1);
-
-    public static Stream<ThesisType> stream() {
-        return Stream.of(MA, MZ, SA, FMA);
-    }
 
     private ThesisTypeFixture() {
     }
