@@ -37,14 +37,14 @@ public final class PayrollTypeFixture {
 
 
     public static final Map<PayrollType, Double> WEEKLY_LESSONS = Map.ofEntries(
-        Map.entry(G2, 23.0),
-        Map.entry(G1, 28.0),
-        Map.entry(F, 24.0),
-        Map.entry(BM, 23.0),
-        Map.entry(BP, 23.0),
-        Map.entry(GK2, 20.0),
-        Map.entry(GK1, 20.0),
-        Map.entry(FK, 20.0)
+            Map.entry(G2, 23.0),
+            Map.entry(G1, 28.0),
+            Map.entry(F, 24.0),
+            Map.entry(BM, 23.0),
+            Map.entry(BP, 23.0),
+            Map.entry(GK2, 20.0),
+            Map.entry(GK1, 20.0),
+            Map.entry(FK, 20.0)
     );
 
     public static Stream<PayrollType> stream() {

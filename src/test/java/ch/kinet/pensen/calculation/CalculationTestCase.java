@@ -16,9 +16,6 @@
  */
 package ch.kinet.pensen.calculation;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import ch.kinet.pensen.calculation.CalculationScenario.Expectations;
 import ch.kinet.pensen.calculation.CalculationScenario.RowExpectation;
 import ch.kinet.pensen.data.CalculationMode;
@@ -29,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 final class CalculationTestCase {
 

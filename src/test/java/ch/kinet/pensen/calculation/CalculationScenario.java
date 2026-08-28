@@ -196,7 +196,7 @@ final class CalculationScenario {
 
             CalculationScenario scenario = new CalculationScenario(this);
             return expectationsPerMode.entrySet().stream()
-                .map(entry -> new CalculationTestCase(scenario, entry.getKey(), entry.getValue()));
+                    .map(entry -> new CalculationTestCase(scenario, entry.getKey(), entry.getValue()));
         }
 
         private void requireMode() {
