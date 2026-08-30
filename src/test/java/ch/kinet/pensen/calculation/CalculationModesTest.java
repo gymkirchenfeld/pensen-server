@@ -17,7 +17,7 @@ public class CalculationModesTest {
 
     static Stream<CalculationTestCase> getTestCases() {
         return Stream.of(
-                teacherA(), teacherB(), teacherC()
+                teacherA(), teacherB(), teacherC(), teacherD(), teacherE()
         ).flatMap(cases -> cases);
     }
 
@@ -136,6 +136,55 @@ public class CalculationModesTest {
                 .row(PayrollTypeFixture.PL, 0, 2.70, 0, 2.70)
                 .row(PayrollTypeFixture.PX, 0, 2.43, 0, 2.43)
                 .total(90.02, 90.02)
+                .cases();
+    }
+
+    private static Stream<CalculationTestCase> teacherD() {
+        return CalculationScenario.create("2027, Lehrkraft D, 65%, mit Altersentlastung 4%, mit Kleingruppenabzug")
+                .graduationYear(2027)
+                .weeks(38)
+                .birthday(1973, 8, 18)
+                .payment(65, 65)
+                .course(GradeFixture.BME4, SubjectFixture.D, 1, 1)
+                .smallGroup()
+                .course(GradeFixture.BME3, SubjectFixture.D, 3, 5.5)
+                .course(GradeFixture.BME2, SubjectFixture.D, 2.5, 2)
+                .course(GradeFixture.BME2, SubjectFixture.KS, 0.5, 0.5)
+                .pool(PoolTypeFixture.S, 17.5, 17.5)
+                .mode(CalculationMode.Enum.lessons)
+                .row(PayrollTypeFixture.G2, 3.43, 15.51, 1.43, 6.47)
+                .row(PayrollTypeFixture.BM, 6.92, 31.29, 8.92, 40.33)
+                .row(PayrollTypeFixture.PS, 0, 18.2, 0, 18.2)
+                .total(65.00, 65.00)
+                .mode(CalculationMode.Enum.lessons2)
+                .row(PayrollTypeFixture.G2, 0, 0, 0, 0)
+                .row(PayrollTypeFixture.BM, 6.92, 31.29, 8.92, 40.33)
+                .ipbRow(PayrollTypeFixture.BM, 3.57, 15.52, 1.49, 6.48)
+                .row(PayrollTypeFixture.PS, 0, 18.20, 0, 18.20)
+                .total(65.01, 65.01)
+                .cases();
+    }
+
+    private static Stream<CalculationTestCase> teacherE() {
+        return CalculationScenario.create("2027, Lehrkraft E, 50%, ohne Altersentlastung, Teamteaching")
+                .graduationYear(2027)
+                .weeks(38)
+                .birthday(1981, 9, 2)
+                .payment(50, 50)
+                .course(GradeFixture.GYM4, SubjectFixture.D, 2, 2)
+                .teacherCount(2, 2)
+                .course(GradeFixture.GYM3, SubjectFixture.D, 2, 2)
+                .teacherCount(2, 2)
+                .course(GradeFixture.GYM1, SubjectFixture.D, 12, 12)
+                .mode(CalculationMode.Enum.lessons)
+                .row(PayrollTypeFixture.G1, 12.00, 42.86, 12.00, 42.86)
+                .row(PayrollTypeFixture.G2, 1.64, 7.13, 1.64, 7.13)
+                .total(49.99, 49.99)
+                .mode(CalculationMode.Enum.lessons2)
+                .row(PayrollTypeFixture.G1, 12.00, 42.86, 12.00, 42.86)
+                .row(PayrollTypeFixture.G2, 2.00, 8.70, 2.00, 8.70)
+                .ipbRow(PayrollTypeFixture.G2, -0.35, -1.52, -0.35, -1.52)
+                .total(50.03, 50.03)
                 .cases();
     }
 }

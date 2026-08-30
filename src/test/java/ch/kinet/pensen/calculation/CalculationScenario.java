@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 final class CalculationScenario {
@@ -31,6 +32,9 @@ final class CalculationScenario {
 
     private static final int DEFAULT_GRADUATION_YEAR = 2027;
     private static final int DEFAULT_WEEKS = 38;
+
+    private static final double SMALL_GROUP_SURCHARGE = 2.0;
+    private static final int CO_TEACHER_ID_BASE = 100;
 
     static Builder create(String name) {
         return new Builder(name);
@@ -67,6 +71,7 @@ final class CalculationScenario {
         // CalculationMode.toEnum liest den Code, er muss dem Namen des Enum-Werts entsprechen.
         schoolYear.setCalculationMode(new CalculationMode(mode.name(), mode.name(), mode.ordinal()));
         schoolYear.setWeeks(weeks);
+        schoolYear.setSmallGroupSurcharge(SMALL_GROUP_SURCHARGE);
         PayrollTypeFixture.putWeeklyLessons(schoolYear);
 
         Teacher teacher = new Teacher(1);
@@ -101,6 +106,7 @@ final class CalculationScenario {
         private final List<ThesisSpec> thesisEntries = new ArrayList<>();
         private final Map<CalculationMode.Enum, Expectations> expectationsPerMode = new LinkedHashMap<>();
         private List<Expectations> current;
+        private CourseSpec currentCourse;
         private int graduationYear = DEFAULT_GRADUATION_YEAR;
         private int weeks = DEFAULT_WEEKS;
         private LocalDate birthday;
@@ -133,7 +139,51 @@ final class CalculationScenario {
         }
 
         Builder course(Grade grade, Subject subject, double lessons1, double lessons2) {
-            courses.add(new CourseSpec(grade, subject, lessons1, lessons2));
+            currentCourse = new CourseSpec(grade, subject, lessons1, lessons2);
+            courses.add(currentCourse);
+            return this;
+        }
+
+        /**
+         * Legt fest, dass der zuletzt deklarierte Kurs in beiden Semestern eine Kleingruppe ist.
+         */
+        Builder smallGroup() {
+            return smallGroup(true, true);
+        }
+
+        /**
+         * Legt fest, ob der zuletzt deklarierte Kurs pro Semester eine Kleingruppe ist. Für
+         * Kleingruppen wird der Kleingruppenabzug auf das Pensum des Besoldungstyps angewendet.
+         */
+        Builder smallGroup(boolean smallGroup1, boolean smallGroup2) {
+            requireCourse();
+            currentCourse.smallGroup1 = smallGroup1;
+            currentCourse.smallGroup2 = smallGroup2;
+            return this;
+        }
+
+        /**
+         * Legt fest, auf wie viele Lehrkräfte der zuletzt deklarierte Kurs in beiden Semestern
+         * aufgeteilt wird.
+         */
+        Builder teacherCount(int teacherCount) {
+            return teacherCount(teacherCount, teacherCount);
+        }
+
+        /**
+         * Legt fest, auf wie viele Lehrkräfte der zuletzt deklarierte Kurs pro Semester aufgeteilt
+         * wird. Die Lektionen des Kurses werden gleichmässig auf die Lehrkräfte verteilt. Bei einer
+         * Anzahl von 0 unterrichtet die zu prüfende Lehrkraft den Kurs im betreffenden Semester
+         * nicht.
+         */
+        Builder teacherCount(int teacherCount1, int teacherCount2) {
+            requireCourse();
+            if (teacherCount1 < 0 || teacherCount2 < 0) {
+                throw new IllegalArgumentException("Anzahl Lehrkräfte darf nicht negativ sein.");
+            }
+
+            currentCourse.teacherCount1 = teacherCount1;
+            currentCourse.teacherCount2 = teacherCount2;
             return this;
         }
 
@@ -153,6 +203,7 @@ final class CalculationScenario {
             }
 
             current = new ArrayList<>();
+            currentCourse = null;
             for (CalculationMode.Enum mode : modes) {
                 if (expectationsPerMode.containsKey(mode)) {
                     throw new IllegalArgumentException("CalculationMode mehrfach deklariert: " + mode);
@@ -204,6 +255,12 @@ final class CalculationScenario {
                 throw new IllegalStateException("Erwartung ohne vorangehendes mode(...): " + name);
             }
         }
+
+        private void requireCourse() {
+            if (currentCourse == null) {
+                throw new IllegalStateException("Kursangabe ohne vorangehendes course(...): " + name);
+            }
+        }
     }
 
     static final class Expectations {
@@ -237,6 +294,10 @@ final class CalculationScenario {
         private final Subject subject;
         private final double lessons1;
         private final double lessons2;
+        private int teacherCount1 = 1;
+        private int teacherCount2 = 1;
+        private boolean smallGroup1;
+        private boolean smallGroup2;
 
         private CourseSpec(Grade grade, Subject subject, double lessons1, double lessons2) {
             this.grade = grade;
@@ -247,11 +308,24 @@ final class CalculationScenario {
 
         private Course toCourse(int id, SchoolYear schoolYear, Teacher teacher) {
             Course result = new Course(false, grade, id, schoolYear, subject);
-            result.setTeachers1(Stream.of(teacher));
-            result.setTeachers2(Stream.of(teacher));
+            result.setTeachers1(teachers(teacher, teacherCount1, id));
+            result.setTeachers2(teachers(teacher, teacherCount2, id));
             result.setLessons1(lessons1);
             result.setLessons2(lessons2);
+            result.setSmallGroup1(smallGroup1);
+            result.setSmallGroup2(smallGroup2);
             return result;
+        }
+
+        private static Stream<Teacher> teachers(Teacher teacher, int count, int courseId) {
+            if (count < 1) {
+                return Stream.empty();
+            }
+
+            return Stream.concat(
+                    Stream.of(teacher),
+                    IntStream.range(1, count).mapToObj(i -> new Teacher(CO_TEACHER_ID_BASE * courseId + i))
+            );
         }
     }
 
