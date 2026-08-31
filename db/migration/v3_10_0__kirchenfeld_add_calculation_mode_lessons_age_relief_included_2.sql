@@ -1,2 +1,2 @@
 INSERT INTO pensen.calculation_mode (id, code, description)
-VALUES (6, 'lessonsAgeReliefIncluded2', 'Lektionen (SAP) inkl. AE 2');
+VALUES (101, 'lessons2AgeReliefIncluded', 'Lektionen (SAP) 2, AE inkl.');
