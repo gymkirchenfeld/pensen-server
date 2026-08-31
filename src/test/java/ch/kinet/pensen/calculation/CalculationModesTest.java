@@ -23,7 +23,7 @@ public class CalculationModesTest {
 
 
     private static Stream<CalculationTestCase> teacherA() {
-        return CalculationScenario.create("2027, Lehrkraft A, 75%, ohne Altersentlastung")
+        return CalculationScenario.create("2027, Lehrkraft A, 75%, ohne Altersentlastung, mit Pool")
                 .graduationYear(2027)
                 .weeks(38)
                 .birthday(1978, 1, 18)
@@ -53,7 +53,7 @@ public class CalculationModesTest {
 
 
     private static Stream<CalculationTestCase> teacherB() {
-        return CalculationScenario.create("2027, Lehrkraft B, 60%, mit Altersentlastung 4%")
+        return CalculationScenario.create("2027, Lehrkraft B, 60%, mit Altersentlastung 4%, ohne Pool")
                 .graduationYear(2027)
                 .weeks(38)
                 .birthday(1974, 6, 8)
@@ -78,7 +78,7 @@ public class CalculationModesTest {
                 .row(PayrollTypeFixture.BM, 2.4, 10.85, 2.30, 10.40)
                 .row(PayrollTypeFixture.FK, 1.00, 5.20, 1.00, 5.20)
                 .total(60.00, 60.00)
-                .mode(CalculationMode.Enum.lessons2)
+                .mode(CalculationMode.Enum.lessons2, CalculationMode.Enum.lessons2AgeReliefIncluded)
                 .row(PayrollTypeFixture.G2, 2.00, 9.04, 2.00, 9.04)
                 .row(PayrollTypeFixture.F, 7.2, 31.20, 7.2, 31.20)
                 .ipbRow(PayrollTypeFixture.F, 0.89, 3.71, 1.00, 4.17)
@@ -89,7 +89,7 @@ public class CalculationModesTest {
     }
 
     private static Stream<CalculationTestCase> teacherC() {
-        return CalculationScenario.create("2026, Lehrkraft C, 90%, mit Altersentlastung 8%")
+        return CalculationScenario.create("2026, Lehrkraft C, 90%, mit Altersentlastung 8%, mit Pool")
                 .graduationYear(2026)
                 .weeks(38)
                 .birthday(1970, 7, 21)
@@ -136,11 +136,19 @@ public class CalculationModesTest {
                 .row(PayrollTypeFixture.PL, 0, 2.70, 0, 2.70)
                 .row(PayrollTypeFixture.PX, 0, 2.43, 0, 2.43)
                 .total(90.02, 90.02)
+                .mode(CalculationMode.Enum.lessons2AgeReliefIncluded)
+                .row(PayrollTypeFixture.G1, 6.00, 23.14, 6.00, 23.14)
+                .row(PayrollTypeFixture.G2, 12.23, 57.43, 10.23, 48.04)
+                .ipbRow(PayrollTypeFixture.G2, -1.22, -5.30, 0.94, 4.09)
+                .row(PayrollTypeFixture.PS, 0, 10.00, 0, 10.00)
+                .row(PayrollTypeFixture.PL, 0, 2.50, 0, 2.50)
+                .row(PayrollTypeFixture.PX, 0, 2.25, 0, 2.25)
+                .total(90.02, 90.02)
                 .cases();
     }
 
     private static Stream<CalculationTestCase> teacherD() {
-        return CalculationScenario.create("2027, Lehrkraft D, 65%, mit Altersentlastung 4%, mit Kleingruppenabzug")
+        return CalculationScenario.create("2027, Lehrkraft D, 65%, mit Altersentlastung 4%, mit Kleingruppenabzug, mit Pool")
                 .graduationYear(2027)
                 .weeks(38)
                 .birthday(1973, 8, 18)
@@ -162,6 +170,12 @@ public class CalculationModesTest {
                 .ipbRow(PayrollTypeFixture.BM, 3.57, 15.52, 1.49, 6.48)
                 .row(PayrollTypeFixture.PS, 0, 18.20, 0, 18.20)
                 .total(65.01, 65.01)
+                .mode(CalculationMode.Enum.lessons2AgeReliefIncluded)
+                .row(PayrollTypeFixture.G2, 0, 0, 0, 0)
+                .row(PayrollTypeFixture.BM, 6.92, 31.29, 8.92, 40.33)
+                .ipbRow(PayrollTypeFixture.BM, 3.73, 16.22, 1.65, 7.17)
+                .row(PayrollTypeFixture.PS, 0, 17.50, 0, 17.50)
+                .total(65.01, 65.01)
                 .cases();
     }
 
@@ -180,7 +194,7 @@ public class CalculationModesTest {
                 .row(PayrollTypeFixture.G1, 12.00, 42.86, 12.00, 42.86)
                 .row(PayrollTypeFixture.G2, 1.64, 7.13, 1.64, 7.13)
                 .total(49.99, 49.99)
-                .mode(CalculationMode.Enum.lessons2)
+                .mode(CalculationMode.Enum.lessons2, CalculationMode.Enum.lessons2AgeReliefIncluded)
                 .row(PayrollTypeFixture.G1, 12.00, 42.86, 12.00, 42.86)
                 .row(PayrollTypeFixture.G2, 2.00, 8.70, 2.00, 8.70)
                 .ipbRow(PayrollTypeFixture.G2, -0.35, -1.52, -0.35, -1.52)

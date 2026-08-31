@@ -36,6 +36,7 @@ final class CalculationTestCase {
             CalculationMode.Enum.lessons, 2,
             CalculationMode.Enum.lessons2, 2,
             CalculationMode.Enum.lessonsAgeReliefIncluded, 2,
+            CalculationMode.Enum.lessons2AgeReliefIncluded, 2,
             CalculationMode.Enum.percent, 3,
             CalculationMode.Enum.percentAgeReliefIncluded, 3
     );
