@@ -42,7 +42,7 @@ public class CalculationModesTest {
                 .row(PayrollTypeFixture.GK2, 1.0, 5.0, 1.0, 5.0)
                 .row(PayrollTypeFixture.PS, 0.0, 20.0, 0.0, 20.0)
                 .total(75.0, 75.0)
-                .mode(CalculationMode.Enum.lessons2)
+                .mode(CalculationMode.Enum.lessons2, CalculationMode.Enum.lessons2AgeReliefIncluded)
                 .row(PayrollTypeFixture.G2, 11.0, 47.83, 11.0, 47.83)
                 .ipbRow(PayrollTypeFixture.G2, 0.5, 2.17, 0.5, 2.17)
                 .row(PayrollTypeFixture.GK2, 1.0, 5.0, 1.0, 5.0)
