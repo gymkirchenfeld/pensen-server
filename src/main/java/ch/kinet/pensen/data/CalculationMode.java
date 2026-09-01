@@ -27,7 +27,11 @@ public final class CalculationMode extends LookupValue {
         lessonsAgeReliefIncluded,
         lessons2AgeReliefIncluded,
         percent,
-        percentAgeReliefIncluded
+        percentAgeReliefIncluded;
+
+        public boolean hasIpbCorrection() {
+            return this == lessons2 || this == lessons2AgeReliefIncluded;
+        }
     }
 
     public static Enum toEnum(CalculationMode object) {

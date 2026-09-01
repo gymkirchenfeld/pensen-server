@@ -63,7 +63,7 @@ public final class PayrollCSVDownload extends JobImplementation {
 
     @Override
     public void run(Account creator, JobCallback callback) {
-        boolean calculationModeIsLessons2 = CalculationMode.toEnum(schoolYear.getCalculationMode()) == CalculationMode.Enum.lessons2;
+        boolean hasIpbCorrection = schoolYear.calculationModeEnum().hasIpbCorrection();
         CsvWriter csv = CsvWriter.create(createHeaders());
         csv.setHideZero(true);
         callback.step();
@@ -77,13 +77,13 @@ public final class PayrollCSVDownload extends JobImplementation {
             csv.append(teacher.getFirstName());
             csv.append(teacher.getBirthday());
             csv.append(workload.ageReliefFactor(semester));
-            if (calculationModeIsLessons2) {
+            if (hasIpbCorrection) {
                 csv.append(roundPercent(workload.payroll().percent().get(semester), 2));
             } else {
                 csv.append(roundPercent(workload.payroll().percent().get(semester)));
             }
             csv.append(roundPercent(workload.getClosingBalance()));
-            if (calculationModeIsLessons2) {
+            if (hasIpbCorrection) {
                 Payroll.IpbCorrectionData ipbCorrection = payroll.getIpbCorrection(semester);
                 pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
                     if (payrollType.isLessonBased()) {
@@ -154,7 +154,7 @@ public final class PayrollCSVDownload extends JobImplementation {
         result.add("Altersentlastung");
         result.add("Auszahlung");
         result.add("IPB-Saldo Ende SJ");
-        if (CalculationMode.toEnum(schoolYear.getCalculationMode()) == CalculationMode.Enum.lessons2) {
+        if (schoolYear.calculationModeEnum().hasIpbCorrection()) {
             pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
                 if (payrollType.isLessonBased()) {
                     result.add("S " + payrollType.getCode() + " L");
