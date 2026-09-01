@@ -3,6 +3,7 @@ package ch.kinet.pensen.calculation;
 import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.SemesterEnum;
+
 import java.util.stream.Stream;
 
 public final class CalculationLessonsAgeReliefIncluded2 extends CalculationLessons2 {

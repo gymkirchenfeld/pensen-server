@@ -20,6 +20,7 @@ import ch.kinet.pensen.data.Employment;
 import ch.kinet.pensen.data.PayrollType;
 import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.SemesterValue;
+
 import java.util.stream.Stream;
 
 public final class CalculationLessonsAgeReliefIncluded extends CalculationLessons {
@@ -32,7 +33,7 @@ public final class CalculationLessonsAgeReliefIncluded extends CalculationLesson
     void calculatePayroll() {
         // Differenz zwischen Auszahlungsziel und tatsächlichem Pensum berechnen
         SemesterValue diff = employment.paymentTarget().map(
-            (s, payment) -> payment - totalPercent.get(s)
+                (s, payment) -> payment - totalPercent.get(s)
         );
         // Differenz in vorgegebener Reihenfolge bei verschiedenen Teilanstellungen verbuchen
         payrollMap.types().forEachOrdered(type -> {
@@ -45,8 +46,7 @@ public final class CalculationLessonsAgeReliefIncluded extends CalculationLesson
                     // negatives Pensum kann nicht gemeldet werden, buche auf nächste Teilanstellung
                     diff.set(s, result);
                     result = 0;
-                }
-                else {
+                } else {
                     // Differenz konnte verbucht werden
                     diff.set(s, 0);
                 }
