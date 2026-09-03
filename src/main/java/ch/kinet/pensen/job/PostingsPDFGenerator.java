@@ -44,6 +44,10 @@ public class PostingsPDFGenerator {
     }
 
     private void create() {
+        if (!workload.getSchoolYear().isShowIpbBalances()) {
+            return;
+        }
+
         if (workload.postings().isEmpty()) {
             return;
         }

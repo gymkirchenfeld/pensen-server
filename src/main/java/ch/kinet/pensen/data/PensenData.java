@@ -280,7 +280,8 @@ public final class PensenData extends BaseData implements Context {
     }
 
     public SchoolYear createSchoolYear(CalculationMode calculationMode, String code, String description,
-                                       int graduationYear, double smallGroupSurcharge, int weeks) {
+                                       int graduationYear, boolean showIpbBalances, double smallGroupSurcharge,
+                                       int weeks) {
         PropertyMap properties = PropertyMap.create();
         properties.put(SchoolYear.DB_ARCHIVED, false);
         properties.put(SchoolYear.DB_CALCULATION_MODE, calculationMode);
@@ -288,6 +289,7 @@ public final class PensenData extends BaseData implements Context {
         properties.put(SchoolYear.DB_DESCRIPTION, description);
         properties.put(SchoolYear.DB_FINALISED, false);
         properties.put(SchoolYear.DB_GRADUATION_YEAR, graduationYear);
+        properties.put(SchoolYear.DB_SHOW_IPB_BALANCES, showIpbBalances);
         properties.put(SchoolYear.DB_SMALL_GROUP_SURCHARGE, smallGroupSurcharge);
         properties.put(SchoolYear.DB_WEEKS, weeks);
         SchoolYear result = getConnection().insert(schema, SchoolYear.class, properties);

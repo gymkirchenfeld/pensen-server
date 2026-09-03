@@ -64,7 +64,8 @@ public final class PayrollCSVDownload extends JobImplementation {
     @Override
     public void run(Account creator, JobCallback callback) {
         boolean calculationModeIsLessons2 = CalculationMode.toEnum(schoolYear.getCalculationMode()) == CalculationMode.Enum.lessons2;
-        CsvWriter csv = CsvWriter.create(createHeaders());
+        boolean showIpbBalances = schoolYear.isShowIpbBalances();
+        CsvWriter csv = CsvWriter.create(createHeaders(showIpbBalances));
         csv.setHideZero(true);
         callback.step();
         Workloads workloads = pensenData.loadWorkloads(schoolYear, null);
@@ -82,7 +83,10 @@ public final class PayrollCSVDownload extends JobImplementation {
             } else {
                 csv.append(roundPercent(workload.payroll().percent().get(semester)));
             }
-            csv.append(roundPercent(workload.getClosingBalance()));
+            if (showIpbBalances) {
+                csv.append(roundPercent(workload.getClosingBalance()));
+            }
+
             if (calculationModeIsLessons2) {
                 Payroll.IpbCorrectionData ipbCorrection = payroll.getIpbCorrection(semester);
                 pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
@@ -144,7 +148,7 @@ public final class PayrollCSVDownload extends JobImplementation {
         setProduct(csv.toData(fileName()));
     }
 
-    private Stream<String> createHeaders() {
+    private Stream<String> createHeaders(boolean showIpbBalances) {
         List<String> result = new ArrayList<>();
         result.add("Nr.");
         result.add("Kürzel");
@@ -153,7 +157,10 @@ public final class PayrollCSVDownload extends JobImplementation {
         result.add("Geburtsdatum");
         result.add("Altersentlastung");
         result.add("Auszahlung");
-        result.add("IPB-Saldo Ende SJ");
+        if (showIpbBalances) {
+            result.add("IPB-Saldo Ende SJ");
+        }
+
         if (CalculationMode.toEnum(schoolYear.getCalculationMode()) == CalculationMode.Enum.lessons2) {
             pensenData.streamPayrollTypes().forEachOrdered(payrollType -> {
                 if (payrollType.isLessonBased()) {
