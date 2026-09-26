@@ -142,10 +142,13 @@ public final class Workload implements Json {
         result.putTerse(JSON_SCHOOL_YEAR, schoolYear);
         result.putTerse(JSON_PAYROLL, payroll);
         result.putTerse(JSON_POOL, pool);
-        result.putTerse(JSON_POSTINGS, postings);
         result.putTerse(JSON_THESES, theses);
         result.putTerse(JSON_SUMMARY, summary);
-        result.put("balance", balance());
+        if (schoolYear.isShowIpbBalances()) {
+            result.putTerse(JSON_POSTINGS, postings);
+            result.put("balance", balance());
+        }
+
         result.putTerse("payroll", payroll);
         return result;
     }

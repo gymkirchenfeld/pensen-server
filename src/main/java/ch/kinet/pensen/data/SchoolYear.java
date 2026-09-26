@@ -30,6 +30,7 @@ public final class SchoolYear extends Entity {
     public static final String DB_DESCRIPTION = "Description";
     public static final String DB_FINALISED = "Finalised";
     public static final String DB_GRADUATION_YEAR = "GraduationYear";
+    public static final String DB_SHOW_IPB_BALANCES = "ShowIpbBalances";
     public static final String DB_SMALL_GROUP_SURCHARGE = "SmallGroupSurcharge";
     public static final String DB_WEEKS = "Weeks";
     public static final String JSON_ARCHIVED = "archived";
@@ -40,6 +41,7 @@ public final class SchoolYear extends Entity {
     public static final String JSON_GRADUATION_YEAR = "graduationYear";
     public static final String JSON_LESSONS = "lessons";
     public static final String JSON_PAYROLL_TYPE = "payrollType";
+    public static final String JSON_SHOW_IPB_BALANCES = "showIpbBalances";
     public static final String JSON_SMALL_GROUP_SURCHARGE = "smallGroupSurcharge";
     public static final String JSON_WEEKLY_LESSONS = "weeklyLessons";
     public static final String JSON_WEEKS = "weeks";
@@ -52,6 +54,7 @@ public final class SchoolYear extends Entity {
     private boolean finalised;
     private SchoolYear next;
     private SchoolYear previous;
+    private boolean showIpbBalances;
     private double smallGroupSurcharge;
     private int weeks;
 
@@ -88,6 +91,10 @@ public final class SchoolYear extends Entity {
 
     public boolean isFinalised() {
         return finalised;
+    }
+
+    public boolean isShowIpbBalances() {
+        return showIpbBalances;
     }
 
     public int getGraduationYear() {
@@ -156,6 +163,10 @@ public final class SchoolYear extends Entity {
         this.finalised = finalised;
     }
 
+    public void setShowIpbBalances(boolean showIpbBalances) {
+        this.showIpbBalances = showIpbBalances;
+    }
+
     public void setWeeks(int weeks) {
         this.weeks = weeks;
     }
@@ -184,6 +195,7 @@ public final class SchoolYear extends Entity {
         result.put(JSON_ARCHIVED, archived);
         result.put(JSON_CODE, code);
         result.put(JSON_DESCRIPTION, description);
+        result.put(JSON_SHOW_IPB_BALANCES, showIpbBalances);
         return result;
     }
 

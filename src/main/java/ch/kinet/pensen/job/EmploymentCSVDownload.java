@@ -26,6 +26,8 @@ import ch.kinet.pensen.data.SchoolYear;
 import ch.kinet.pensen.data.SemesterEnum;
 import ch.kinet.pensen.data.Teacher;
 import ch.kinet.pensen.server.Authorisation;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 public final class EmploymentCSVDownload extends JobImplementation {
@@ -62,7 +64,8 @@ public final class EmploymentCSVDownload extends JobImplementation {
 
     @Override
     public void run(Account creator, JobCallback callback) {
-        CsvWriter csv = CsvWriter.create(createHeaders());
+        boolean showIpbBalances = schoolYear.isShowIpbBalances();
+        CsvWriter csv = CsvWriter.create(createHeaders(showIpbBalances));
         callback.step();
         pensenData.loadEmployments(schoolYear, division).forEachOrdered(employment -> {
             Teacher teacher = employment.getTeacher();
@@ -81,34 +84,39 @@ public final class EmploymentCSVDownload extends JobImplementation {
             csv.append(Format.percent(employment.getEmploymentMax(), false));
             csv.append(Format.percent(employment.getPayment1(), false));
             csv.append(Format.percent(employment.getPayment2(), false));
-            csv.append(Format.percent(employment.getOpeningBalance(), false));
-            csv.append(Format.percent(employment.getClosingBalance() - employment.getOpeningBalance(), false));
-            csv.append(Format.percent(employment.getClosingBalance(), false));
+            if (showIpbBalances) {
+                csv.append(Format.percent(employment.getOpeningBalance(), false));
+                csv.append(Format.percent(employment.getClosingBalance() - employment.getOpeningBalance(), false));
+                csv.append(Format.percent(employment.getClosingBalance(), false));
+            }
         });
         setProduct(csv.toData(fileName()));
     }
 
-    private Stream<String> createHeaders() {
-        return Stream.of(
-            "Id",
-            "Titel",
-            "Vorname",
-            "Nachname",
-            "Kürzel",
-            "Abteilung",
-            "E-Mail-Adresse",
-            "Mitarbeiternummer",
-            "befristet",
-            "Altersentlastung S1",
-            "Altersentlastung S2",
-            "Verfügung min.",
-            "Verfügung max.",
-            "Auszahlung S1",
-            "Auszahlung S2",
-            "IPB-Anfangssaldo",
-            "IPB-Veränderung",
-            "IPB-Schlusssaldo"
-        );
+    private Stream<String> createHeaders(boolean showIpbBalances) {
+        List<String> result = new ArrayList<>();
+        result.add("Id");
+        result.add("Titel");
+        result.add("Vorname");
+        result.add("Nachname");
+        result.add("Kürzel");
+        result.add("Abteilung");
+        result.add("E-Mail-Adresse");
+        result.add("Mitarbeiternummer");
+        result.add("befristet");
+        result.add("Altersentlastung S1");
+        result.add("Altersentlastung S2");
+        result.add("Verfügung min.");
+        result.add("Verfügung max.");
+        result.add("Auszahlung S1");
+        result.add("Auszahlung S2");
+        if (showIpbBalances) {
+            result.add("IPB-Anfangssaldo");
+            result.add("IPB-Veränderung");
+            result.add("IPB-Schlusssaldo");
+        }
+
+        return result.stream();
     }
 
     private String fileName() {
