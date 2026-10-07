@@ -135,6 +135,7 @@ create table pensen.school_year (
   description text,
   weeks integer not null,
   small_group_surcharge double precision not null default 2,
+  show_ipb_balances boolean not null default true,
   calculation_mode_id integer not null,
   foreign key (calculation_mode_id) references pensen.calculation_mode (id) on update cascade on delete cascade,
   constraint small_group_surcharge_non_negative check (small_group_surcharge >= 0)
