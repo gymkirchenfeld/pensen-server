@@ -13,3 +13,12 @@ VALUES (100, 'lessonsAgeReliefIncluded', 'Lektionen (SAP), AE inkl.');
 
 INSERT INTO pensen.calculation_mode (id, code, description)
 VALUES (101, 'lessons2AgeReliefIncluded', 'Lektionen (SAP) 2, AE inkl.');
+
+UPDATE pensen.lesson_type
+SET code = CASE id
+    WHEN 1 THEN 'noLessons'
+    WHEN 2 THEN 'continuation'
+    WHEN 3 THEN 'start'
+    WHEN 4 THEN 'startOptional'
+END
+WHERE id IN (1, 2, 3, 4);
